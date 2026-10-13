@@ -64,9 +64,13 @@ def main(argv):
         if sem:
             (copia / ".claude" / "skills" / skill).unlink()
             shutil.rmtree(copia / ".agents" / "skills" / skill)
-            # Linha de base justa: o AGENTS.md também não cita a skill ausente.
+            # Linha de base justa: o AGENTS.md também não cita a skill ausente...
             agents = copia / "AGENTS.md"
             agents.write_text("".join(l for l in agents.read_text(encoding="utf-8").splitlines(True) if skill not in l), encoding="utf-8")
+            # ...e nenhum outro arquivo (testes do validador, este script) entrega o formato da skill.
+            for p in list(copia.rglob("*")):
+                if p.is_file() and not p.is_symlink() and skill in p.read_text(encoding="utf-8", errors="ignore"):
+                    p.unlink()
         antes = fotografia(copia)
         inicio = time.monotonic()
         proc = subprocess.run(
