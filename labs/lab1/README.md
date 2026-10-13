@@ -4,6 +4,9 @@
 de **guias** escritos pelo grupo (spec e `AGENTS.md`), com **sensores** que conferem o resultado:
 uma fitness function pronta, um teste escrito pelo grupo e os testes de aceite do ticket.
 
+**Antes:** o operador já está com o Codespace do grupo aberto e logado
+([docs/guia_codespace.md](../../docs/guia_codespace.md), passos 1 a 5).
+
 **Tempo:** 60 min de lab. O intervalo de 15 min fica dentro da janela: o grupo para quando quiser.
 
 | Papel | Quem | Neste lab |

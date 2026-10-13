@@ -1,7 +1,8 @@
 # Checklist do operador (antes da Aula 1)
 
 O operador é quem tem plano **Claude Pro/Max** (ou **ChatGPT Plus**, como alternativa) e conduz o
-agente com a tela compartilhada. Faça isto antes da aula, não durante: o primeiro build do Codespace
+agente com a tela compartilhada. Este é o resumo; o passo a passo com telas, portas, como salvar e
+como voltar ao Codespace está em [guia_codespace.md](guia_codespace.md). Faça isto antes da aula, não durante: o primeiro build do Codespace
 leva alguns minutos.
 
 ## 1. Criar o repositório do grupo
@@ -17,7 +18,7 @@ leva alguns minutos.
 
 1. No repositório do grupo: **Code → Codespaces → Create codespace on main**.
 2. Espere o build terminar. No final, o terminal mostra o resultado do `make check`.
-3. Nessa primeira vez, o resultado esperado é **PASS com 1 aviso** ("Claude Code instalado, sem login").
+3. Nessa primeira vez, o resultado esperado é **PASS com 1 aviso** ("Agente de código instalado, sem login").
 
 ## 3. Fazer login no agente
 

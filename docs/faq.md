@@ -1,6 +1,6 @@
 # FAQ
 
-Antes de perguntar ao professor: cole a saída do `make check` no seu agente e peça ajuda. Se o
+Primeira vez no Codespace? Siga o [guia_codespace.md](guia_codespace.md). Antes de perguntar ao professor: cole a saída do `make check` no seu agente e peça ajuda. Se o
 problema persistir, o segundo assinante do grupo assume, ou o grupo segue pelo replay do lab.
 
 ## Ambiente
@@ -20,7 +20,7 @@ o `server.py`, confira se as 10 tools originais continuam lá.
 
 ## Login e cota
 
-**AVISO "Claude Code instalado, sem login".** Normal antes do primeiro login: ver o passo 3 do
+**AVISO "Agente de código instalado, sem login".** Normal antes do primeiro login: ver o passo 3 do
 [checklist do operador](checklist_operador.md).
 
 **O navegador autorizou, mas o terminal não continuou.** Isso é comum em containers. Copie o código
