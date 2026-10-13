@@ -1,8 +1,41 @@
 # Lab 1: spec-driven no Mini-ERP
 
-**Objetivo.** Fazer um agente implementar o cancelamento de pedido (`labs/lab1/ticket.md`) a partir
-de **guias** escritos pelo grupo (spec e `AGENTS.md`), com **sensores** que conferem o resultado:
-uma fitness function pronta, um teste escrito pelo grupo e os testes de aceite do ticket.
+## Em resumo: o que vocês vão fazer
+
+**O problema.** No Mini-ERP do curso não dá para cancelar um pedido. O atendimento pediu isso num
+ticket ([ticket.md](ticket.md)). Vocês não vão programar: vão **especificar** o que precisa ser feito,
+deixar um agente de IA (o Claude Code) implementar e **verificar** se ele fez certo e o que inventou.
+
+**O que o grupo entrega** (tudo no repositório do grupo; o `make lab1` cria os arquivos em branco):
+
+| Arquivo | Quem escreve | O que é | Exemplo preenchido |
+|---|---|---|---|
+| `labs/lab1/spec.md` | autores | o que o sistema deve fazer, em critérios de aceite verificáveis | [spec_exemplo.md](exemplos/spec_exemplo.md) |
+| seção `## Mini-ERP` no `AGENTS.md` (raiz) | autores | instruções curtas que o agente lê sempre | [agents_secao_exemplo.md](exemplos/agents_secao_exemplo.md) |
+| `labs/lab1/sensores.toml` | verificador | liga a fitness function (troca `false` por `true`) | — |
+| `labs/lab1/testes/test_grupo.py` | verificador | um teste para um critério de aceite da spec | [teste_exemplo.py](exemplos/teste_exemplo.py) |
+| código do cancelamento | **o agente** | a implementação, guiada pela spec | — |
+| `labs/lab1/verificacao.md` | verificador e relator | o que o agente acertou, inventou e omitiu, e a pergunta de decisão | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
+
+Os exemplos resolvem **outro ticket** (estoque baixo): mostram a forma e o nível de detalhe, não a
+resposta. Veja [exemplos/README.md](exemplos/README.md).
+
+**Pronto quando:** `make lab1-check` mostra `lab1-check: PASS (7/7 itens)` e o trabalho está no
+repositório (commit e push).
+
+**Glossário mínimo.**
+- **Mini-ERP:** um sistema de pedidos e estoque pequeno, feito para o curso (pasta `mini-erp/`).
+- **Spec e critério de aceite (CA):** o que precisa acontecer, escrito como "Dado..., quando...,
+  então...". Cada CA tem de poder virar um teste.
+- **Guia × sensor:** guia orienta o agente antes (spec, `AGENTS.md`); sensor confere depois (testes,
+  fitness function, o verificador).
+- **Fitness function:** um teste automático de arquitetura. Aqui, a `camadas` confere que as rotas
+  não acessam o banco direto.
+- **Verificador:** a pessoa do grupo que confere o que o agente afirmou. O check confere a forma; a
+  verdade, só uma pessoa.
+
+**Objetivo de aprendizagem.** Ver, na prática, que o ganho não está em pedir melhor ao agente, e sim
+no ambiente em volta dele: **guias** escritos pelo grupo e **sensores** que conferem o resultado.
 
 **Antes:** o operador já está com o Codespace do grupo aberto e logado
 ([docs/guia_codespace.md](../../docs/guia_codespace.md), passos 1 a 5).

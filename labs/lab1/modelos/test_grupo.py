@@ -2,6 +2,7 @@
 
 Troquem CA-NN pelo critério escolhido, escrevam o teste e apaguem a linha do skip.
 A fixture erp_url sobe o Mini-ERP com um banco temporário. Rode com `make lab1-check`.
+Exemplo da forma (de outro ticket): labs/lab1/exemplos/teste_exemplo.py.
 """
 import httpx
 import pytest

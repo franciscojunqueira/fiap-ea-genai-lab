@@ -1,7 +1,8 @@
 # Verificação do Lab 1
 
 Escrito pelo **verificador** e pelo **relator**, nunca pelo agente. Confiram pelo menos 3
-afirmações do agente no código ou rodando o ERP. Apaguem as linhas que começam com `<`.
+afirmações do agente no código ou rodando o ERP. Apaguem as linhas que começam com `<`. Exemplo
+preenchido (de outro ticket): `labs/lab1/exemplos/verificacao_exemplo.md`.
 
 ## O que o agente acertou
 

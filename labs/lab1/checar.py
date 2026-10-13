@@ -22,6 +22,8 @@ sys.path.insert(0, str(LAB))
 import fitness_camadas  # noqa: E402
 
 CA = re.compile(r"\bCA-\d{2}\b")
+# No teste do grupo, o CA pode estar na docstring (CA-02) ou no nome da função (test_ca_02_...)
+CA_NO_TESTE = re.compile(r"\bCA-\d{2}\b|\btest_ca_\d{2}", re.IGNORECASE)
 # Critério de aceite da spec: item de lista que começa por **CA-NN** (o exemplo do modelo não conta)
 CRITERIO = re.compile(r"^\s*[-*]\s+\*\*(CA-\d{2})", re.MULTILINE)
 # Linhas de instrução dos modelos começam com '<': se sobrar alguma, o arquivo não foi preenchido.
@@ -120,8 +122,9 @@ def item_teste_do_grupo():
         problemas.append("labs/lab1/testes/test_grupo.py ainda tem o pytest.skip do modelo: escrevam o teste e apaguem a linha.")
     if "assert " not in codigo:
         problemas.append("labs/lab1/testes/test_grupo.py não tem nenhum assert: o teste precisa conferir alguma coisa.")
-    if not CA.search(codigo):
-        problemas.append("labs/lab1/testes/test_grupo.py não diz qual critério da spec testa: citem o CA-NN no nome ou na docstring.")
+    if not CA_NO_TESTE.search(codigo):
+        problemas.append("labs/lab1/testes/test_grupo.py não diz qual critério da spec testa: chamem a função de "
+                         "test_ca_NN_... ou escrevam \"CA-NN\" na docstring (veja labs/lab1/exemplos/teste_exemplo.py).")
     if problemas:
         return problemas
     passou, falhas = pytest(LAB / "testes")

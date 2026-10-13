@@ -1,7 +1,8 @@
 # Spec: cancelamento de pedido
 
 Autores do harness: preencham a partir do `labs/lab1/ticket.md`. O agente implementa a partir
-deste arquivo. Apaguem as linhas que começam com `<`.
+deste arquivo. Apaguem as linhas que começam com `<`. Exemplo preenchido (de outro ticket):
+`labs/lab1/exemplos/spec_exemplo.md`.
 
 ## Contexto
 

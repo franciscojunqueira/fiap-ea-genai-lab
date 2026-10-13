@@ -6,6 +6,7 @@
     "deny": [
       "Read(labs/*/aceite/**)",
       "Read(labs/*/referencia/**)",
+      "Read(labs/*/exemplos/**)",
       "Read(replay/**)",
       "Edit(labs/*/aceite/**)",
       "Edit(labs/*/referencia/**)",
@@ -14,7 +15,10 @@
       "Edit(labs/*/conftest.py)",
       "Edit(replay/**)",
       "Bash(*lab1-referencia*)",
-      "Bash(*labs/lab1/referencia/*)"
+      "Bash(*labs/lab1/referencia/*)",
+      "Bash(*labs/*/aceite*)",
+      "Bash(*labs/*/exemplos*)",
+      "Bash(*replay/*)"
     ]
   }
 }
