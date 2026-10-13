@@ -14,7 +14,7 @@ a fitness function, a pessoa que verifica).
 **Tempo:** 60 min de trabalho, mais 15 de intervalo, que o grupo faz quando quiser.
 
 **Pronto quando:** `make lab1-check` mostra `lab1-check: PASS (7/7 itens)` e o trabalho foi enviado
-com `git push` (passo 6).
+com `git push` (passo 5).
 
 **Termos.**
 - **Rota:** a porta de entrada da API (`mini-erp/app/routes/`). **Service:** onde fica a regra de
@@ -52,7 +52,7 @@ modelo.
 | `labs/lab1/verificacao.md` | `make lab1` | responder as 5 seções | relator e verificador | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
 
 **O código não é com vocês:** `mini-erp/app/services/pedidos.py` e `mini-erp/app/routes/pedidos.py`
-são editados **pelo agente** (passo 4). Os exemplos resolvem outro ticket (estoque baixo): mostram a
+são editados **pelo agente** (passo 3). Os exemplos resolvem outro ticket (estoque baixo): mostram a
 forma, não a resposta.
 
 ## Passos
@@ -67,7 +67,10 @@ make lab1-check
 O esperado é `lab1-check: FAIL (1/7 itens)`, com uma explicação em cada falha, e a última linha
 `make: *** [...] Error 1`. Isso é normal: o FAIL é o ponto de partida, e as mensagens dizem o que falta.
 
-**2. Spec e `AGENTS.md` (15 min, autores ditam).**
+**2. Guias e sensores (15 min, autores e verificador ao mesmo tempo).** Os autores ditam ao operador; o
+verificador rascunha o teste num bloco de notas ou no chat do grupo e dita quando os autores terminarem.
+
+Autores:
 - `labs/lab1/spec.md`: cada critério no formato `- **CA-01:** Dado ..., quando ..., então ...`. O
   ticket tem regras escondidas na fala do atendimento: achem todas.
 - Seção `## Mini-ERP` no fim do `AGENTS.md`: o que o agente não sabe sozinho. A regra de negócio fica
@@ -75,16 +78,16 @@ O esperado é `lab1-check: FAIL (1/7 itens)`, com uma explicação em cada falha
   service, e os erros saem de `mini-erp/app/services/erros.py`. Digam também que a spec, os testes do
   grupo e o `verificacao.md` não são dele.
 
-**3. Sensores (10 min, verificador dita), com a spec pronta.**
+Verificador:
 - `labs/lab1/sensores.toml`: `ligado = true`. Isso liga a fitness function `camadas`, que reprova
   rota acessando o banco.
-- `labs/lab1/testes/test_grupo.py`: escolham **um** CA e ponham o número dele no nome do teste
-  (`test_ca_03_...`). Prefiram um que o código atual erra (pedido faturado ou clique duplo); o modelo
-  traz as chamadas prontas, comentadas. O teste precisa de pelo menos um `assert` (a conferência).
-  **É esperado que o item 5 do check falhe até o passo 4**: o teste mostra o erro que o agente vai
-  corrigir.
+- `labs/lab1/testes/test_grupo.py`: escolham **uma** regra do ticket e escrevam o teste dela. Prefiram
+  uma que o código atual erra (pedido faturado ou clique duplo); o modelo traz as chamadas prontas,
+  comentadas. Ponham no nome do teste o número que o CA recebeu na spec (`test_ca_03_...`), conferindo
+  com os autores. O teste precisa de pelo menos um `assert` (a conferência). **É esperado que o item 5
+  do check falhe até o passo 3**: o teste mostra o erro que o agente vai corrigir.
 
-**4. Agente (10 min, operador).**
+**3. Agente (20 min, operador).** O agente costuma levar 1 ou 2 minutos; o resto é o grupo lendo o plano.
 
 ```bash
 claude --permission-mode plan
@@ -104,7 +107,7 @@ O agente lê o código e mostra um **plano**. Leiam em grupo:
 Quando ele terminar, o operador copia o resumo final do agente e cola **no topo** do `verificacao.md`,
 antes da primeira seção (lá ele não conta como resposta). Depois digita `/exit`.
 
-**5. Verificar (15 min, verificador e relator).**
+**4. Verificar (15 min, verificador e relator).**
 - Vejam o que mudou no painel **Source Control** (ícone de ramificação, à esquerda): clique em cada
   arquivo para ver o antes e o depois.
 - Confiram **pelo menos 3 afirmações** do resumo do agente no código. Para ver a API funcionando,
@@ -114,7 +117,7 @@ antes da primeira seção (lá ele não conta como resposta). Depois digita `/ex
 - Preencham as 5 seções do `verificacao.md`. O check confere a forma; **o que o agente inventou, só
   vocês pegam.**
 
-**6. Fechar (5 min, operador).**
+**5. Fechar (5 min, operador).**
 
 ```bash
 make lab1-check
@@ -137,10 +140,10 @@ agente, mas nenhuma barreira é completa: por isso o verificador lê o que mudou
 ## Se a cota acabar
 
 1. O operador roda `git add -A`, `git commit -m "Lab 1 parcial"` e `git push`.
-2. O segundo assinante, no Codespace dele, roda `git pull` e continua do passo 4 com o mesmo prompt.
+2. O segundo assinante, no Codespace dele, roda `git pull` e continua do passo 3 com o mesmo prompt.
 
 Sem nenhum assinante: uma **pessoa** (nunca o agente) roda `make lab1-referencia`, que aplica o código
-de referência. O grupo faz os passos 2, 3, 5 e 6 e registra no `verificacao.md` que usou a referência.
+de referência. O grupo faz os passos 2, 4 e 5 e registra no `verificacao.md` que usou a referência.
 
 ## Desafio extra (só se o professor liberar)
 

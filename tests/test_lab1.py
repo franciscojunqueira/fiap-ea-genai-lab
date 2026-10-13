@@ -4,8 +4,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 RAIZ = Path(__file__).resolve().parent.parent
-IGNORAR = shutil.ignore_patterns(".git", ".venv", "__pycache__", ".pytest_cache", "resultados", "*.db",
+
+# Estes testes conferem o template e partem do lab NÃO preparado. Depois do `make lab1` (repositório de
+# grupo), a cópia já traz spec, sensores e código alterados: pular em vez de falhar, para o `make test`
+# do grupo não acusar um erro que não é dele.
+pytestmark = pytest.mark.skipif(
+    (RAIZ / "labs/lab1/spec.md").exists(),
+    reason="lab 1 já preparado: estes testes conferem o template; o grupo usa make lab1-check",
+)
+IGNORAR =shutil.ignore_patterns(".git", ".venv", "__pycache__", ".pytest_cache", "resultados", "*.db",
                                  "core-banking-api", "replay", "integrador")
 
 
