@@ -123,7 +123,10 @@ Para a entrega das atividades, o SHA do commit sai com `git rev-parse HEAD`.
 ## 9. Parar e voltar
 
 - **Parar ao terminar:** em **https://github.com/codespaces**, clique em **⋯** ao lado do Codespace
-  → **Stop codespace**. Se esquecer, ele para sozinho depois de 30 min sem uso.
+  → **Stop codespace**. Ou, dentro do editor, `Ctrl+Shift+P` (`Cmd+Shift+P` no Mac) →
+  **Codespaces: Stop Current Codespace**.
+- **Fechar a aba do navegador não para o Codespace:** ele continua rodando e gastando a cota até
+  ficar 30 min sem uso, quando para sozinho. Parado, só ocupa armazenamento.
 - **Voltar (no dia da aula):** no repositório do grupo, **Code → Codespaces** e clique no Codespace
   que **já existe**. Não clique em "Create codespace" de novo: isso cria outro do zero, com novo
   build e novo login. Também dá para abrir pela lista em https://github.com/codespaces.
