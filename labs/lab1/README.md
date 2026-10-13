@@ -6,7 +6,9 @@
 ticket ([ticket.md](ticket.md)). Vocês não vão programar: vão **especificar** o que precisa ser feito,
 deixar um agente de IA (o Claude Code) implementar e **verificar** se ele fez certo e o que inventou.
 
-**O que o grupo entrega** (tudo no repositório do grupo; o `make lab1` cria os arquivos em branco):
+**O que o grupo entrega** (tudo no repositório do grupo). `spec.md`, `verificacao.md`,
+`sensores.toml` e `testes/test_grupo.py` **só aparecem depois do `make lab1`** (passo 1), que os copia
+em branco de `labs/lab1/modelos/`; antes disso, não procurem por eles.
 
 | Arquivo | Quem escreve | O que é | Exemplo preenchido |
 |---|---|---|---|
