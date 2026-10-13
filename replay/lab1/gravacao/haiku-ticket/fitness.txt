@@ -1,0 +1,4 @@
+mini-erp/app/routes/pedidos.py:5 importa Estoque, Pedido de app.models. Rota fala com service, não com modelo: mova a regra para mini-erp/app/services/pedidos.py.
+mini-erp/app/routes/pedidos.py:54 chama db.query() direto. Acesso ao banco fica no service: crie a função em mini-erp/app/services/pedidos.py e chame-a na rota.
+mini-erp/app/routes/pedidos.py:65 chama db.query() direto. Acesso ao banco fica no service: crie a função em mini-erp/app/services/pedidos.py e chame-a na rota.
+mini-erp/app/routes/pedidos.py:69 chama db.commit() direto. Acesso ao banco fica no service: crie a função em mini-erp/app/services/pedidos.py e chame-a na rota.

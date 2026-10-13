@@ -1,5 +1,11 @@
 {
   "claudeMdExcludes": [
     "**/core-banking-api/CLAUDE.md"
-  ]
+  ],
+  "permissions": {
+    "deny": [
+      "Read(labs/*/aceite/**)",
+      "Read(labs/*/referencia/**)"
+    ]
+  }
 }

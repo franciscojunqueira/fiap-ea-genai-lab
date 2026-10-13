@@ -1,0 +1,9 @@
+# Sensores do Lab 1. O verificador liga a fitness function trocando false por true.
+
+[camadas]
+ligado = false
+# Rotas (mini-erp/app/routes/) não acessam o banco nem importam modelos: chamam um service.
+# Services (mini-erp/app/services/) não importam o FastAPI: levantam os erros de services/erros.py.
+# Dívida registrada: faturas.py acessa o banco direto desde a v1. Exceção explícita e com motivo;
+# não acrescentem outra sem um ADR que a justifique.
+excecoes = ["routes/faturas.py"]

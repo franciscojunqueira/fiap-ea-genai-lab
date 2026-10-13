@@ -1,0 +1,1 @@
+Implemente o cancelamento de pedido descrito em `labs/lab1/spec.md`. Siga o `AGENTS.md`. Rode `make lab1-check` até passarem os itens de código (4, 5 e 6). Os itens 2, 3 e 7 são do grupo: não edite a spec, a seção do Mini-ERP no `AGENTS.md` nem o `verificacao.md`.

@@ -1,0 +1,73 @@
+diff --git a/mini-erp/app/routes/pedidos.py b/mini-erp/app/routes/pedidos.py
+index 2e54d5f..3cd04bb 100644
+--- a/mini-erp/app/routes/pedidos.py
++++ b/mini-erp/app/routes/pedidos.py
+@@ -1,8 +1,6 @@
+ from fastapi import APIRouter, Depends
+ from sqlalchemy.orm import Session
+ from app.db import get_db
+-from fastapi import HTTPException
+-from app.models import Pedido, Estoque
+ from app.schemas import PedidoIn, PedidoOut, ItemPedidoOut
+ from app.services import pedidos
+ 
+@@ -27,6 +25,12 @@ def obter_pedido(pedido_id: int, db: Session = Depends(get_db)):
+     return _pedido_to_out(pedidos.obter(db, pedido_id))
+ 
+ 
++@router.post("/pedidos/{pedido_id}/cancelar", response_model=PedidoOut)
++def cancelar_pedido(pedido_id: int, db: Session = Depends(get_db)):
++    """Cancela um pedido e devolve estoque se ainda não foi faturado."""
++    return _pedido_to_out(pedidos.cancelar(db, pedido_id))
++
++
+ def _pedido_to_out(pedido) -> PedidoOut:
+     return PedidoOut(
+         id=pedido.id,
+@@ -45,18 +49,3 @@ def _pedido_to_out(pedido) -> PedidoOut:
+             for item in pedido.itens
+         ],
+     )
+-
+-
+-
+-# RASCUNHO do colega (sexta à noite): cancelamento, ERP-142. Não terminei; fiz do jeito do faturas.py.
+-@router.post("/pedidos/{pedido_id}/cancelar", response_model=PedidoOut)
+-def cancelar_pedido(pedido_id: int, db: Session = Depends(get_db)):
+-    pedido = db.query(Pedido).filter(Pedido.id == pedido_id).first()
+-    if not pedido:
+-        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+-    for item in pedido.itens:
+-        estoque = db.query(Estoque).filter(Estoque.produto_id == item.produto_id).first()
+-        estoque.quantidade += item.quantidade
+-    pedido.status = "CANCELADO"
+-    db.commit()
+-    return _pedido_to_out(pedido)
+diff --git a/mini-erp/app/services/pedidos.py b/mini-erp/app/services/pedidos.py
+index b3650f4..458e1ae 100644
+--- a/mini-erp/app/services/pedidos.py
++++ b/mini-erp/app/services/pedidos.py
+@@ -64,3 +64,23 @@ def obter(db: Session, pedido_id: int) -> Pedido:
+         raise NaoEncontrado("Pedido não encontrado")
+     return pedido
+ 
++
++def cancelar(db: Session, pedido_id: int) -> Pedido:
++    """Cancela um pedido e devolve estoque se ainda não foi faturado."""
++    pedido = obter(db, pedido_id)
++
++    if pedido.fatura:
++        raise RegraDeNegocio("Pedido faturado não pode ser cancelado", status=409)
++
++    if pedido.status == "CANCELADO":
++        return pedido
++
++    for item in pedido.itens:
++        estoque = db.query(Estoque).filter(Estoque.produto_id == item.produto_id).first()
++        estoque.quantidade += item.quantidade
++
++    pedido.status = "CANCELADO"
++    db.commit()
++    db.refresh(pedido)
++    return pedido
++

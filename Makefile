@@ -1,7 +1,7 @@
 # Comandos dos labs. `make` sem alvo lista os comandos.
 .DEFAULT_GOAL := help
 .PHONY: help check test erp mcp skill-check \
-        lab1 lab2 lab3 lab4 lab5 lab6 \
+        lab1 lab1-referencia lab1-extra lab2 lab3 lab4 lab5 lab6 \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
         legado er-check checkpoint-check pacote-check
 
@@ -9,7 +9,7 @@ RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
 
 help: ## Lista os comandos
-	@grep -E '^[a-z0-9 -]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-12s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9 -]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
 
 check: ## Verifica o ambiente (Python, ERP, MCP, acesso a modelo)
 	@$(RUN) python scripts/check.py
@@ -29,8 +29,14 @@ mcp: ## Abre o MCP Inspector no MCP server do Mini-ERP (precisa do `make erp` em
 skill-check: ## Valida as skills do repositório (boas práticas de skills da Anthropic)
 	@python3 scripts/validar_skill.py $(SKILLS)
 
-lab1: ## Lab 1 (Aula 1)
-	@echo "lab1: em construção, disponível antes da Aula 1."
+lab1: ## Lab 1 (Aula 1): prepara a spec, os sensores e o rascunho do colega
+	@$(RUN) python labs/lab1/preparar.py
+lab1-check: ## Lab 1: PASS/FAIL dos 7 itens
+	@$(RUN) python labs/lab1/checar.py
+lab1-referencia: ## Lab 1, plano B: aplica o código de referência (cota esgotada)
+	@$(RUN) python labs/lab1/referencia/aplicar.py
+lab1-extra: ## Lab 1, desafio extra: skill escrevendo-adrs sem × com, no Haiku
+	@$(RUN) python labs/lab1/extra.py $(ARGS)
 lab2 lab3: ## Labs 2 e 3 (Aula 2)
 	@echo "$@: em construção, disponível antes da Aula 2."
 lab4 lab5: ## Labs 4 e 5 (Aula 3)
@@ -39,7 +45,7 @@ lab6: ## Lab 6 (Aula 4)
 	@echo "lab6: em construção, disponível antes da Aula 4."
 
 # Um check que ainda não existe não pode dar PASS: imprime e sai com erro.
-lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
+lab2-check lab3-check lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
 	@$(MAKE) --no-print-directory $(subst -check,,$@) && exit 1
 
 legado: ## Roda um ciclo do SGC, o legado do projeto integrador (não usa modelo)

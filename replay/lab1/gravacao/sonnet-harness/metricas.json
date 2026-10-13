@@ -1,0 +1,26 @@
+{
+  "modelo": "sonnet",
+  "condicao": "harness",
+  "turnos": 15,
+  "tokens_entrada": 212031,
+  "tokens_saida": 2772,
+  "duracao_s": 33,
+  "arquivos_alterados": [
+    "mini-erp/app/routes/pedidos.py",
+    "mini-erp/app/services/pedidos.py"
+  ],
+  "camadas": "PASS",
+  "lab1_check": "lab1-check: FAIL (6/7 itens)",
+  "negacoes_de_permissao": [
+    {
+      "command": "cd /private/tmp/tmpsa95myuv/repo/mini-erp/app && ls -R . | grep -v pyc && cat routes/pedidos.py services/pedidos.py services/erros.py models/pedido*.py 2>/dev/null"
+    },
+    {
+      "command": "cd /private/tmp/tmpsa95myuv/repo/mini-erp/app; ls -R . | grep -v pyc; cat routes/pedidos.py services/pedidos.py services/erros.py"
+    }
+  ],
+  "modelos_usados": [
+    "claude-sonnet-5-5"
+  ],
+  "data": "2026-10-13"
+}

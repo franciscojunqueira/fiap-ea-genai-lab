@@ -1,0 +1,11 @@
+[OK] 1. Lab preparado
+[OK] 2. Spec com critérios de aceite
+[OK] 3. AGENTS.md com a seção do Mini-ERP
+[OK] 4. Fitness function 'camadas'
+[OK] 5. Teste do grupo
+[OK] 6. Testes de aceite do ticket
+[FALHA] 7. Verificação humana
+        labs/lab1/verificacao.md sem resposta em: O que o agente acertou, O que o agente inventou, O que o agente omitiu, O que mudaríamos no harness, Pergunta de decisão. Quem escreve é o verificador ou o relator, não o agente.
+
+lab1-check: FAIL (6/7 itens)
+Linha para a planilha da turma:	lab1	FAIL	6/7

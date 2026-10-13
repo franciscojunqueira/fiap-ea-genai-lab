@@ -1,0 +1,17 @@
+[OK] 1. Lab preparado
+[FALHA] 2. Spec com critérios de aceite
+        labs/lab1/spec.md tem 0 critério(s) de aceite (nenhum); escrevam pelo menos 3, no formato '- **CA-01:** Dado ..., quando ..., então ...'.
+        labs/lab1/spec.md ainda tem linhas de instrução do modelo (começam com '<'); preencham e apaguem.
+[FALHA] 3. AGENTS.md com a seção do Mini-ERP
+        AGENTS.md não tem a seção '## Mini-ERP'. Os autores escrevem ali o que o agente não sabe sozinho: as camadas (rota → service → modelo), onde ficam as regras de negócio e como rodar os testes do lab.
+[FALHA] 4. Fitness function 'camadas'
+        A fitness function 'camadas' está desligada. Liguem em labs/lab1/sensores.toml (ligado = true).
+[FALHA] 5. Teste do grupo
+        labs/lab1/testes/test_grupo.py ainda tem o pytest.skip do modelo: escrevam o teste e apaguem a linha.
+        labs/lab1/testes/test_grupo.py não diz qual critério da spec testa: citem o CA-NN no nome ou na docstring.
+[OK] 6. Testes de aceite do ticket
+[FALHA] 7. Verificação humana
+        labs/lab1/verificacao.md sem resposta em: O que o agente acertou, O que o agente inventou, O que o agente omitiu, O que mudaríamos no harness, Pergunta de decisão. Quem escreve é o verificador ou o relator, não o agente.
+
+lab1-check: FAIL (2/7 itens)
+Linha para a planilha da turma:	lab1	FAIL	2/7
