@@ -8,8 +8,10 @@ leva alguns minutos.
 
 1. Entre no GitHub com a sua conta pessoal.
 2. No repositório-template, clique em **Use this template → Create a new repository**.
-3. Dono: você. Nome: `ea-genai-grupo-N`. Visibilidade: a que o grupo preferir.
-4. (Opcional) Settings → Collaborators: adicione os colegas do grupo.
+3. Dono: você. Nome: `ea-genai-grupo-N`. Visibilidade: **privado** (a entrega exige).
+4. Settings → Collaborators: adicione os colegas do grupo e o professor (`franciscojunqueira`).
+5. **Segundo assinante do grupo:** faça também os passos 2 a 4 abaixo, no mesmo repositório. É ele
+   quem continua o lab se a sua cota acabar.
 
 ## 2. Abrir o Codespace
 

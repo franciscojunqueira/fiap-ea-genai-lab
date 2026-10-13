@@ -8,6 +8,7 @@ Sete itens, cada um com PASS ou com o que fazer para passar:
   4. fitness function camadas ligada e passando;
 O check confere a forma e o comportamento da API. Se o agente inventou algo, quem pega é o verificador.
 """
+import hashlib
 import os
 import re
 import subprocess
@@ -25,6 +26,13 @@ CA = re.compile(r"\bCA-\d{2}\b")
 CRITERIO = re.compile(r"^\s*[-*]\s+\*\*(CA-\d{2})", re.MULTILINE)
 # Linhas de instrução dos modelos começam com '<': se sobrar alguma, o arquivo não foi preenchido.
 SOBRA_DO_MODELO = re.compile(r"^\s*<.*>\s*$", re.MULTILINE)
+EXCECOES_REGISTRADAS = ["routes/faturas.py"]
+# SHA-256 dos sensores do professor; recalcular quando eles mudarem (tests/test_lab1.py acusa a divergência).
+SENSORES_DO_PROFESSOR = {
+    "aceite/test_aceite.py": "0990f446c024cb32a223a2fd1c87bb5fada607c9d54ee0d08f99dbcb00996392",
+    "fitness_camadas.py": "5ca268b1b6db2bb1a1b9359731475ee67998feff2c4aa6b3fd326b8c0dec4824",
+    "conftest.py": "192870b7235e0fa1cde8a190cf4212cb1d83761d68d68fa15b4a6db632b9bab1",
+}
 SECOES_VERIFICACAO = ["O que o agente acertou", "O que o agente inventou", "O que o agente omitiu",
                       "O que mudaríamos no harness", "Pergunta de decisão"]
 
@@ -96,7 +104,12 @@ def item_camadas():
     config = tomllib.loads((LAB / "sensores.toml").read_text(encoding="utf-8"))["camadas"]
     if not config.get("ligado"):
         return ["A fitness function 'camadas' está desligada. Liguem em labs/lab1/sensores.toml (ligado = true)."]
-    return [f"camadas: {a}" for a in fitness_camadas.verificar(config.get("excecoes", []))]
+    problemas = []
+    if config.get("excecoes") != EXCECOES_REGISTRADAS:
+        # Exceção nova silencia o sensor: só com ADR, e o ADR não cabe neste lab.
+        problemas.append(f"A lista de exceções de labs/lab1/sensores.toml mudou ({config.get('excecoes')}). "
+                         f"Neste lab só vale a dívida registrada {EXCECOES_REGISTRADAS}: devolvam a lista e corrijam o código.")
+    return problemas + [f"camadas: {a}" for a in fitness_camadas.verificar(EXCECOES_REGISTRADAS)]
 
 
 def item_teste_do_grupo():
@@ -117,7 +130,20 @@ def item_teste_do_grupo():
 
 def item_aceite():
     passou, falhas = pytest(LAB / "aceite")
-    return [] if passou else [f"Aceite: {f}" for f in falhas]
+    if passou:
+        return []
+    if len(set(CRITERIO.findall((LAB / "spec.md").read_text(encoding="utf-8")))) < 3:
+        # Antes da spec, o check não entrega as regras escondidas no ticket: achá-las é o trabalho dos autores.
+        return [f"{len(falhas)} de 4 testes de aceite do ticket falham. Escrevam a spec primeiro (passo 2): "
+                "as regras estão na fala do atendimento, em labs/lab1/ticket.md. Com 3 ou mais CAs, este item mostra cada falha."]
+    return [f"Aceite: {f}" for f in falhas]
+
+
+def item_integridade():
+    alterados = [rel for rel, h in SENSORES_DO_PROFESSOR.items()
+                 if hashlib.sha256((LAB / rel).read_bytes().replace(b"\r\n", b"\n")).hexdigest() != h]  # clone Windows (autocrlf) não conta como alteração
+    return [] if not alterados else [f"Sensor do professor alterado: {', '.join('labs/lab1/' + a for a in alterados)}. "
+                                     "Sensor editado não vale como evidência: restaurem com `git checkout -- <arquivo>`."]
 
 
 def item_verificacao():
@@ -132,7 +158,7 @@ ITENS = [
     ("1. Lab preparado", item_preparado),
     ("2. Spec com critérios de aceite", item_spec),
     ("3. AGENTS.md com a seção do Mini-ERP", item_agents),
-    ("4. Fitness function 'camadas'", item_camadas),
+    ("4. Fitness function 'camadas' e sensores íntegros", lambda: item_integridade() + item_camadas()),
     ("5. Teste do grupo", item_teste_do_grupo),
     ("6. Testes de aceite do ticket", item_aceite),
     ("7. Verificação humana", item_verificacao),

@@ -69,21 +69,32 @@ O check confere a forma e o comportamento da API; **o que o agente inventou, só
 
 Cada falha diz o arquivo e o que fazer. No fim, há uma linha para a planilha da turma.
 
-Os testes de aceite (`labs/lab1/aceite/`) e a referência (`labs/lab1/referencia/`) são do
-professor. O `.claude/settings.json` nega a leitura deles ao agente, e o `AGENTS.md` avisa. Isso é
-um guia, não uma barreira: um agente determinado acha outro caminho. Por isso o verificador lê o diff.
+Os sensores do professor (`labs/lab1/aceite/`, `fitness_camadas.py`, `checar.py`, `conftest.py`), a
+referência e as gravações em `replay/` ficam fora do alcance do agente: o `.claude/settings.json`
+nega a leitura e a edição, o `AGENTS.md` avisa e o check confere se os sensores foram alterados e se
+a lista de exceções mudou. Enquanto a spec não tiver 3 CAs, o item 6 só diz quantos testes de aceite
+falham: as regras são para os autores acharem no ticket. Nenhuma dessas barreiras é completa; por
+isso o verificador lê o diff.
 
 ## Se a cota acabar
 
-O segundo assinante continua do ponto em que parou: o trabalho está nos arquivos. Sem nenhum
-assinante, `make lab1-referencia` aplica o código de referência; o grupo segue com os passos 3 e 5
-e registra no `verificacao.md` que usou a referência.
+O trabalho está nos arquivos, não na conversa:
+
+1. O operador faz `git add -A`, commit e push do que já existe.
+2. O segundo assinante (colaborador do repositório, com o Codespace já aberto antes da aula pelo
+   checklist do operador) faz `git pull` no Codespace dele e abre o Claude Code com o mesmo prompt.
+
+Sem nenhum assinante, `make lab1-referencia` aplica o código de referência (rodado por uma pessoa:
+o agente é proibido de rodá-lo). O grupo segue com os passos 3 e 5 e registra no `verificacao.md`
+que usou a referência.
 
 ## Desafio extra (só se o professor liberar)
 
 `make lab1-extra` roda a skill `escrevendo-adrs` sem e com, no Haiku, num cenário que não informa
 decisores nem requisitos, e mostra lado a lado o que cada execução escreveu. São 2 execuções da cota
-(de 2 a 2,5 min de máquina). O verificador marca o checklist. **Ciclo completo:** ajustem o
+(de 2 a 2,5 min de máquina). O verificador marca o checklist. Note que aqui a skill já existe: o
+desafio mede a lacuna dela. Num projeto, a ordem é a inversa (cenários e medição sem a skill
+primeiro; a skill mínima depois), e é isso que a Aula 3 pratica. **Ciclo completo:** ajustem o
 `SKILL.md` para o Haiku parar de inventar e meçam de novo com `make lab1-extra ARGS=--de-novo`.
 
 ## Codex

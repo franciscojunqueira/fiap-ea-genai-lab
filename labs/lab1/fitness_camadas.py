@@ -25,20 +25,26 @@ def violacoes_da_rota(arquivo: Path) -> list[str]:
     servico = f"mini-erp/app/services/{arquivo.name}"
     achados = []
     for no in ast.walk(ast.parse(arquivo.read_text(encoding="utf-8"))):
-        if isinstance(no, ast.ImportFrom) and no.module:
+        if isinstance(no, ast.Import):
+            # `import app.models as m` e `import sqlalchemy` contam como importar o modelo ou o banco
+            for alias in no.names:
+                if alias.name.startswith(("app.models", "app.db", "sqlalchemy")):
+                    achados.append(f"{rel}:{no.lineno} importa {alias.name}. "
+                                   f"Rota fala com service, não com modelo nem com o banco: mova a regra para {servico}.")
+        elif isinstance(no, ast.ImportFrom) and no.module:
             nomes = {a.name for a in no.names}
-            if no.module == "app.models" or no.module.startswith("app.models."):
-                achados.append(f"{rel}:{no.lineno} importa {', '.join(sorted(nomes))} de app.models. "
+            if no.module == "app.models" or no.module.startswith("app.models.") or (no.module == "app" and "models" in nomes):
+                achados.append(f"{rel}:{no.lineno} importa {', '.join(sorted(nomes))} de {no.module}. "
                                f"Rota fala com service, não com modelo: mova a regra para {servico}.")
             elif no.module in PERMITIDO_NA_ROTA and not nomes <= PERMITIDO_NA_ROTA[no.module]:
                 extras = nomes - PERMITIDO_NA_ROTA[no.module]
                 achados.append(f"{rel}:{no.lineno} importa {', '.join(sorted(extras))} de {no.module}. "
                                f"A rota só usa {', '.join(sorted(PERMITIDO_NA_ROTA[no.module]))}; o resto fica em {servico}.")
         elif isinstance(no, ast.Call) and isinstance(no.func, ast.Attribute) and no.func.attr in ACESSO_AO_BANCO:
+            # Qualquer objeto: o nome da variável da sessão não importa (db, banco, s...).
             dono = ast.unparse(no.func.value)
-            if dono in ("db", "session", "sessao") or dono.startswith("db."):
-                achados.append(f"{rel}:{no.lineno} chama {dono}.{no.func.attr}() direto. "
-                               f"Acesso ao banco fica no service: crie a função em {servico} e chame-a na rota.")
+            achados.append(f"{rel}:{no.lineno} chama {dono}.{no.func.attr}() direto. "
+                           f"Acesso ao banco fica no service: crie a função em {servico} e chame-a na rota.")
     return achados
 
 

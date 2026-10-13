@@ -21,7 +21,8 @@ afirmações do agente no código ou rodando o ERP. Apaguem as linhas que começ
 
 ## Pergunta de decisão
 
-> Que regra deste lab vocês poriam no harness de todos os repositórios da TechCorp, e quanto ela
-> custa (tempo de CI, tokens, atrito para quem desenvolve)?
+> Que regra deste lab vocês poriam no harness de todos os repositórios da TechCorp, em que nível
+> (Público, Interno, Regulado) ela seria obrigatória, e quanto custa (tempo de CI, tokens, atrito
+> para quem desenvolve)?
 
 < Resposta do grupo. >

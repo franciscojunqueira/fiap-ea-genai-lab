@@ -62,5 +62,7 @@ Cada ADR foi lido contra o repositório e o pedido. O verificador é uma pessoa,
 - **Repositório não se autoconcede permissões** (`gravacao/*-d4-sem-confianca/`): num workspace que
   ninguém marcou como confiável, o Claude Code ignora o `permissions.allow` do
   `.claude/settings.json` do projeto (aviso: "this workspace has not been trusted"). É uma defesa
-  contra repositório malicioso. Por isso o `gravar.py` passa as regras por `--allowedTools`.
-  Os hooks do mesmo arquivo rodaram nas duas gravações.
+  contra repositório malicioso: em sessão interativa, o `allow` passa a valer quando alguém aceita
+  o diálogo de confiança, que lista as regras; em `claude -p` não há diálogo. Por isso o `gravar.py`
+  passa as regras por `--allowedTools`. O `deny` vale sempre, e os hooks rodam mesmo sem confiança
+  (code.claude.com/docs/en/permissions, "Project allow rules and workspace trust").

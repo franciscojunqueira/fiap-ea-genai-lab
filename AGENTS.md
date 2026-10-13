@@ -14,7 +14,7 @@ Repositório dos labs do curso Enterprise Architecture with Generative AI (FIAP)
 - `mini-erp/` e `mcp-server/` têm hífen, então não são pacotes Python: o ERP sobe com `uvicorn app.main:app --app-dir mini-erp`.
 - `mcp-server/server.py` chama o ERP por HTTP (`ERP_BASE_URL`, padrão `http://localhost:8000`).
 - `ERP_DB_PATH` troca o banco SQLite; os testes usam um banco temporário.
-- `labs/*/aceite/` e `labs/*/referencia/` são do professor (o sensor e a solução de cada lab): não leia nem altere.
+- `labs/*/aceite/`, `labs/*/referencia/` e `replay/` são do professor (sensores, soluções e gravações): não leia nem altere, e não rode `make labN-referencia`.
 - `integrador/legado/` é um legado mantido como está, de propósito: não corrija nem refatore sem pedido explícito. Para executá-lo, use `make legado` (roda numa pasta isolada), não `python -m sgc`.
 
 ## Convenções
