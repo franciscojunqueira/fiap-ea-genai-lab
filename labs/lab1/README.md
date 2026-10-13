@@ -128,7 +128,7 @@ que usou a referência.
 
 `make lab1-extra` roda a skill `escrevendo-adrs` sem e com, no Haiku, num cenário que não informa
 decisores nem requisitos, e mostra lado a lado o que cada execução escreveu. São 2 execuções da cota
-(de 2 a 2,5 min de máquina). O verificador marca o checklist. Note que aqui a skill já existe: o
+(de 2 a 3 min de máquina: 2,6 min num teste de 13/10/2026). O verificador marca o checklist. Note que aqui a skill já existe: o
 desafio mede a lacuna dela. Num projeto, a ordem é a inversa (cenários e medição sem a skill
 primeiro; a skill mínima depois), e é isso que a Aula 3 pratica. **Ciclo completo:** ajustem o
 `SKILL.md` para o Haiku parar de inventar e meçam de novo com `make lab1-extra ARGS=--de-novo`.
