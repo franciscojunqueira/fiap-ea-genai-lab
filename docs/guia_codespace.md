@@ -25,14 +25,15 @@ compartilhada do operador.
 ## 2. Criar o repositório do grupo (operador, uma vez)
 
 1. Entre em **https://github.com/franciscojunqueira/fiap-ea-genai-lab**.
-2. Clique no botão verde **Use this template** e escolha **Create a new repository**.
+2. Clique no botão verde **Use this template** e escolha **Create a new repository**. Não use
+   *Open in a codespace*: ele abre o Codespace no repositório do professor, não no do grupo.
 3. Preencha:
    - **Owner:** a sua conta;
    - **Repository name:** `ea-genai-grupo-N` (N = número do seu grupo na planilha);
-   - visibilidade: **Private** (a entrega exige);
-   - deixe **Include all branches** desmarcado.
-4. Clique em **Create repository from template**. Você está agora no repositório do grupo: é nele
-   que o grupo trabalha o curso inteiro.
+   - **Choose visibility:** vem marcado **Public**; clique e troque para **Private** (a entrega exige);
+   - deixe **Include all branches** desligado, como já vem.
+4. Clique em **Create repository**. Você está agora no repositório do grupo: é nele que o grupo
+   trabalha o curso inteiro.
 5. Adicione os colegas e o professor: na barra de cima do repositório, **Settings**; no menu da
    esquerda, em *Access*, **Collaborators**; depois **Add people** (o GitHub pode pedir sua senha ou o
    código de verificação de novo). Digite o usuário de cada colega e `franciscojunqueira`.
@@ -41,25 +42,35 @@ compartilhada do operador.
 
 1. No repositório do grupo (não no do professor), clique no botão verde **Code**.
 2. Abra a aba **Codespaces** e clique em **Create codespace on main**.
-3. Abre uma nova aba do navegador com um editor parecido com o VS Code. Espere: na primeira vez ele
-   baixa o ambiente pronto e leva alguns minutos. Não feche a aba.
-4. O editor aparece antes de o ambiente terminar. Está pronto quando o **terminal**, na parte de baixo
-   da tela, mostrar a última linha do `make check`. Nessa primeira vez o esperado é:
-   ```
+3. Abre uma nova aba do navegador com um editor parecido com o VS Code e o aviso *Building
+   codespace...* no canto de baixo. Espere: na primeira vez leva alguns minutos (cerca de 4 no teste
+   de 13/10/2026). Não feche a aba.
+4. Quando o ambiente fica pronto, aparece a pergunta **"Do you trust the authors of the files in this
+   folder?"**. O repositório é do seu grupo: clique em **Trust Folder & Continue**. Sem isso o editor
+   fica em *Restricted Mode* e o terminal não abre.
+5. O terminal aparece embaixo, com uma mensagem de boas-vindas. Clique nele, digite `make check` e
+   tecle Enter (a verificação automática do primeiro build não aparece nesse terminal). Nessa
+   primeira vez o esperado é:
+
+   ```text
    [AVISO] Agente de código instalado, sem login
    == PASS: 3 ok, 1 aviso(s), 0 falha(s) ==
    ```
-   O aviso some no passo 5. Não vê essa saída? Clique no terminal, digite `make check` e tecle Enter.
+
+   O aviso some no passo 5.
 
 ## 4. Conhecer a tela
 
 | Área | Onde fica | Para quê |
 |---|---|---|
 | Explorador de arquivos | à esquerda | abrir os arquivos do repositório (ex.: `labs/lab1/README.md`) |
-| Editor | no centro | ler e editar arquivos. Para ler um `.md` formatado: clique com o botão direito no arquivo → **Open Preview** |
+| Editor | no centro | ler e editar arquivos. Um clique num `.md` costuma abri-lo já formatado; se abrir como texto, botão direito no arquivo → **Open Preview** |
 | Terminal | embaixo | digitar os comandos (`make ...`, `claude`) |
 | Novo terminal | botão **+** no canto do terminal | abrir um segundo terminal, por exemplo para deixar o Mini-ERP rodando |
-| Aba **PORTS** | ao lado da aba do terminal | abrir no navegador o que roda no Codespace (passo 7) |
+| Aba **PORTS** | ao lado da aba do terminal (se a janela estiver estreita, no menu **⋯** dessa barra) | abrir no navegador o que roda no Codespace (passo 7) |
+
+O painel **Chat** que abre à direita é o assistente do próprio GitHub (Copilot), não o Claude Code, e
+não é usado no curso. Pode fechá-lo no **X**: sobra espaço para o terminal.
 
 Se o terminal sumir: menu **☰ → Terminal → New Terminal** (atalho ``Ctrl+` `` com a tecla de crase, ou `Ctrl+J`
 para mostrar e esconder o painel; no Mac, `Cmd+J`).
@@ -73,14 +84,27 @@ tela do operador.
 **Claude Code (caminho padrão):**
 
 1. No terminal, digite `claude` e tecle Enter.
-2. Na primeira execução ele faz algumas perguntas, navegadas com as setas e Enter: o tema (Enter
-   aceita o padrão), o tipo de login (escolha a **conta Claude com assinatura**, Pro/Max) e se você
-   confia nesta pasta (**sim**). O texto exato das telas muda entre versões.
-3. O terminal mostra um link: abra com `Ctrl`+clique (`Cmd`+clique no Mac) e autorize no navegador.
-   Se o terminal pedir um código, copie o que o navegador mostrar e cole no terminal (se o navegador
-   perguntar, permita colar).
-4. Quando o Claude Code abrir, digite `/exit` para sair.
-5. Rode `make check`. O esperado agora é **PASS: 4 ok, 0 aviso(s), 0 falha(s)**.
+2. Na primeira execução ele pergunta o tema (Enter aceita o padrão) e o tipo de login (a opção
+   **Claude account with subscription**, Pro/Max, já vem marcada: Enter). O texto exato das telas
+   muda entre versões.
+3. O editor mostra sozinho **"Do you want Code to open the external website?"**. Neste primeiro aviso,
+   clique em **Cancel**: o *Open* daqui tenta voltar para `localhost`, que só existe dentro do
+   Codespace, e o navegador mostra *"localhost refused to connect"* (se acontecer, feche essa aba e
+   siga).
+4. No terminal aparece um link longo e, embaixo, *Paste code here if prompted*. Abra o link com
+   `Ctrl`+clique (`Cmd`+clique no Mac); quando o editor perguntar de novo se pode abrir o site, agora
+   clique em **Open**.
+5. No navegador, **confira o e-mail em "Logged in as"**, no rodapé: tem de ser a sua conta com plano
+   (se não for, *Switch account*). Clique em **Authorize**, depois em **Copy code**, volte ao terminal,
+   cole o código e tecle Enter (se o navegador perguntar, permita colar).
+6. Aparece *Login successful*: Enter. Nas telas seguintes (*Security notes* e configuração do
+   terminal), Enter. **Atenção na última**, *Accessing workspace*: a opção marcada é **"No, exit"**, e
+   Enter direto fecha o Claude Code. Desça com a seta até **Yes, I trust this folder** e só então
+   tecle Enter.
+7. Quando o Claude Code abrir, digite `/exit` para sair.
+8. Rode `make check`. O esperado agora é **PASS: 4 ok, 0 aviso(s), 0 falha(s)**.
+
+As telas de cada passo estão no [guia ilustrado](guia_ilustrado_codespace.md).
 
 **Codex (alternativa, plano ChatGPT):** no ChatGPT, em configurações de segurança, ative o login por
 código de dispositivo (*device code login*); depois rode `codex login --device-auth` no terminal e
@@ -98,7 +122,8 @@ O login fica guardado no Codespace: nas próximas vezes não precisa repetir, a 
    make lab1-check   # FAIL é o esperado agora: as mensagens dizem o que falta
    ```
    O esperado: `[OK] 1. Lab preparado`, os outros itens com `[FALHA]` e a explicação de cada um, e no
-   fim `lab1-check: FAIL (1/7 itens)`. É o ponto de partida do lab.
+   fim `lab1-check: FAIL (1/7 itens)`. É o ponto de partida do lab. A última linha,
+   `make: *** [...] Error 1`, também é normal: é como o `make` avisa que o check deu FAIL.
 3. Siga o README a partir do passo 2. Cada lab tem o seu `labs/labN/README.md` e confere com
    `make labN-check`.
 
@@ -157,6 +182,9 @@ preserva a cota.
 | Sintoma | O que fazer |
 |---|---|
 | O Codespace está demorando no primeiro build | Normal na primeira vez. Espere; não feche a aba |
+| Editor em *Restricted Mode*, sem terminal | Clique em **Trust Folder & Continue** (passo 3.4) |
+| *localhost refused to connect* no navegador | Feche a aba e use o link do terminal com Ctrl/Cmd+clique (passo 5.4) |
+| O Claude Code fechou logo depois do login | Foi o Enter em *No, exit*. Rode `claude` de novo e escolha **Yes, I trust this folder** |
 | Não vejo o botão **Code → Codespaces** | Você está no repositório do professor ou não aceitou o convite de colaborador. Abra o repositório do grupo |
 | `make check` com FAIL | Leia a mensagem: ela diz o que fazer. Cole a saída no agente e peça ajuda. Depois, a [FAQ](faq.md) |
 | O terminal sumiu | Menu **☰ → Terminal → New Terminal** |

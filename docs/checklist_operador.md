@@ -17,16 +17,21 @@ leva alguns minutos.
 ## 2. Abrir o Codespace
 
 1. No repositório do grupo: **Code → Codespaces → Create codespace on main**.
-2. Espere o build terminar. No final, o terminal mostra o resultado do `make check`.
-3. Nessa primeira vez, o resultado esperado é **PASS com 1 aviso** ("Agente de código instalado, sem login").
+2. Espere o build terminar e clique em **Trust Folder & Continue** quando o editor perguntar se você
+   confia na pasta.
+3. Clique no terminal e rode `make check`. Nessa primeira vez, o resultado esperado é **PASS com 1
+   aviso** ("Agente de código instalado, sem login").
 
 ## 3. Fazer login no agente
 
 **Claude Code (caminho padrão):**
 1. No terminal: `claude`.
 2. Escolha o login com a conta Claude (plano Pro/Max).
-3. Abra o link no navegador e autorize. Se o terminal pedir um código, copie o que o navegador mostrar e cole no terminal.
-4. Saia com `/exit`.
+3. No primeiro "open the external website?", clique em **Cancel**. Abra o link do terminal com
+   Ctrl/Cmd+clique, clique em **Open**, confira o seu e-mail em "Logged in as", **Authorize**,
+   **Copy code** e cole o código no terminal.
+4. Na pergunta *Accessing workspace*, desça até **Yes, I trust this folder** (o marcado é "No, exit").
+5. Saia com `/exit`. Telas de cada passo: [guia ilustrado](guia_ilustrado_codespace.md).
 
 **Codex (alternativa):** ative antes o *device code login* nas configurações de segurança do
 ChatGPT e rode `codex login --device-auth`.
