@@ -4,5 +4,6 @@
 2. No terminal do Codespace: `claude` (login com o seu plano) e depois `make check`. Passo a passo: [docs/checklist_operador.md](docs/checklist_operador.md).
 3. Cada lab: siga `labs/labN/README.md` e confira com `make labN-check`.
 4. Problemas: [docs/faq.md](docs/faq.md). Cota acabou ou API falhou: use o replay em `replay/`.
+5. Projeto integrador (avaliação): [integrador/README.md](integrador/README.md). Entregas pelo Portal do Aluno da FIAP.
 
 Dados 100% sintéticos. Nunca grave chaves ou tokens no repositório.

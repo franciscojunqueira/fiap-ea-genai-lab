@@ -55,3 +55,22 @@ Os roteiros dos labs são escritos para Claude Code. Com Codex, o grupo usa esta
 **Como vejo as tools do MCP server?** Rode `make erp` num terminal e `make mcp` em outro. O MCP
 Inspector abre na porta 6274; o Codespace oferece abri-la no navegador. Se a página recusar a origem,
 confira se rodou pelo `make mcp`, que já libera a URL do Codespace.
+
+## Projeto integrador
+
+**`make er-check` diz que uma citação não existe.** O caminho é relativo a `integrador/legado/`
+(ex.: `sgc/config.py:12`) ou começa por `integrador/legado/`. Se o arquivo ou a linha não existem,
+confira se o agente inventou a referência: registre isso em `invencoes.md`.
+
+**O check deu PASS. Está certo?** O PASS confere a forma: arquivos, tabelas, citações que existem,
+ADR no padrão. Se as afirmações são verdadeiras, quem confere é o verificador do grupo, e quem avalia
+é a rubrica.
+
+**Posso corrigir os bugs do SGC?** Não. O legado fica como está: as dívidas fazem parte do caso.
+Para executá-lo, use `make legado`.
+
+**O professor avisou uma correção no caso ou na rubrica. Como trago?** Siga o passo "Versão que
+vale" em `integrador/atividades.md` (`git fetch template` e `git checkout template/main -- …`).
+
+**Onde entrego?** No Portal do Aluno da FIAP, na atividade correspondente: o link do repositório do
+grupo e o SHA do commit (`git rev-parse HEAD`).

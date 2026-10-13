@@ -3,8 +3,8 @@
 Três atividades em grupo. As Atividades 1 e 2 levam cerca de 1 hora; a 3 junta o que os labs
 produziram e leva mais. Cada uma alimenta a seguinte e o pacote final.
 
-**Entrega:** commit na `main` do repositório do grupo e, no canal de entregas indicado na mensagem
-de boas-vindas, o link do repositório e o **SHA do commit** (`git rev-parse HEAD`). O professor
+**Entrega:** commit na `main` do repositório do grupo e, na atividade correspondente do **Portal
+do Aluno da FIAP**, o link do repositório e o **SHA do commit** (`git rev-parse HEAD`). O professor
 corrige esse commit. Deixem o repositório **privado**, com o professor
 (`franciscojunqueira`) como colaborador.
 
@@ -95,7 +95,7 @@ turma, sem nota.
 
 **Prazo:** 48 horas antes do início da Aula 4. Exceção: a seção "Mitigação testada" de
 `04-seguranca.md` vai até 24h depois da Aula 4, porque o Lab 6 acontece na própria aula (novo SHA
-pelo mesmo canal).
+no Portal do Aluno).
 
 **Passos.**
 
