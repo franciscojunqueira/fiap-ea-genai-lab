@@ -1,6 +1,6 @@
 # FAQ
 
-Primeira vez no Codespace? Siga o [guia_codespace.md](guia_codespace.md). Antes de perguntar ao professor: cole a saída do `make check` no seu agente e peça ajuda. Se o
+Primeira vez no Codespace? Siga o [guia_codespace.md](guia_codespace.md) ou, com as telas, o [guia ilustrado](guia_ilustrado_codespace.md). Antes de perguntar ao professor: cole a saída do `make check` no seu agente e peça ajuda. Se o
 problema persistir, o segundo assinante do grupo assume, ou o grupo segue pelo replay do lab.
 
 ## Ambiente

@@ -2,6 +2,8 @@
 
 Todos os labs do curso rodam num **Codespace**: um computador na nuvem do GitHub, aberto no seu
 navegador, com tudo instalado. Você não instala nada na sua máquina. Siga os passos na ordem.
+Prefere ver as telas? O [guia ilustrado](guia_ilustrado_codespace.md) mostra os passos 2 a 6 e 9 com
+imagens, marcando onde clicar.
 
 **Quem faz o quê.** Só o **operador** (quem tem plano Claude Pro/Max ou ChatGPT Plus) e o **segundo
 assinante** do grupo abrem Codespace. Os demais integrantes fazem só o passo 1 e acompanham pela tela
