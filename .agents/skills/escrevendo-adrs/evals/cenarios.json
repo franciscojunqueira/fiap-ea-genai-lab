@@ -1,0 +1,71 @@
+[
+  {
+    "skills": [
+      "escrevendo-adrs"
+    ],
+    "query": "Registre num ADR a decisão de como agentes de IA vão acessar o Mini-ERP. As opções que discutimos: o agente chamar a API REST direto, um MCP server local por stdio (o mcp-server/ que já existe) ou um MCP server remoto atrás de um gateway. Requisitos: toda escrita no ERP precisa de aprovação humana; nenhum custo de infraestrutura; tem que funcionar dentro do Codespace. Os decisores são o time de Arquitetura de Soluções.",
+    "files": [
+      "mini-erp/",
+      "mcp-server/server.py"
+    ],
+    "expected_behavior": [
+      "Cria docs/adr/ADR-001-<titulo>.md (número obtido com --proximo) e o validador dá PASS",
+      "Tem as três alternativas citadas pelo usuário, cada uma com prós e contras específicos",
+      "Os três requisitos viram RQ-01..RQ-03 e aparecem na Justificativa e na Rastreabilidade, cada um com um sensor concreto",
+      "Registra pelo menos uma consequência negativa da alternativa escolhida, com mitigação ou 'aceito'",
+      "Não cita ADR, auditoria, norma ou número que não esteja no repositório ou no pedido"
+    ]
+  },
+  {
+    "skills": [
+      "escrevendo-adrs"
+    ],
+    "query": "Crie um ADR para migrar o banco do Mini-ERP de SQLite para PostgreSQL.",
+    "files": [
+      "mini-erp/app/db.py"
+    ],
+    "expected_behavior": [
+      "Cria o ADR com Status 'Proposto' e o validador dá PASS",
+      "Como o usuário não informou decisores nem requisitos, registra 'a confirmar' e lista essas lacunas em Pendências em vez de inventar",
+      "Não inventa volume, latência ou custo; se usar algum número, marca como estimativa e diz a base",
+      "Considera ao menos uma alternativa que não é PostgreSQL (por exemplo, manter SQLite) e a avalia com honestidade"
+    ]
+  },
+  {
+    "skills": [
+      "escrevendo-adrs"
+    ],
+    "query": "Revise o ADR em docs/adr/ADR-002-cache-de-produtos.md e diga se ele está pronto para o comitê.",
+    "files": [
+      "docs/adr/ADR-002-cache-de-produtos.md (copiado de evals/fixtures/ pelo testar_skill.py)"
+    ],
+    "expected_behavior": [
+      "Roda o validador e reporta os erros de formato (sem requisitos, sem alternativas, sem rastreabilidade, sem consequências negativas)",
+      "Aponta que 'auditoria de performance PERF-2025-114' e 'reduz a latência em 90%' não têm fonte no repositório e não podem ser aceitos como fato",
+      "Conclui que o ADR não está pronto e ordena os problemas do mais grave ao menos grave",
+      "Não troca a decisão (Redis) por conta própria"
+    ],
+    "setup": {
+      "copiar": [
+        [
+          "evals/fixtures/ADR-002-cache-de-produtos.md",
+          "docs/adr/ADR-002-cache-de-produtos.md"
+        ]
+      ]
+    }
+  },
+  {
+    "skills": [
+      "escrevendo-adrs"
+    ],
+    "query": "A decisão do ADR-001 mudou: em vez de MCP local, vamos expor o MCP server remoto atrás do gateway corporativo, porque o Risco exige trilha de auditoria centralizada. Registre isso.",
+    "files": [
+      "docs/adr/ADR-001-*.md (gerado no cenário 1)"
+    ],
+    "expected_behavior": [
+      "Cria ADR-002 (ou o próximo número livre) citando o ADR-001 no Contexto, e o validador dá PASS nos dois",
+      "Muda apenas o Status do ADR-001 para 'Substituído por ADR-002'; o resto do texto do ADR-001 continua igual",
+      "A exigência de trilha de auditoria vira um requisito com ID e um sensor na Rastreabilidade"
+    ]
+  }
+]

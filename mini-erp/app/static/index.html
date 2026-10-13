@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini-ERP Didático</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
+    color: #fff;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header .logo {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+  header .logo i { color: var(--primary); font-size: 1.4rem; }
+  #health-badge {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+  }
+  #health-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray-400);
+  }
+  #health-dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+
+  /* ── Layout ── */
+  .container {
+    display: flex;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── Sidebar ── */
+  nav {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid var(--gray-200);
+    padding: 1.25rem 0;
+    flex-shrink: 0;
+  }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 1.25rem;
+    color: var(--gray-600);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 500;
+    transition: all .15s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  nav a:hover { background: var(--gray-50); color: var(--gray-800); }
+  nav a.active {
+    color: var(--primary);
+    background: #eff6ff;
+    border-left-color: var(--primary);
+  }
+  nav a i { width: 20px; text-align: center; font-size: 1rem; }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    padding: 2rem;
+    max-width: 960px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .page-subtitle {
+    color: var(--gray-500);
+    font-size: .9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Cards / Tables ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--gray-50);
+  }
+  .card-body { padding: 1.25rem; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem;
+  }
+  th {
+    text-align: left;
+    padding: .7rem 1rem;
+    background: var(--gray-50);
+    color: var(--gray-600);
+    font-weight: 600;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  td {
+    padding: .7rem 1rem;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .badge-success { background: #dcfce7; color: #15803d; }
+  .badge-warning { background: #fef3c7; color: #92400e; }
+  .badge-danger  { background: #fee2e2; color: #991b1b; }
+  .badge-info    { background: #dbeafe; color: #1e40af; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.1rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #15803d; }
+  .btn-sm { padding: .35rem .7rem; font-size: .8rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Forms ── */
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: .3rem;
+  }
+  .form-control {
+    width: 100%;
+    padding: .5rem .75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: .88rem;
+    font-family: inherit;
+    transition: border-color .15s;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+
+  .item-row {
+    display: flex;
+    gap: .75rem;
+    align-items: end;
+    margin-bottom: .5rem;
+  }
+  .item-row .form-group { margin-bottom: 0; flex: 1; }
+  .item-row .btn-remove {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: .5rem;
+    align-self: end;
+    margin-bottom: 2px;
+  }
+
+  /* ── Result Panel ── */
+  .result-panel {
+    margin-top: 1rem;
+    background: var(--gray-900);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: #e5e7eb;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .82rem;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: none;
+  }
+  .result-panel.visible { display: block; }
+  .result-panel .json-key { color: #93c5fd; }
+  .result-panel .json-str { color: #86efac; }
+  .result-panel .json-num { color: #fcd34d; }
+  .result-panel .json-bool { color: #f9a8d4; }
+  .result-panel .json-null { color: var(--gray-400); }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    top: 76px;
+    right: 1.5rem;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .toast {
+    padding: .75rem 1.25rem;
+    border-radius: var(--radius);
+    font-size: .85rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+    animation: slideIn .25s ease;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .toast-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .toast-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ── Search ── */
+  .search-row {
+    display: flex;
+    gap: .75rem;
+    align-items: end;
+    margin-bottom: 1rem;
+  }
+  .search-row .form-group { margin-bottom: 0; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--gray-400);
+  }
+  .empty-state i { font-size: 2.5rem; margin-bottom: .75rem; }
+  .empty-state p { font-size: .9rem; }
+
+  /* ── Detail grid ── */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem 1.5rem;
+  }
+  .detail-item label {
+    font-size: .75rem;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    font-weight: 600;
+    letter-spacing: .03em;
+  }
+  .detail-item .value {
+    font-size: .95rem;
+    font-weight: 500;
+    margin-top: .1rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <i class="fa-solid fa-boxes-stacked"></i>
+    Mini-ERP Didático
+  </div>
+  <div id="health-badge">
+    <div id="health-dot"></div>
+    <span id="health-text">Verificando...</span>
+  </div>
+</header>
+
+<div class="container">
+  <nav>
+    <a data-page="produtos" class="active"><i class="fa-solid fa-box"></i> Produtos</a>
+    <a data-page="estoque"><i class="fa-solid fa-warehouse"></i> Estoque</a>
+    <a data-page="pedidos"><i class="fa-solid fa-cart-shopping"></i> Pedidos</a>
+    <a data-page="novo-pedido"><i class="fa-solid fa-file-circle-plus"></i> Novo Pedido</a>
+    <a data-page="faturas"><i class="fa-solid fa-file-invoice-dollar"></i> Faturas</a>
+    <a data-page="alertas"><i class="fa-solid fa-bell"></i> Alertas</a>
+  </nav>
+
+  <main>
+
+    <!-- ════════ PRODUTOS ════════ -->
+    <div id="page-produtos" class="page active">
+      <div class="page-title"><i class="fa-solid fa-box" style="color:var(--primary)"></i> Produtos</div>
+      <p class="page-subtitle">Catálogo de produtos ativos do sistema</p>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-list"></i> Lista de Produtos</div>
+        <div id="produtos-table"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-magnifying-glass"></i> Buscar Produto por ID</div>
+        <div class="card-body">
+          <div class="search-row">
+            <div class="form-group">
+              <label>ID do Produto</label>
+              <input type="number" id="produto-id-input" class="form-control" placeholder="Ex: 1" min="1">
+            </div>
+            <button class="btn btn-primary" onclick="buscarProduto()"><i class="fa-solid fa-search"></i> Buscar</button>
+          </div>
+          <div id="produto-result" class="result-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ ESTOQUE ════════ -->
+    <div id="page-estoque" class="page">
+      <div class="page-title"><i class="fa-solid fa-warehouse" style="color:var(--warning)"></i> Estoque</div>
+      <p class="page-subtitle">Consulta de estoque por produto</p>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-magnifying-glass"></i> Consultar Estoque</div>
+        <div class="card-body">
+          <div class="search-row">
+            <div class="form-group">
+              <label>ID do Produto</label>
+              <input type="number" id="estoque-id-input" class="form-control" placeholder="Ex: 1" min="1">
+            </div>
+            <button class="btn btn-primary" onclick="buscarEstoque()"><i class="fa-solid fa-search"></i> Consultar</button>
+          </div>
+          <div id="estoque-result" class="result-panel"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-boxes-stacked"></i> Visão Geral do Estoque</div>
+        <div id="estoque-table"></div>
+      </div>
+    </div>
+
+    <!-- ════════ PEDIDOS ════════ -->
+    <div id="page-pedidos" class="page">
+      <div class="page-title"><i class="fa-solid fa-cart-shopping" style="color:var(--success)"></i> Pedidos</div>
+      <p class="page-subtitle">Consulta de pedidos realizados</p>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-clock-rotate-left"></i> Últimos Pedidos</div>
+        <div id="pedidos-table"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-magnifying-glass"></i> Buscar Pedido</div>
+        <div class="card-body">
+          <div class="search-row">
+            <div class="form-group">
+              <label>ID do Pedido</label>
+              <input type="number" id="pedido-id-input" class="form-control" placeholder="Ex: 1" min="1">
+            </div>
+            <button class="btn btn-primary" onclick="buscarPedido()"><i class="fa-solid fa-search"></i> Buscar</button>
+          </div>
+          <div id="pedido-detail"></div>
+          <div id="pedido-result" class="result-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ NOVO PEDIDO ════════ -->
+    <div id="page-novo-pedido" class="page">
+      <div class="page-title"><i class="fa-solid fa-file-circle-plus" style="color:var(--primary)"></i> Novo Pedido</div>
+      <p class="page-subtitle">Criar um novo pedido de venda</p>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-pen-to-square"></i> Dados do Pedido</div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Nome do Cliente</label>
+            <input type="text" id="cliente-input" class="form-control" placeholder="Ex: Empresa Exemplo Ltda">
+          </div>
+          <label style="font-size:.82rem;font-weight:600;color:var(--gray-700);margin-bottom:.5rem;display:block">Itens do Pedido</label>
+          <div id="itens-container">
+            <div class="item-row">
+              <div class="form-group">
+                <label>Produto ID</label>
+                <input type="number" class="form-control item-produto" placeholder="ID" min="1">
+              </div>
+              <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" class="form-control item-qtd" placeholder="Qtd" min="1">
+              </div>
+              <button class="btn-remove" onclick="this.closest('.item-row').remove()" title="Remover item"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <div style="display:flex;gap:.75rem;margin-top:.75rem">
+            <button class="btn btn-primary btn-sm" onclick="addItemRow()"><i class="fa-solid fa-plus"></i> Adicionar Item</button>
+            <button class="btn btn-success" onclick="criarPedido()"><i class="fa-solid fa-check"></i> Criar Pedido</button>
+          </div>
+          <div id="pedido-create-result" class="result-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ FATURAS ════════ -->
+    <div id="page-faturas" class="page">
+      <div class="page-title"><i class="fa-solid fa-file-invoice-dollar" style="color:var(--danger)"></i> Faturas</div>
+      <p class="page-subtitle">Gerar e consultar faturas</p>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-file-circle-plus"></i> Gerar Fatura</div>
+        <div class="card-body">
+          <div class="search-row">
+            <div class="form-group">
+              <label>ID do Pedido</label>
+              <input type="number" id="fatura-pedido-input" class="form-control" placeholder="Ex: 1" min="1">
+            </div>
+            <button class="btn btn-success" onclick="gerarFatura()"><i class="fa-solid fa-file-invoice"></i> Gerar Fatura</button>
+          </div>
+          <div id="fatura-gen-result" class="result-panel"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-magnifying-glass"></i> Consultar Fatura</div>
+        <div class="card-body">
+          <div class="search-row">
+            <div class="form-group">
+              <label>ID da Fatura</label>
+              <input type="number" id="fatura-id-input" class="form-control" placeholder="Ex: 1" min="1">
+            </div>
+            <button class="btn btn-primary" onclick="buscarFatura()"><i class="fa-solid fa-search"></i> Buscar</button>
+          </div>
+          <div id="fatura-result" class="result-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ ALERTAS ════════ -->
+    <div id="page-alertas" class="page">
+      <div class="page-title"><i class="fa-solid fa-bell" style="color:var(--warning)"></i> Alertas</div>
+      <p class="page-subtitle">Central de alertas — eventos enviados por agentes e automações (ex.: tool <code>enviar_alerta</code> do MCP server)</p>
+
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-paper-plane"></i> Enviar Alerta</div>
+        <div class="card-body">
+          <div style="display:flex;gap:.75rem">
+            <div class="form-group" style="flex:1">
+              <label>Tipo</label>
+              <select id="alerta-tipo" class="form-control">
+                <option value="estoque_insuficiente">estoque_insuficiente</option>
+                <option value="pedido_criado">pedido_criado</option>
+                <option value="fatura_gerada">fatura_gerada</option>
+                <option value="erro_integracao">erro_integracao</option>
+                <option value="outro">outro</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:2">
+              <label>Mensagem</label>
+              <input type="text" id="alerta-msg" class="form-control" placeholder="Ex: Produto #1 sem estoque para atender pedido">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Detalhes (JSON opcional)</label>
+            <input type="text" id="alerta-detalhes" class="form-control" placeholder='Ex: {"produto_id": 1, "estoque_atual": 0}'>
+          </div>
+          <button class="btn btn-success" onclick="enviarAlerta()"><i class="fa-solid fa-paper-plane"></i> Enviar Alerta</button>
+          <div id="alerta-create-result" class="result-panel"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" style="justify-content:space-between">
+          <span><i class="fa-solid fa-clock-rotate-left"></i> Últimos Alertas</span>
+          <button class="btn btn-primary btn-sm" onclick="loadAlertas()"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button>
+        </div>
+        <div id="alertas-table"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const API = '';
+
+// ── Navigation ──
+document.querySelectorAll('nav a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    link.classList.add('active');
+    document.getElementById('page-' + link.dataset.page).classList.add('active');
+  });
+});
+
+// ── Health Check ──
+async function checkHealth() {
+  try {
+    const r = await fetch(API + '/health');
+    const d = await r.json();
+    document.getElementById('health-dot').classList.add('online');
+    document.getElementById('health-text').textContent = 'API Online';
+  } catch {
+    document.getElementById('health-dot').classList.remove('online');
+    document.getElementById('health-text').textContent = 'API Offline';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 15000);
+
+// ── Toast ──
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> ${msg}`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ── JSON highlighting ──
+function highlightJSON(obj) {
+  const json = JSON.stringify(obj, null, 2);
+  return json.replace(/("(?:\\.|[^"\\])*")\s*:/g, '<span class="json-key">$1</span>:')
+             .replace(/:\s*("(?:\\.|[^"\\])*")/g, ': <span class="json-str">$1</span>')
+             .replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
+             .replace(/:\s*(true|false)/g, ': <span class="json-bool">$1</span>')
+             .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+}
+
+function showResult(elId, data) {
+  const el = document.getElementById(elId);
+  el.innerHTML = highlightJSON(data);
+  el.classList.add('visible');
+}
+
+// ── Fetch helper ──
+async function api(url, opts = {}) {
+  try {
+    const r = await fetch(API + url, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || 'Erro na requisição');
+    return data;
+  } catch (e) {
+    toast(e.message, 'error');
+    throw e;
+  }
+}
+
+// ── Formatters ──
+function money(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+function statusBadge(s) {
+  const map = { CRIADO: 'info', FATURADO: 'success', GERADA: 'success' };
+  return `<span class="badge badge-${map[s] || 'warning'}">${s}</span>`;
+}
+
+// ── PRODUTOS ──
+async function loadProdutos() {
+  try {
+    const data = await api('/produtos');
+    if (!data.length) {
+      document.getElementById('produtos-table').innerHTML = '<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Nenhum produto ativo</p></div>';
+      return;
+    }
+    document.getElementById('produtos-table').innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Preço</th><th>Status</th></tr></thead>
+      <tbody>${data.map(p => `<tr>
+        <td><strong>${p.id}</strong></td>
+        <td>${p.nome}</td>
+        <td style="color:var(--gray-500)">${p.descricao}</td>
+        <td><strong>${money(p.preco)}</strong></td>
+        <td>${p.ativo ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-danger">Inativo</span>'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch {}
+}
+loadProdutos();
+
+async function buscarProduto() {
+  const id = document.getElementById('produto-id-input').value;
+  if (!id) return toast('Informe o ID do produto', 'error');
+  try {
+    const data = await api('/produtos/' + id);
+    showResult('produto-result', data);
+  } catch {}
+}
+
+// ── ESTOQUE ──
+async function loadEstoque() {
+  try {
+    const produtos = await api('/produtos');
+    const estoques = await Promise.all(produtos.map(p => api('/estoque/' + p.id).catch(() => null)));
+    const items = estoques.filter(Boolean);
+    if (!items.length) {
+      document.getElementById('estoque-table').innerHTML = '<div class="empty-state"><i class="fa-solid fa-warehouse"></i><p>Sem dados de estoque</p></div>';
+      return;
+    }
+    document.getElementById('estoque-table').innerHTML = `<table>
+      <thead><tr><th>Produto ID</th><th>Produto</th><th>Quantidade</th><th>Nível</th></tr></thead>
+      <tbody>${items.map(e => {
+        const level = e.quantidade > 20 ? 'success' : e.quantidade > 5 ? 'warning' : 'danger';
+        return `<tr>
+          <td><strong>${e.produto_id}</strong></td>
+          <td>${e.produto_nome}</td>
+          <td><strong>${e.quantidade}</strong></td>
+          <td><span class="badge badge-${level}">${e.quantidade > 20 ? 'Bom' : e.quantidade > 5 ? 'Médio' : 'Baixo'}</span></td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+  } catch {}
+}
+loadEstoque();
+
+async function buscarEstoque() {
+  const id = document.getElementById('estoque-id-input').value;
+  if (!id) return toast('Informe o ID do produto', 'error');
+  try {
+    const data = await api('/estoque/' + id);
+    showResult('estoque-result', data);
+  } catch {}
+}
+
+// ── PEDIDOS ──
+async function loadPedidos() {
+  try {
+    const data = await api('/pedidos');
+    if (!data.length) {
+      document.getElementById('pedidos-table').innerHTML = '<div class="empty-state"><i class="fa-solid fa-cart-shopping"></i><p>Nenhum pedido realizado</p></div>';
+      return;
+    }
+    document.getElementById('pedidos-table').innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
+      <tbody>${data.map(p => `<tr style="cursor:pointer" onclick="document.getElementById('pedido-id-input').value=${p.id};buscarPedido()">
+        <td><strong>#${p.id}</strong></td>
+        <td>${p.nome_cliente}</td>
+        <td>${p.itens.length} ${p.itens.length === 1 ? 'item' : 'itens'}</td>
+        <td><strong>${money(p.total)}</strong></td>
+        <td>${statusBadge(p.status)}</td>
+        <td style="color:var(--gray-500)">${new Date(p.criado_em).toLocaleString('pt-BR')}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch {}
+}
+loadPedidos();
+
+async function buscarPedido() {
+  const id = document.getElementById('pedido-id-input').value;
+  if (!id) return toast('Informe o ID do pedido', 'error');
+  try {
+    const data = await api('/pedidos/' + id);
+    showResult('pedido-result', data);
+
+    document.getElementById('pedido-detail').innerHTML = `
+      <div class="card" style="margin-top:1rem">
+        <div class="card-header"><i class="fa-solid fa-receipt"></i> Pedido #${data.id}</div>
+        <div class="card-body">
+          <div class="detail-grid" style="margin-bottom:1rem">
+            <div class="detail-item"><label>Cliente</label><div class="value">${data.nome_cliente}</div></div>
+            <div class="detail-item"><label>Status</label><div class="value">${statusBadge(data.status)}</div></div>
+            <div class="detail-item"><label>Total</label><div class="value" style="font-size:1.1rem;color:var(--primary)">${money(data.total)}</div></div>
+            <div class="detail-item"><label>Criado em</label><div class="value">${new Date(data.criado_em).toLocaleString('pt-BR')}</div></div>
+          </div>
+          <table>
+            <thead><tr><th>Produto</th><th>Qtd</th><th>Preço Unit.</th><th>Subtotal</th></tr></thead>
+            <tbody>${data.itens.map(i => `<tr>
+              <td>${i.produto_nome}</td>
+              <td>${i.quantidade}</td>
+              <td>${money(i.preco_unitario)}</td>
+              <td><strong>${money(i.subtotal)}</strong></td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+  } catch {
+    document.getElementById('pedido-detail').innerHTML = '';
+  }
+}
+
+// ── NOVO PEDIDO ──
+function addItemRow() {
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Produto ID</label>
+      <input type="number" class="form-control item-produto" placeholder="ID" min="1">
+    </div>
+    <div class="form-group">
+      <label>Quantidade</label>
+      <input type="number" class="form-control item-qtd" placeholder="Qtd" min="1">
+    </div>
+    <button class="btn-remove" onclick="this.closest('.item-row').remove()" title="Remover item"><i class="fa-solid fa-trash"></i></button>`;
+  document.getElementById('itens-container').appendChild(row);
+}
+
+async function criarPedido() {
+  const nome = document.getElementById('cliente-input').value.trim();
+  if (!nome) return toast('Informe o nome do cliente', 'error');
+
+  const rows = document.querySelectorAll('.item-row');
+  const itens = [];
+  for (const row of rows) {
+    const pid = row.querySelector('.item-produto').value;
+    const qtd = row.querySelector('.item-qtd').value;
+    if (!pid || !qtd) return toast('Preencha todos os itens', 'error');
+    itens.push({ produto_id: parseInt(pid), quantidade: parseInt(qtd) });
+  }
+  if (!itens.length) return toast('Adicione pelo menos um item', 'error');
+
+  try {
+    const data = await api('/pedidos', {
+      method: 'POST',
+      body: JSON.stringify({ nome_cliente: nome, itens })
+    });
+    showResult('pedido-create-result', data);
+    toast(`Pedido #${data.id} criado — Total: ${money(data.total)}`);
+    loadEstoque();
+    loadPedidos();
+  } catch {}
+}
+
+// ── FATURAS ──
+async function gerarFatura() {
+  const id = document.getElementById('fatura-pedido-input').value;
+  if (!id) return toast('Informe o ID do pedido', 'error');
+  try {
+    const data = await api('/pedidos/' + id + '/fatura', { method: 'POST' });
+    showResult('fatura-gen-result', data);
+    toast(`Fatura #${data.id} gerada — ${money(data.valor_total)}`);
+  } catch {}
+}
+
+async function buscarFatura() {
+  const id = document.getElementById('fatura-id-input').value;
+  if (!id) return toast('Informe o ID da fatura', 'error');
+  try {
+    const data = await api('/faturas/' + id);
+    showResult('fatura-result', data);
+  } catch {}
+}
+
+// ── ALERTAS ──
+const tipoIcons = {
+  estoque_insuficiente: { icon: 'fa-box-open',        badge: 'danger'  },
+  pedido_criado:        { icon: 'fa-cart-shopping',    badge: 'info'    },
+  fatura_gerada:        { icon: 'fa-file-invoice',     badge: 'success' },
+  erro_integracao:      { icon: 'fa-triangle-exclamation', badge: 'danger' },
+};
+
+function tipoBadge(tipo) {
+  const cfg = tipoIcons[tipo] || { icon: 'fa-bell', badge: 'warning' };
+  return `<span class="badge badge-${cfg.badge}"><i class="fa-solid ${cfg.icon}"></i> ${tipo}</span>`;
+}
+
+async function loadAlertas() {
+  try {
+    const data = await api('/alertas');
+    if (!data.length) {
+      document.getElementById('alertas-table').innerHTML = '<div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>Nenhum alerta registrado</p></div>';
+      return;
+    }
+    document.getElementById('alertas-table').innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Tipo</th><th>Mensagem</th><th>Detalhes</th><th>Timestamp</th></tr></thead>
+      <tbody>${data.map(a => `<tr>
+        <td><strong>#${a.id}</strong></td>
+        <td>${tipoBadge(a.tipo)}</td>
+        <td>${a.mensagem}</td>
+        <td style="color:var(--gray-500);font-size:.8rem;font-family:monospace">${a.detalhes ? JSON.stringify(a.detalhes) : '—'}</td>
+        <td style="color:var(--gray-500);white-space:nowrap">${new Date(a.timestamp).toLocaleString('pt-BR')}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch {}
+}
+loadAlertas();
+
+async function enviarAlerta() {
+  const tipo = document.getElementById('alerta-tipo').value;
+  const mensagem = document.getElementById('alerta-msg').value.trim();
+  if (!mensagem) return toast('Informe a mensagem do alerta', 'error');
+
+  let detalhes = null;
+  const detalhesRaw = document.getElementById('alerta-detalhes').value.trim();
+  if (detalhesRaw) {
+    try { detalhes = JSON.parse(detalhesRaw); }
+    catch { return toast('Detalhes deve ser um JSON válido', 'error'); }
+  }
+
+  try {
+    const data = await api('/alertas', {
+      method: 'POST',
+      body: JSON.stringify({ tipo, mensagem, detalhes })
+    });
+    showResult('alerta-create-result', data);
+    toast(`Alerta #${data.id} registrado`);
+    document.getElementById('alerta-msg').value = '';
+    document.getElementById('alerta-detalhes').value = '';
+    loadAlertas();
+  } catch {}
+}
+</script>
+</body>
+</html>

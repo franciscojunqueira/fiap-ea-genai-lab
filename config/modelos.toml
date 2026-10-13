@@ -1,0 +1,9 @@
+# Modelos usados pelos labs. É a parte volátil do repositório: revisar a cada turma.
+# Os aliases (haiku, sonnet, opus) apontam sempre para a versão mais recente do Claude Code.
+# Verificado em 2026-10-12.
+
+[check]
+# Chamada mínima do `make check`: o modelo mais barato do plano, para gastar o mínimo da cota.
+claude = "haiku"
+# 60 s: a primeira chamada do Claude Code num Codespace novo inclui o aquecimento do CLI.
+timeout_s = 60
