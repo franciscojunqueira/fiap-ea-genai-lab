@@ -2,7 +2,7 @@
 """Roda um cenário de eval de uma skill, com ou sem a skill, numa cópia limpa do repositório. Executar.
 
 Uso:
-    python3 scripts/testar_skill.py <skill> <nº do cenário> <modelo> [--sem]
+    python3 scripts/testar_skill.py <skill> <nº do cenário> <modelo> [--sem] [--rep N]
 
 Exemplo:
     python3 scripts/testar_skill.py escrevendo-adrs 1 sonnet --sem
@@ -42,6 +42,7 @@ def main(argv):
         print(__doc__)
         return 2
     skill, n, modelo, sem = argv[1], int(argv[2]), argv[3], "--sem" in argv
+    rep = int(argv[argv.index("--rep") + 1]) if "--rep" in argv else 1
     pasta_skill = RAIZ / ".agents" / "skills" / skill
     cenarios = json.loads((pasta_skill / "evals" / "cenarios.json").read_text(encoding="utf-8"))
     if not 1 <= n <= len(cenarios):
@@ -49,7 +50,7 @@ def main(argv):
         return 2
     cenario = cenarios[n - 1]
     condicao = "sem" if sem else "com"
-    saida = RAIZ / "resultados" / f"{skill}-c{n}-{modelo}-{condicao}"
+    saida = RAIZ / "resultados" / f"{skill}-c{n}-{modelo}-{condicao}-r{rep}"
     shutil.rmtree(saida, ignore_errors=True)
     saida.mkdir(parents=True)
 
@@ -103,8 +104,8 @@ def main(argv):
 
     uso = dados.get("usage", {})
     entrada = uso.get("input_tokens", 0) + uso.get("cache_read_input_tokens", 0) + uso.get("cache_creation_input_tokens", 0)
-    print("skill\tcenario\tmodelo\tcondicao\tvalidador\tturnos\ttokens_entrada\ttokens_saida\tduracao_s")
-    print(f"{skill}\t{n}\t{modelo}\t{condicao}\t{veredito}\t{dados.get('num_turns')}\t{entrada}\t{uso.get('output_tokens', 0)}\t{duracao:.0f}")
+    print("skill\tcenario\tmodelo\tcondicao\trep\tvalidador\tturnos\ttokens_entrada\ttokens_saida\tduracao_s")
+    print(f"{skill}\t{n}\t{modelo}\t{condicao}\t{rep}\t{veredito}\t{dados.get('num_turns')}\t{entrada}\t{uso.get('output_tokens', 0)}\t{duracao:.0f}")
     print(f"Resposta e arquivos em {saida.relative_to(RAIZ)}/")
     return 0
 

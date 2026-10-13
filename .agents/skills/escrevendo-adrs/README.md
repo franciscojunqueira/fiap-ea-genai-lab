@@ -57,3 +57,36 @@ uma conta Pro.
 **Ajuste feito durante o teste:** na primeira rodada sem a skill, os dois modelos acharam
 `tests/test_validar_adr.py` na cópia e copiaram o formato a partir dele. O `testar_skill.py` passou
 a remover, na condição sem, todo arquivo que cite a skill. Os números acima são da rodada limpa.
+
+**2026-10-12, cenários 2 e 3, Sonnet e Haiku** (o modelo padrão do plano Pro e o mais barato).
+Aliases: `sonnet` = claude-sonnet-5-5 e `haiku` = claude-haiku-4-5. Duas repetições por condição.
+Correção **às cegas** por um subagente independente: as 16 saídas foram anonimizadas e avaliadas
+pelos critérios de `evals/cenarios.json`, reescritos em termos neutros. A nota é a média das 2
+repetições. O cenário 2 vale até 7 pontos; o 3, até 4.
+
+| Cenário | Modelo | Sem a skill | Com a skill | Tokens de entrada (média, sem → com) |
+|---|---|---|---|---|
+| 2: criar ADR sem dados | Sonnet | 5,0 | **7,0** | 133 mil → 177 mil |
+| 2: criar ADR sem dados | Haiku | 2,0 | **4,75** | 206 mil → 344 mil |
+| 3: revisar ADR com auditoria inventada | Sonnet | 3,5 | **4,0** | 56 mil → 96 mil |
+| 3: revisar ADR com auditoria inventada | Haiku | 2,75 | **4,0** | 48 mil → 182 mil |
+
+**O que aparece:**
+- Melhora nas 4 combinações. O maior ganho é no Haiku, como prevê o guia de boas práticas
+  (modelos menores dependem mais de orientação).
+- **Invenção.** O Sonnet não inventou nada em nenhuma condição. O Haiku inventou nas 4 execuções do
+  cenário 2, **inclusive com a skill**: decisores ("Arquitetura de Soluções (time do curso)"),
+  volumes ("~100 pedidos por lab", "volume > 1GB") e uma afirmação técnica falsa sobre SQLite e WAL.
+  A skill organiza o ADR e leva o Haiku a criar Pendências, mas não impede a invenção. O validador
+  não pega isso, porque é julgamento, não formato.
+- **Escopo.** Sem a skill, o Haiku alterou o `README.md` do repositório sem pedido (2 de 2
+  execuções) e uma vez escreveu o ADR em inglês. Com a skill, não houve desvio de escopo.
+- **Revisão (cenário 3).** Sem a skill, o Haiku não contestou a auditoria inventada com clareza.
+  Com a skill, os dois modelos a apontaram como inverificável e deram veredito ordenado.
+- **Custo.** A skill aumenta os tokens de entrada: cerca de 1,3× no Sonnet e de 1,7× a 3,8× no Haiku.
+  O Haiku com a skill fez de 17 a 24 turnos no cenário 2.
+
+**Incidente na correção:** a primeira anonimização apagou linhas inteiras que citavam o validador.
+Em duas respostas do Sonnet com a skill, isso removeu o veredito e a contestação da auditoria, e as
+notas saíram baixas demais. As respostas foram reexportadas com troca de termos, e o mesmo corretor
+reavaliou as 16 execuções. A tabela acima usa a reavaliação.
