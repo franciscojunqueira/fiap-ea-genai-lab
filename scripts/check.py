@@ -19,9 +19,16 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 CONFIG = tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8"))
-# O ERP sobe em ~1 s numa máquina de 2 cores; 20 s cobre a primeira execução, que compila os .pyc.
+# O ERP subiu em 0,35–0,49 s (3 medições, Mac M-series, 12/10/2026). 20 s dão folga para um
+# Codespace de 2 cores e para a primeira execução, que compila os .pyc.
 ERP_TIMEOUT_S = 20
-TOOLS_MCP_ESPERADAS = 10  # as 10 tools herdadas do lab-aula03 da v1
+# `claude auth status` só lê a credencial local; se demorar mais que isto, algo travou.
+AUTH_TIMEOUT_S = 15
+# As 10 tools herdadas do lab-aula03 da v1. Os labs podem acrescentar tools; estas não podem sumir.
+TOOLS_MCP_ORIGINAIS = {
+    "listar_produtos", "buscar_produto", "consultar_estoque", "criar_pedido", "listar_pedidos",
+    "consultar_pedido", "gerar_fatura_simulada", "consultar_fatura", "enviar_alerta", "listar_alertas",
+}
 DEPENDENCIAS = ["fastapi", "uvicorn", "sqlalchemy", "pydantic", "httpx", "mcp", "pytest"]
 
 resultados = []
@@ -110,12 +117,35 @@ def checar_mcp(url):
     except Exception as exc:  # qualquer falha aqui vira mensagem para o aluno
         registrar("FAIL", "MCP server", f"Não conectou por stdio ({type(exc).__name__}: {exc}). Rode `uv run python mcp-server/server.py` e veja o erro.")
         return
-    if len(tools) != TOOLS_MCP_ESPERADAS:
-        registrar("FAIL", "MCP server", f"Listou {len(tools)} tools; esperado {TOOLS_MCP_ESPERADAS}. Confira se mcp-server/server.py foi editado.")
+    faltando = TOOLS_MCP_ORIGINAIS - {t.name for t in tools}
+    if faltando:
+        registrar("FAIL", "MCP server", f"Sumiram tools originais: {', '.join(sorted(faltando))}. Confira as edições em mcp-server/server.py.")
     elif chamada.is_error:
         registrar("FAIL", "MCP server", "A tool consultar_estoque falhou contra o ERP. Confira ERP_BASE_URL.")
     else:
         registrar("PASS", f"MCP server lista {len(tools)} tools e consulta o ERP")
+
+
+def claude_logado():
+    try:
+        status = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True, timeout=AUTH_TIMEOUT_S)
+        return json.loads(status.stdout).get("loggedIn", False)
+    except (subprocess.TimeoutExpired, json.JSONDecodeError):
+        return False
+
+
+def codex_logado():
+    """O Codex guarda a credencial em $CODEX_HOME/auth.json (padrão ~/.codex)."""
+    return (Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "auth.json").is_file()
+
+
+def chamar(comando, timeout):
+    """Roda a chamada mínima. Devolve (ok, texto)."""
+    try:
+        proc = subprocess.run(comando, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return False, f"Sem resposta em {timeout} s. Confira a rede do Codespace e tente de novo; persistindo, use o replay do lab."
+    return proc.returncode == 0, (proc.stdout or proc.stderr).strip()
 
 
 def checar_modelo():
@@ -124,35 +154,31 @@ def checar_modelo():
     if not tem_claude and not tem_codex:
         registrar("AVISO", "Agente de código", "Nem `claude` nem `codex` no PATH. Só o operador precisa: ver docs/checklist_operador.md.")
         return
-    if not tem_claude:
-        registrar("AVISO", "Codex encontrado", "O check automático de modelo cobre só o Claude Code. Teste com: codex exec \"Responda apenas OK\".")
-        return
-    status = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True)
-    try:
-        logado = json.loads(status.stdout).get("loggedIn", False)
-    except json.JSONDecodeError:
-        logado = False
-    if not logado:
-        registrar("AVISO", "Claude Code instalado, sem login", "Operador: rode `claude`, faça o login com o seu plano e rode `make check` de novo.")
-        return
-    modelo, timeout = CONFIG["check"]["claude"], CONFIG["check"]["timeout_s"]
-    comando = ["claude", "-p", "Responda apenas: OK", "--model", modelo, "--output-format", "json",
-               "--tools", "", "--system-prompt", "Responda em uma palavra."]
-    try:
-        proc = subprocess.run(comando, capture_output=True, text=True, timeout=timeout)
-        dados = json.loads(proc.stdout)
-    except subprocess.TimeoutExpired:
-        registrar("FAIL", "Acesso a modelo", f"Sem resposta em {timeout} s. Confira a rede do Codespace e tente de novo; persistindo, use o replay do lab.")
-        return
-    except json.JSONDecodeError:
-        registrar("FAIL", "Acesso a modelo", f"Resposta inesperada do Claude Code: {(proc.stderr or proc.stdout).strip()[:200]}")
-        return
-    if dados.get("is_error"):
-        texto = str(dados.get("result", ""))
-        dica = "Limite do plano atingido: troque de operador (2º assinante do grupo) ou use o replay." if "limit" in texto.lower() else "Rode `claude` e confira o login."
-        registrar("FAIL", "Acesso a modelo", f"{texto[:200]} — {dica}")
-        return
-    registrar("PASS", f"Acesso a modelo pelo Claude Code ({modelo}, {dados.get('duration_ms', '?')} ms)")
+    timeout = CONFIG["check"]["timeout_s"]
+    if tem_claude and claude_logado():
+        modelo = CONFIG["check"]["claude"]
+        ok, saida = chamar(["claude", "-p", "Responda apenas: OK", "--model", modelo, "--output-format", "json",
+                            "--tools", "", "--system-prompt", "Responda em uma palavra."], timeout)
+        try:
+            dados = json.loads(saida)
+        except json.JSONDecodeError:
+            registrar("FAIL", "Acesso a modelo (Claude Code)", f"Resposta inesperada: {saida[:200]}")
+            return
+        if dados.get("is_error") or not ok:
+            texto = str(dados.get("result", ""))
+            dica = "Limite do plano atingido: troque de operador (2º assinante do grupo) ou use o replay." if "limit" in texto.lower() else "Rode `claude` e confira o login."
+            registrar("FAIL", "Acesso a modelo (Claude Code)", f"{texto[:200]} — {dica}")
+            return
+        registrar("PASS", f"Acesso a modelo pelo Claude Code ({modelo}, {dados.get('duration_ms', '?')} ms)")
+    elif tem_codex and codex_logado():
+        ok, saida = chamar(["codex", "exec", "Responda apenas: OK"], timeout)
+        if not ok:
+            registrar("FAIL", "Acesso a modelo (Codex)", f"{saida[-200:]} — Rode `codex login --device-auth` e confira o plano.")
+            return
+        registrar("PASS", "Acesso a modelo pelo Codex")
+    else:
+        registrar("AVISO", "Agente de código instalado, sem login",
+                  "Operador: faça o login (`claude`, ou `codex login --device-auth`) e rode `make check` de novo.")
 
 
 def main():

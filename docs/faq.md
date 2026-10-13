@@ -27,8 +27,8 @@ o `server.py`, confira se as 10 tools originais continuam lá.
 que o navegador mostrar e cole no terminal.
 
 **Perdi o login depois de um "Rebuild container".** O rebuild apaga `~/.claude`. Faça o login de
-novo. Se rebuildar com frequência, gere um token com `claude setup-token` e salve-o como Codespaces
-secret `CLAUDE_CODE_OAUTH_TOKEN` (github.com → Settings → Codespaces → Secrets), nunca no repositório.
+novo. Não guarde token de login em variável de ambiente nem em secret: o Lab 6 mostra como conteúdo
+malicioso lido pelo agente pode tentar exfiltrar o que está no ambiente.
 
 **"Limite do plano atingido".** Troque de operador (o segundo assinante do grupo) ou siga pelo
 replay do lab. A cota do plano é do operador, não do curso.
@@ -53,4 +53,5 @@ dos labs usam a CLI do operador em modo não interativo (`claude -p`).
 Os roteiros dos labs são escritos para Claude Code. Com Codex, o grupo usa esta tabela.
 
 **Como vejo as tools do MCP server?** Rode `make erp` num terminal e `make mcp` em outro. O MCP
-Inspector abre na porta 6274; o Codespace oferece abri-la no navegador.
+Inspector abre na porta 6274; o Codespace oferece abri-la no navegador. Se a página recusar a origem,
+confira se rodou pelo `make mcp`, que já libera a URL do Codespace.

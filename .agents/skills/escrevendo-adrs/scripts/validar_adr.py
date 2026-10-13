@@ -21,11 +21,23 @@ SECOES = [
     "Justificativa", "Consequências", "Rastreabilidade", "Pendências",
 ]
 STATUS_VALIDOS = re.compile(r"^(Proposto|Aprovado|Rejeitado|Substituído por ADR-\d{3})$")
-NOME_ARQUIVO = re.compile(r"^ADR-(\d{3})-[a-z0-9]+(-[a-z0-9]+)*\.md$")
-TITULO = re.compile(r"^# ADR-(\d{3}): (\S.*)$")
+NOME_ARQUIVO = re.compile(r"^ADR-(\d{3,})-[a-z0-9]+(-[a-z0-9]+)*\.md$")
+TITULO = re.compile(r"^# ADR-(\d{3,}): (\S.*)$")
+DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 REQUISITO = re.compile(r"\bRQ-\d{2}\b")
-# Trechos do modelo que não podem sobrar no ADR final
-RESTOS_DO_MODELO = ["AAAA-MM-DD", "ADR-NNN", "Nome da alternativa", "Título curto da decisão", "TODO", "..."]
+# Trechos do modelo (reference/modelo-adr.md) que não podem sobrar no ADR final
+RESTOS_DO_MODELO = [
+    "AAAA-MM-DD", "ADR-NNN", "Nome da alternativa", "Título curto da decisão",
+    "quem decide (papel ou nome)", "O problema, as forças em jogo", "o que a solução precisa atender",
+    "quem pediu ou onde está escrito", "Descrição em 1–3 linhas", "Uma frase com o que muda",
+    "Por que A2 e não as outras", "risco ou custo, com a mitigação", "teste, fitness function, eval ou revisão que confirma",
+    "o que precisa acontecer para rever",
+]
+# Placeholder isolado: "TODO" como palavra, ou "..." ocupando sozinho um item, campo ou célula
+PLACEHOLDER = re.compile(r"\bTODO\b|(^|[:|-])\s*(\.\.\.|…)\s*($|\|)", re.MULTILINE)
+# Respostas que não dizem nada: contras vazios, sensores genéricos
+VAZIO = re.compile(r"^(nenhum|nenhuma|n/a|-|—|\.\.\.|…)\.?$", re.IGNORECASE)
+SENSOR_VAGO = re.compile(r"^(monitorar|monitoramento|acompanhar|acompanhamento|revisar|observar|a definir)\.?$", re.IGNORECASE)
 
 
 def secoes(texto, nivel):
@@ -78,7 +90,9 @@ def validar(caminho):
         erros.append(f"'**Status:**' = '{status}'. Use Proposto, Aprovado, Rejeitado ou 'Substituído por ADR-NNN'.")
     data = campo(texto, "Data")
     try:
-        date.fromisoformat(data or "")
+        if not DATA.match(data or ""):
+            raise ValueError
+        date.fromisoformat(data)
     except ValueError:
         erros.append(f"'**Data:**' = '{data}'. Use uma data real no formato AAAA-MM-DD.")
     if not campo(texto, "Decisores"):
@@ -108,25 +122,28 @@ def validar(caminho):
         if not m:
             erros.append(f"Alternativa '### {titulo}' fora do padrão. Use '### A1: Nome da alternativa'.")
             continue
+        nome = titulo.split(":", 1)[1].strip().lower()
+        if nome in [t.split(":", 1)[1].strip().lower() for t in alternativas.values()]:
+            erros.append(f"{m.group(1)} repete o nome de outra alternativa ('{nome}'). Alternativas precisam ser diferentes.")
         alternativas[m.group(1)] = titulo
         for rotulo in ("Prós", "Contras"):
-            m_item = re.search(r"\*\*%s:\*\*\s*(.+)" % rotulo, corpo)
-            if not m_item or m_item.group(1).strip() in ("", "...", "-"):
-                erros.append(f"{m.group(1)} sem '**{rotulo}:**' preenchido. Toda alternativa real tem prós e contras.")
+            m_item = re.search(r"\*\*%s:\*\*\s*(.*)" % rotulo, corpo)
+            if not m_item or not m_item.group(1).strip() or VAZIO.match(m_item.group(1).strip()):
+                erros.append(f"{m.group(1)} sem '**{rotulo}:**' preenchido. Toda alternativa real tem prós e contras; 'nenhum' não vale.")
     if len(alternativas) < ALTERNATIVAS_MINIMO:
         erros.append(f"{len(alternativas)} alternativa(s); o padrão exige pelo menos {ALTERNATIVAS_MINIMO} alternativas reais (### A1, ### A2, ### A3).")
 
-    escolhidas = set(re.findall(r"\bA\d+\b", h2.get("Decisão", "")))
-    if len(escolhidas) != 1:
-        erros.append(f"A '## Decisão' deve citar exatamente uma alternativa (ex.: 'Adotar **A2: …**'); cita {sorted(escolhidas) or 'nenhuma'}.")
-    elif alternativas and escolhidas - set(alternativas):
-        erros.append(f"A '## Decisão' cita {escolhidas.pop()}, que não existe em 'Alternativas consideradas'.")
+    m_decisao = re.search(r"Adotar \*\*(A\d+)\b", h2.get("Decisão", ""))
+    if not m_decisao:
+        erros.append("A '## Decisão' deve começar por 'Adotar **A<n>: Nome**', indicando a alternativa escolhida.")
+    elif alternativas and m_decisao.group(1) not in alternativas:
+        erros.append(f"A '## Decisão' adota {m_decisao.group(1)}, que não existe em 'Alternativas consideradas'.")
 
     if requisitos and not REQUISITO.search(h2.get("Justificativa", "")):
         erros.append("A '## Justificativa' não cita nenhum requisito. Explique a escolha citando os IDs (RQ-01…).")
 
     consequencias = secoes(h2.get("Consequências", ""), 3)
-    for sub in ("Positivas", "Negativas e riscos"):
+    for sub in ("Positivas", "Negativas e riscos", "Reversão"):
         if not re.search(r"^\s*-\s+\S", consequencias.get(sub, ""), re.MULTILINE):
             erros.append(f"Falta '### {sub}' com ao menos um item em '## Consequências'. Toda decisão tem custo; registre-o.")
 
@@ -137,18 +154,22 @@ def validar(caminho):
     for rq in requisitos:
         if rq not in rastreados:
             erros.append(f"{rq} não aparece na tabela de '## Rastreabilidade'.")
-        elif len(rastreados[rq]) < 3 or not all(c and c != "..." for c in rastreados[rq][1:3]):
+        elif len(rastreados[rq]) < 3 or not all(c and not VAZIO.match(c) for c in rastreados[rq][1:3]):
             erros.append(f"{rq} na '## Rastreabilidade' precisa dizer como a decisão atende e qual sensor verifica.")
+        elif SENSOR_VAGO.match(rastreados[rq][2]):
+            erros.append(f"{rq}: sensor '{rastreados[rq][2]}' é vago. Diga qual teste, fitness function, eval ou revisão confirma.")
 
     for resto in RESTOS_DO_MODELO:
         if resto in texto:
             erros.append(f"Sobrou texto do modelo: '{resto}'. Substitua pelo conteúdo real ou registre em Pendências.")
+    if PLACEHOLDER.search(texto):
+        erros.append("Sobrou um 'TODO' ou um '...' no lugar de conteúdo. Preencha ou registre em Pendências.")
     return erros
 
 
 def proximo_numero(pasta):
     numeros = [int(m.group(1)) for p in Path(pasta).glob("ADR-*.md") if (m := NOME_ARQUIVO.match(p.name))]
-    return f"ADR-{max(numeros, default=0) + 1:03d}"
+    return f"ADR-{max(numeros, default=0) + 1:03d}"  # passa de 999 para 1000, aceito pelo padrão
 
 
 def main(argv):

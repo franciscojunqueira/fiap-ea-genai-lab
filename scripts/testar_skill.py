@@ -24,11 +24,12 @@ import time
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-# Uma tarefa de ADR leva de 1 a 4 min; 15 min cobre modelos lentos sem deixar a execução presa.
+# Teto para uma tarefa completa do agente; o tempo real de cada execução sai na linha final.
 TIMEOUT_S = 900
 # O agente lê, escreve e roda os scripts do repositório; nada de rede nem de instalar pacotes.
 FERRAMENTAS = "Read,Write,Edit,Glob,Grep,Bash(python3:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(cat:*)"
-IGNORAR = shutil.ignore_patterns(".git", ".venv", "__pycache__", ".pytest_cache", "resultados", "*.db")
+# core-banking-api fica de fora: é o alvo do Lab 6 e não pode contaminar outros testes.
+IGNORAR = shutil.ignore_patterns(".git", ".venv", "__pycache__", ".pytest_cache", "resultados", "*.db", "core-banking-api")
 
 
 def fotografia(pasta):

@@ -1,6 +1,6 @@
 ---
 name: escrevendo-adrs
-description: Escreve e revisa Architecture Decision Records (ADRs) no padrão do repositório, com três alternativas reais, consequências positivas e negativas e rastreabilidade de requisito a decisão, conferidos por um validador. Use quando o usuário pedir para registrar, documentar, justificar ou revisar uma decisão de arquitetura, criar um ADR ou substituir um ADR existente.
+description: Escreve e revisa Architecture Decision Records (ADRs) no padrão do repositório, com três alternativas reais, consequências positivas e negativas, critério de reversão e rastreabilidade de requisito a decisão, conferidos por um validador. Use quando o usuário pedir para registrar, documentar, justificar ou revisar uma decisão de arquitetura, criar um ADR ou substituir um ADR existente.
 ---
 
 # Escrevendo ADRs
@@ -46,6 +46,7 @@ python3 .claude/skills/escrevendo-adrs/scripts/validar_adr.py docs/adr/ADR-NNN-t
 - **Alternativas reais:** alguém competente defenderia cada uma? "Não fazer nada" só entra se for viável.
 - **Contras da escolhida:** a alternativa adotada tem contras honestos, não só prós.
 - **Consequências negativas** com mitigação ou "aceito".
+- **Reversão:** diz o gatilho concreto para rever a decisão e quanto custa voltar atrás (lock-in, migração, contrato).
 - **Números** (latência, custo, volume) só com fonte; sem fonte, escreva "estimativa" e diga a base.
 - **Nada inventado:** não cite ADR, auditoria, norma ou ata que você não encontrou no repositório
   ou que o usuário não forneceu. Se um documento existente fizer isso, aponte na revisão.

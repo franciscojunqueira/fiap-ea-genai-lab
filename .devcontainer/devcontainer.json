@@ -15,10 +15,12 @@
   },
   "onCreateCommand": "uv sync --frozen && npm install -g @openai/codex @modelcontextprotocol/inspector",
   "postCreateCommand": "make check",
-  "forwardPorts": [8000, 6274],
+  "forwardPorts": [8000, 6274, 6275, 6278],
   "portsAttributes": {
     "8000": { "label": "Mini-ERP" },
-    "6274": { "label": "MCP Inspector" }
+    "6274": { "label": "MCP Inspector" },
+    "6275": { "label": "MCP Inspector (sandbox)" },
+    "6278": { "label": "MCP Inspector (apps)" }
   },
   "customizations": {
     "vscode": {

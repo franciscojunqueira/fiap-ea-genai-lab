@@ -5,5 +5,5 @@
 [check]
 # Chamada mínima do `make check`: o modelo mais barato do plano, para gastar o mínimo da cota.
 claude = "haiku"
-# 60 s: a primeira chamada do Claude Code num Codespace novo inclui o aquecimento do CLI.
+# A chamada mínima levou 3,7 s (medida em 12/10/2026). 60 s cobrem rede lenta sem deixar o check preso.
 timeout_s = 60

@@ -8,7 +8,7 @@ Os alunos não precisam ler isto. O operador segue `docs/checklist_operador.md`.
 | uv | imagem oficial `ghcr.io/astral-sh/uv`, versão fixa no `Dockerfile` | sim: versão com 2+ semanas |
 | Node LTS | feature `ghcr.io/devcontainers/features/node:2` | não |
 | Claude Code | feature oficial `ghcr.io/anthropics/devcontainer-features/claude-code:1` (sempre a versão mais recente) | não |
-| Codex CLI, MCP Inspector | `npm install -g` no `onCreateCommand` (versão mais recente) | conferir no `make check` |
+| Codex CLI, MCP Inspector | `npm install -g` no `onCreateCommand` (versão mais recente) | conferir no piloto: `codex --version`, `make mcp` |
 
 Só fontes oficiais (Microsoft, Astral, Anthropic, OpenAI, MCP). Nenhuma feature de comunidade:
 é o mesmo critério do checklist de skills e servidores de terceiros da Aula 4.
@@ -25,6 +25,6 @@ Só fontes oficiais (Microsoft, Astral, Anthropic, OpenAI, MCP). Nenhuma feature
 
 **Limite:** o prebuild vale para codespaces abertos **neste** repositório. Um repositório criado por
 "Use this template" não herda o prebuild, então o primeiro build no repositório do grupo leva alguns
-minutos. A conferir no piloto. Fontes, verificadas em 2026-10-12:
+minutos (tempo ainda não medido: medir no piloto). Fontes, verificadas em 2026-10-12:
 docs.github.com/en/codespaces/prebuilding-your-codespaces/configuring-prebuilds e
 code.claude.com/docs/en/devcontainer.

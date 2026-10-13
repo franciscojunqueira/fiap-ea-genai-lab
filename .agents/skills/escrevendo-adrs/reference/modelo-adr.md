@@ -52,6 +52,10 @@ Por que A2 e não as outras, citando os IDs dos requisitos (RQ-01…).
 
 - risco ou custo, com a mitigação ou "aceito"
 
+### Reversão
+
+- o que precisa acontecer para rever esta decisão e quanto custa voltar atrás
+
 ## Rastreabilidade
 
 | Requisito | Como a decisão atende | Sensor que verifica |

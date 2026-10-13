@@ -1,7 +1,8 @@
 # Checklist do operador (antes da Aula 1)
 
 O operador é quem tem plano **Claude Pro/Max** (ou **ChatGPT Plus**, como alternativa) e conduz o
-agente com a tela compartilhada. Faça isto antes da aula; leva cerca de 15 min.
+agente com a tela compartilhada. Faça isto antes da aula, não durante: o primeiro build do Codespace
+leva alguns minutos.
 
 ## 1. Criar o repositório do grupo
 

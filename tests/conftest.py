@@ -10,7 +10,7 @@ import httpx
 import pytest
 
 RAIZ = Path(__file__).resolve().parent.parent
-# O ERP sobe em ~1 s numa máquina de 2 cores; 20 s cobre a primeira execução, que compila os .pyc.
+# Mesmo limite do scripts/check.py: o ERP subiu em menos de 0,5 s nas medições; 20 s dão folga.
 ERP_TIMEOUT_S = 20
 
 

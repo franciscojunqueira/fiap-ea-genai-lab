@@ -9,7 +9,8 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 SERVIDOR = Path(__file__).resolve().parent.parent / "mcp-server" / "server.py"
-TOOLS_ESPERADAS = {
+# Os labs podem acrescentar tools; estas não podem sumir.
+TOOLS_ORIGINAIS = {
     "listar_produtos", "buscar_produto", "consultar_estoque", "criar_pedido", "listar_pedidos",
     "consultar_pedido", "gerar_fatura_simulada", "consultar_fatura", "enviar_alerta", "listar_alertas",
 }
@@ -25,9 +26,9 @@ async def _sessao(erp_url, acao):
             return await acao(sessao)
 
 
-def test_lista_as_10_tools(erp_url):
+def test_lista_as_10_tools_originais(erp_url):
     resultado = asyncio.run(_sessao(erp_url, lambda s: s.list_tools()))
-    assert {t.name for t in resultado.tools} == TOOLS_ESPERADAS
+    assert TOOLS_ORIGINAIS <= {t.name for t in resultado.tools}
 
 
 def test_tool_consulta_o_erp(erp_url):
