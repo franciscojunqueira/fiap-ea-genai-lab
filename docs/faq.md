@@ -30,6 +30,10 @@ que o navegador mostrar e cole no terminal.
 novo. Não guarde token de login em variável de ambiente nem em secret: o Lab 6 mostra como conteúdo
 malicioso lido pelo agente pode tentar exfiltrar o que está no ambiente.
 
+**Posso usar a conta de um colega ou do professor?** Não. Os termos de uso proíbem compartilhar
+login, chave de API ou deixar outra pessoa usar a conta. Cada operador usa a própria conta; quem não
+tem plano acompanha pela tela do operador ou entra noutro grupo como verificador externo.
+
 **"Limite do plano atingido".** Troque de operador (o segundo assinante do grupo) ou siga pelo
 replay do lab. A cota do plano é do operador, não do curso.
 

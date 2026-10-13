@@ -64,6 +64,10 @@ para mostrar e esconder o painel; no Mac, `Cmd+J`).
 
 ## 5. Fazer login no agente (operador e segundo assinante, uma vez)
 
+Cada um entra com a **própria conta**. Os termos da Anthropic e da OpenAI proíbem compartilhar
+login ou chave de API, inclusive com colegas ou com o professor; quem não tem plano acompanha pela
+tela do operador.
+
 **Claude Code (caminho padrão):**
 
 1. No terminal, digite `claude` e tecle Enter.
