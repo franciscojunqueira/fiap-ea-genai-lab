@@ -1,6 +1,7 @@
 # Modelos usados pelos labs. É a parte volátil do repositório: revisar a cada turma.
-# Os aliases (haiku, sonnet, opus) apontam sempre para a versão mais recente do Claude Code.
-# Verificado em 2026-10-12.
+# Os aliases (haiku, sonnet, opus) resolvem para o modelo que o plano do operador oferece, e isso muda
+# sem aviso. Em 2026-10-12, numa conta Max: sonnet = claude-sonnet-5-5, opus = claude-opus-5-5,
+# haiku = claude-haiku-4-5. Conferir por turma com `claude -p ok --model <alias> --output-format json` (campo modelUsage).
 
 [check]
 # Chamada mínima do `make check`: o modelo mais barato do plano, para gastar o mínimo da cota.

@@ -51,8 +51,8 @@ Itens de julgamento (`expected_behavior`), nas 2 execuções sem e nas 2 com a s
 **Leitura.** Nos dois modelos, a skill não melhora o raciocínio sobre alternativas, que já é bom sem
 ela. O que ela acrescenta é o que a rubrica cobra e o modelo não faz sozinho: rastreabilidade de
 requisito a sensor, custo de reversão e pendências explícitas. Custa de 38% a 43% mais tokens de
-entrada e de 20 s a 30 s a mais. O que fica para o professor: rodar os cenários 2 a 5 no piloto com
-uma conta Pro.
+entrada e de 20 s a 30 s a mais. Os cenários 2 e 3 foram testados na rodada abaixo; os cenários 4 e 5 e o
+consumo numa conta Pro ficam para o piloto.
 
 **Ajuste feito durante o teste:** na primeira rodada sem a skill, os dois modelos acharam
 `tests/test_validar_adr.py` na cópia e copiaram o formato a partir dele. O `testar_skill.py` passou
