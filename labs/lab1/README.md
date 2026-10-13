@@ -11,6 +11,9 @@ a fitness function, a pessoa que verifica).
 **Antes da aula:** o operador já tem o Codespace do grupo aberto e logado
 ([guia do Codespace](../../docs/guia_codespace.md), passos 1 a 5).
 
+**Operador com Codex (plano ChatGPT)?** Sigam este README normalmente; no **passo 3**, usem a versão
+Codex em [codex.md](codex.md).
+
 **Tempo:** 60 min de trabalho, mais 15 de intervalo, que o grupo faz quando quiser.
 
 **Pronto quando:** `make lab1-check` mostra `lab1-check: PASS (7/7 itens)` e o trabalho foi enviado
@@ -23,6 +26,13 @@ com `git push` (passo 5).
 - **Fitness function:** teste automático de arquitetura; aqui, a `camadas` reprova rota que acessa o
   banco.
 - **Plano:** antes de mexer no código, o agente mostra o que pretende fazer, e o grupo aprova ou corrige.
+- **`AGENTS.md`:** instruções do repositório para o agente, em texto. Ele lê o arquivo inteiro no
+  início de toda sessão. O `CLAUDE.md` da raiz só tem a linha `@AGENTS.md`: é o nome que o Claude
+  Code procura, e essa linha importa o outro.
+- **Skill:** um procedimento pronto, num arquivo `SKILL.md`. O agente lê sempre o nome e a descrição
+  do cabeçalho; o resto, só quando o pedido casa com a descrição.
+- Os dois são texto, e o agente pode não seguir. O que precisa ser garantido está no
+  `.claude/settings.json` (permissões), que o Claude Code aplica.
 
 ## Quem faz o quê
 
@@ -66,6 +76,12 @@ make lab1-check
 
 O esperado é `lab1-check: FAIL (1/7 itens)`, com uma explicação em cada falha, e a última linha
 `make: *** [...] Error 1`. Isso é normal: o FAIL é o ponto de partida, e as mensagens dizem o que falta.
+
+Enquanto isso, os outros abrem no GitHub, cada um no seu navegador, o [AGENTS.md](../../AGENTS.md) e o
+cabeçalho (as linhas entre `---`) do [SKILL.md da escrevendo-adrs](../../.agents/skills/escrevendo-adrs/SKILL.md).
+Dois minutos, e respondam em voz alta: o que o agente lê no início de toda sessão? Da skill, o que
+ele lê sempre e o que só quando o pedido casa com a descrição? (Respostas nos **Termos**, acima.) No
+passo 2, os autores escrevem no fim desse mesmo `AGENTS.md`.
 
 **2. Guias e sensores (15 min, autores e verificador ao mesmo tempo).** Os autores ditam ao operador; o
 verificador rascunha o teste num bloco de notas ou no chat do grupo e dita quando os autores terminarem.
@@ -157,9 +173,9 @@ e meçam de novo com `make lab1-extra ARGS=--de-novo`.
 | No Claude Code | No Codex |
 |---|---|
 | `CLAUDE.md` importa o `AGENTS.md` | lê o `AGENTS.md` direto |
-| `claude --permission-mode plan` | `codex`, depois `/plan` |
-| aceitar edições do plano | sandbox `workspace-write` com aprovação `on-request` |
-| leitura de `aceite/`, `referencia/` e `exemplos/` negada no `.claude/settings.json` | sem equivalente: vale só o aviso do `AGENTS.md` |
+| `claude --permission-mode plan` | `codex --sandbox danger-full-access --ask-for-approval on-request`, depois `/plan` |
+| **Yes, and use auto mode** no plano | **Yes, implement this plan**; sem o sandbox do Codex, que não sobe no Codespace ([guia do Codex](../../docs/guia_codex.md), passo 6) |
+| leitura de `aceite/`, `referencia/`, `exemplos/` e `replay/` negada no `.claude/settings.json` | sem bloqueio: vale só o pedido do `AGENTS.md`, e o verificador confere |
 | `make lab1-extra` (usa `claude -p`) | não se aplica |
 
-O `make lab1`, a fitness function e o `make lab1-check` são os mesmos: não dependem do agente.
+Passo 3 completo com Codex: [codex.md](codex.md). O `make lab1`, a fitness function e o `make lab1-check` são os mesmos: não dependem do agente.

@@ -33,8 +33,10 @@ leva alguns minutos.
 4. Na pergunta *Accessing workspace*, desça até **Yes, I trust this folder** (o marcado é "No, exit").
 5. Saia com `/exit`. Telas de cada passo: [guia ilustrado](guia_ilustrado_codespace.md).
 
-**Codex (alternativa):** ative antes o *device code login* nas configurações de segurança do
-ChatGPT e rode `codex login --device-auth`.
+**Codex (alternativa, plano ChatGPT):** siga o [guia do Codex](guia_codex.md), passos 5 e 6. Em
+resumo: ligue antes, no ChatGPT, a opção de login por código de dispositivo (Configurações →
+Segurança), rode `codex login --device-auth` e, nos labs, abra sempre com
+`codex --sandbox danger-full-access --ask-for-approval on-request`.
 
 ## 4. Conferir
 
@@ -43,7 +45,7 @@ make check
 ```
 
 Esperado: `PASS: 4 ok, 0 aviso(s), 0 falha(s)`. O último item faz uma chamada mínima ao modelo
-mais barato do seu plano.
+(no Claude Code, o mais barato do plano; no Codex, o modelo padrão).
 
 ## 5. Ao terminar
 

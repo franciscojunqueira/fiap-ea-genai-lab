@@ -9,6 +9,9 @@ imagens, marcando onde clicar.
 assinante** do grupo abrem Codespace. Os demais integrantes fazem só o passo 1 e acompanham pela tela
 compartilhada do operador.
 
+**Vai usar o Codex (plano ChatGPT)?** Faça aqui os passos 1 a 4 e, no passo 5, siga o
+[guia do Codex](guia_codex.md): o login e o jeito de abrir o agente são diferentes.
+
 > Façam os passos 1 a 5 **antes da Aula 1**. O primeiro Codespace leva alguns minutos para ficar
 > pronto, e em aula não há tempo nem suporte para isso.
 
@@ -106,9 +109,9 @@ tela do operador.
 
 As telas de cada passo estão no [guia ilustrado](guia_ilustrado_codespace.md).
 
-**Codex (alternativa, plano ChatGPT):** no ChatGPT, em configurações de segurança, ative o login por
-código de dispositivo (*device code login*); depois rode `codex login --device-auth` no terminal e
-siga o que ele mostrar. A [FAQ](faq.md) tem os detalhes.
+**Codex (alternativa, plano ChatGPT):** o login é outro (`codex login --device-auth`, depois de ligar
+uma opção no ChatGPT) e o Codex precisa de um comando próprio para abrir no Codespace. Siga o
+[guia do Codex](guia_codex.md), passos 5 e 6.
 
 O login fica guardado no Codespace: nas próximas vezes não precisa repetir, a menos que alguém faça
 "Rebuild container".
@@ -190,6 +193,7 @@ preserva a cota.
 | O terminal sumiu | Menu **☰ → Terminal → New Terminal** |
 | A porta 8000 abre uma página de erro | O Mini-ERP não está rodando: rode `make erp` no segundo terminal |
 | Perdi o login do Claude Code | Alguém fez "Rebuild container". Repita o passo 5 |
+| Uso Codex e algo deu errado | Tabela "Deu errado?" do [guia do Codex](guia_codex.md) |
 | A cota do plano acabou na aula | Passo 10, ou o replay do lab em `replay/` |
 
 Mais casos: [faq.md](faq.md). Resumo de uma página para o operador:

@@ -11,6 +11,9 @@ caixa **amarela com "!"** é o que evitar.
 **Tempo total:** cerca de 15 minutos, dos quais uns 5 são espera enquanto o Codespace é montado. Faça
 antes da Aula 1.
 
+**Vai usar o Codex (plano ChatGPT)?** As telas dos passos 2 a 4 valem igual. O login (passo 5) é
+outro: siga o [guia do Codex](guia_codex.md).
+
 ---
 
 ## 1. Conta no GitHub (todos do grupo)

@@ -54,7 +54,9 @@ dos labs usam a CLI do operador em modo não interativo (`claude -p`).
 | `claude -p "…"` | `codex exec "…"` |
 | login: `claude` | login: `codex login --device-auth` |
 
-Os roteiros dos labs são escritos para Claude Code. Com Codex, o grupo usa esta tabela.
+Os roteiros dos labs são escritos para Claude Code. Com Codex, o operador segue o
+[guia do Codex](guia_codex.md) (login, comando para abrir o agente, problemas comuns) e, no Lab 1, o
+passo 3 em [labs/lab1/codex.md](../labs/lab1/codex.md).
 
 **Como vejo as tools do MCP server?** Rode `make erp` num terminal e `make mcp` em outro. O MCP
 Inspector abre na porta 6274; o Codespace oferece abri-la no navegador. Se a página recusar a origem,
