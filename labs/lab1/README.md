@@ -32,7 +32,8 @@ com `git push` (passo 5).
 - **Skill:** um procedimento pronto, num arquivo `SKILL.md`. O agente lê sempre o nome e a descrição
   do cabeçalho; o resto, só quando o pedido casa com a descrição.
 - Os dois são texto, e o agente pode não seguir. O que precisa ser garantido está no
-  `.claude/settings.json` (permissões), que o Claude Code aplica.
+  `.claude/settings.json` (permissões), que o Claude Code aplica (o Codex não tem equivalente:
+  tabela no fim).
 
 ## Quem faz o quê
 
@@ -78,7 +79,10 @@ O esperado é `lab1-check: FAIL (1/7 itens)`, com uma explicação em cada falha
 `make: *** [...] Error 1`. Isso é normal: o FAIL é o ponto de partida, e as mensagens dizem o que falta.
 
 Enquanto isso, os outros abrem no GitHub, cada um no seu navegador, o [AGENTS.md](../../AGENTS.md) e o
-cabeçalho (as linhas entre `---`) do [SKILL.md da escrevendo-adrs](../../.agents/skills/escrevendo-adrs/SKILL.md).
+[SKILL.md da escrevendo-adrs](../../.agents/skills/escrevendo-adrs/SKILL.md), onde basta a tabelinha
+`name | description` no topo da página (é o cabeçalho). Quem ainda não aceitou o convite do
+repositório do grupo abre os mesmos arquivos no
+[repositório-template](https://github.com/franciscojunqueira/fiap-ea-genai-lab/blob/main/AGENTS.md).
 Dois minutos, e respondam em voz alta: o que o agente lê no início de toda sessão? Da skill, o que
 ele lê sempre e o que só quando o pedido casa com a descrição? (Respostas nos **Termos**, acima.) No
 passo 2, os autores escrevem no fim desse mesmo `AGENTS.md`.
