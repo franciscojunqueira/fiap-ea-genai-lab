@@ -6,18 +6,28 @@
 ticket ([ticket.md](ticket.md)). Vocês não vão programar: vão **especificar** o que precisa ser feito,
 deixar um agente de IA (o Claude Code) implementar e **verificar** se ele fez certo e o que inventou.
 
-**O que o grupo entrega** (tudo no repositório do grupo). `spec.md`, `verificacao.md`,
-`sensores.toml` e `testes/test_grupo.py` **só aparecem depois do `make lab1`** (passo 1), que os copia
-em branco de `labs/lab1/modelos/`; antes disso, não procurem por eles.
+### O que o grupo faz: criar nenhum arquivo, editar 5
 
-| Arquivo | Quem escreve | O que é | Exemplo preenchido |
-|---|---|---|---|
-| `labs/lab1/spec.md` | autores | o que o sistema deve fazer, em critérios de aceite verificáveis | [spec_exemplo.md](exemplos/spec_exemplo.md) |
-| seção `## Mini-ERP` no `AGENTS.md` (raiz) | autores | instruções curtas que o agente lê sempre | [agents_secao_exemplo.md](exemplos/agents_secao_exemplo.md) |
-| `labs/lab1/sensores.toml` | verificador | liga a fitness function (troca `false` por `true`) | — |
-| `labs/lab1/testes/test_grupo.py` | verificador | um teste para um critério de aceite da spec | [teste_exemplo.py](exemplos/teste_exemplo.py) |
-| código do cancelamento | **o agente** | a implementação, guiada pela spec | — |
-| `labs/lab1/verificacao.md` | verificador e relator | o que o agente acertou, inventou e omitiu, e a pergunta de decisão | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
+**Criar: nenhum.** O `make lab1` (passo 1) cria `spec.md`, `verificacao.md`, `sensores.toml` e
+`testes/test_grupo.py` em `labs/lab1/`, já com as instruções dentro. Antes do `make lab1` eles não
+existem: não procurem por eles.
+
+**Editar: 5 arquivos.**
+
+| # | Arquivo | O que fazer nele | Quem do grupo faz | Exemplo (de outro ticket) |
+|---|---|---|---|---|
+| 1 | `labs/lab1/spec.md` | apagar as linhas que começam com `<` e escrever **3 ou mais critérios de aceite** a partir do [ticket.md](ticket.md) | autores do harness | [spec_exemplo.md](exemplos/spec_exemplo.md) |
+| 2 | `AGENTS.md` (na raiz do repositório) | **acrescentar no fim** uma seção `## Mini-ERP` de 4 a 6 linhas; o resto do arquivo não muda | autores do harness | [agents_secao_exemplo.md](exemplos/agents_secao_exemplo.md) |
+| 3 | `labs/lab1/sensores.toml` | trocar **uma palavra**: `ligado = false` vira `ligado = true` | verificador | não precisa |
+| 4 | `labs/lab1/testes/test_grupo.py` | escrever o teste de **1** critério da spec e apagar a linha do `pytest.skip` | verificador | [teste_exemplo.py](exemplos/teste_exemplo.py) |
+| 5 | `labs/lab1/verificacao.md` | responder as 5 perguntas (o que o agente acertou, inventou e omitiu; o que mudar no harness; pergunta de decisão) | verificador e relator | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
+
+**Não editar: o código.** Quem altera `mini-erp/app/services/pedidos.py` e
+`mini-erp/app/routes/pedidos.py` é **o agente** (passo 4). O grupo só lê o que ele fez (passo 5).
+
+**Comandos, todos no terminal do operador:** `make lab1` → editar os arquivos 1 a 4 →
+`claude --permission-mode plan` com o prompt do passo 4 → editar o arquivo 5 → `make lab1-check` até
+dar PASS → `git add -A`, `git commit`, `git push`.
 
 Os exemplos resolvem **outro ticket** (estoque baixo): mostram a forma e o nível de detalhe, não a
 resposta. Veja [exemplos/README.md](exemplos/README.md).
@@ -46,10 +56,13 @@ no ambiente em volta dele: **guias** escritos pelo grupo e **sensores** que conf
 
 | Papel | Quem | Neste lab |
 |---|---|---|
-| Operador | quem tem o plano | conduz o Claude Code, com a tela compartilhada |
-| Autores do harness (2) | | escrevem `labs/lab1/spec.md` e a seção `## Mini-ERP` do `AGENTS.md` |
-| Verificador | | liga a fitness function, escreve o teste do grupo, confere o que o agente fez |
-| Relator | | preenche `labs/lab1/verificacao.md` com o verificador |
+| Operador | quem tem o plano | digita os comandos e conduz o Claude Code, com a tela compartilhada; não edita arquivo |
+| Autores do harness (2) | | editam os arquivos 1 (`spec.md`) e 2 (`AGENTS.md`) |
+| Verificador | | edita os arquivos 3 (`sensores.toml`) e 4 (`test_grupo.py`); lê o que o agente fez |
+| Relator | | edita o arquivo 5 (`verificacao.md`) com o verificador |
+
+Só o operador tem o Codespace aberto: os demais ditam o texto ou digitam na tela dele, por
+revezamento.
 
 ## Passos
 
