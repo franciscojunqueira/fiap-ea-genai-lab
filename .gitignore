@@ -9,3 +9,8 @@ __pycache__/
 *.key
 mini-erp/data/*.db
 resultados/
+integrador/legado/execucao/
+integrador/legado/dados/sgc.db
+integrador/legado/dados/remessa/
+integrador/legado/dados/retorno/
+integrador/legado/saida/

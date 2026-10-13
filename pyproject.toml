@@ -17,4 +17,4 @@ dependencies = [
 package = false
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "integrador/legado/tests"]

@@ -1,0 +1,6 @@
+# crontab do usuario sgc em sgc-batch01
+# m  h  dom mon dow  comando
+30 21 *   *   1-5  /opt/sgc/ops/rodar_lote.sh >> /var/log/sgc/lote.log 2>&1
+30 5  *   *   1-5  /opt/cd/bin/cdtransfer -g SGC_RETORNO -d /troca/retorno >> /var/log/sgc/cd.log 2>&1
+# fechamento mensal (baixa de perdas)
+0  6  1   *   *    SGC_DIR_RISCO=/mnt/risco/sgc /usr/bin/python3 -m sgc risco >> /var/log/sgc/fechamento.log 2>&1

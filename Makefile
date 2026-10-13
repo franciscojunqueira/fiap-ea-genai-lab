@@ -2,7 +2,8 @@
 .DEFAULT_GOAL := help
 .PHONY: help check test erp mcp skill-check \
         lab1 lab2 lab3 lab4 lab5 lab6 \
-        lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check
+        lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
+        legado er-check checkpoint-check pacote-check
 
 RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
@@ -40,3 +41,15 @@ lab6: ## Lab 6 (Aula 4)
 # Um check que ainda não existe não pode dar PASS: imprime e sai com erro.
 lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
 	@$(MAKE) --no-print-directory $(subst -check,,$@) && exit 1
+
+legado: ## Roda um ciclo do SGC, o legado do projeto integrador (não usa modelo)
+	@$(RUN) python integrador/scripts/demo_legado.py
+
+er-check: ## Confere a engenharia reversa (Atividade 1 do integrador)
+	@$(RUN) python integrador/scripts/checar_entrega.py er
+
+checkpoint-check: ## Confere o checkpoint (Atividade 2 do integrador)
+	@$(RUN) python integrador/scripts/checar_entrega.py checkpoint
+
+pacote-check: ## Confere o pacote final (Atividade 3 do integrador)
+	@$(RUN) python integrador/scripts/checar_entrega.py final
