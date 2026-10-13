@@ -1,0 +1,1 @@
+[PASS] docs/adr/ADR-001-migracao-sqlite-postgresql.md

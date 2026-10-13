@@ -1,0 +1,16 @@
+{
+  "modelo": "sonnet",
+  "degrau": 4,
+  "validador": "sem ADR",
+  "turnos": 13,
+  "tokens_entrada": 189012,
+  "tokens_saida": 5281,
+  "duracao_s": 46,
+  "arquivos_alterados": [],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 4,
+  "modelos_usados": [
+    "claude-sonnet-5-5"
+  ],
+  "data": "2026-10-12"
+}

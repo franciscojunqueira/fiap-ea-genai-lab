@@ -1,0 +1,116 @@
+# ADR-001: Migrar o banco do Mini-ERP de SQLite para PostgreSQL
+
+**Status:** Proposto
+**Data:** 2026-10-12
+**Decisores:** a confirmar
+
+## Contexto
+
+O Mini-ERP usa SQLite em arquivo local: `mini-erp/app/db.py` monta `sqlite:///{DB_PATH}` (padrão
+`mini-erp/data/mini_erp.db`, trocável por `ERP_DB_PATH`) e cria o engine com
+`connect_args={"check_same_thread": False}`. As tabelas nascem por `Base.metadata.create_all` em
+`mini-erp/app/main.py`; não há ferramenta de migração de esquema no repositório. Os testes
+(`tests/conftest.py`) e o `make check` (`scripts/check.py`) dependem de um banco SQLite temporário
+via `ERP_DB_PATH`. O repositório tem só um Dockerfile de devcontainer (`.devcontainer/imagem/`); não tem compose nem serviço de banco. O Mini-ERP é usado nos Labs 1 e 3
+(`mini-erp/README.md`) e o MCP server o consome por HTTP.
+
+O pedido do usuário é migrar para PostgreSQL. O motivo da migração (volume, concorrência,
+requisito do projeto integrador) não foi informado e está em "Pendências".
+
+## Requisitos e restrições
+
+| ID | Requisito ou restrição | Origem |
+|---|---|---|
+| RQ-01 | O banco do Mini-ERP passa a ser PostgreSQL | Pedido do usuário |
+| RQ-02 | `make test` e `make check` continuam passando com banco isolado por execução | `AGENTS.md`, `tests/conftest.py`, `scripts/check.py` |
+| RQ-03 | Dependência nova (driver PostgreSQL) só entra com pedido explícito | `AGENTS.md` (convenções) |
+| RQ-04 | Nenhuma chave ou senha gravada em arquivo; conexão por variável de ambiente | `AGENTS.md` (convenções) |
+| RQ-05 | Contrato HTTP do ERP e das tools do MCP server não muda | Premissa do autor, a confirmar: `mcp-server/server.py` chama o ERP por HTTP e depende desse contrato |
+
+## Alternativas consideradas
+
+### A1: Manter SQLite
+
+Não migrar; seguir com o arquivo local.
+
+- **Prós:** zero mudança e zero risco de regressão; nenhum serviço novo; `make check` segue
+  autocontido (RQ-02).
+- **Contras:** não atende RQ-01; um arquivo local tende a limitar o ERP a um host (afirmação técnica geral, sem medição).
+
+### A2: PostgreSQL como único banco
+
+Trocar `DATABASE_URL` por uma URL PostgreSQL lida de variável de ambiente e remover o caminho SQLite.
+
+- **Prós:** atende RQ-01; uma só configuração para testar e operar.
+- **Contras:** testes e `make check` passam a exigir um servidor PostgreSQL no ambiente (RQ-02);
+  exige o driver (`uv add`, RQ-03); o repositório não tem hoje como subir o serviço.
+
+### A3: PostgreSQL com SQLite como fallback para testes e `make check`
+
+`ERP_DATABASE_URL` (nome sugerido) define o banco; sem ela, vale o SQLite atual via `ERP_DB_PATH`.
+Proposta: o `make erp` dos labs passaria a apontar para PostgreSQL.
+
+- **Prós:** atende RQ-01 e preserva RQ-02 sem serviço novo na suíte de fumaça; migração gradual.
+- **Contras:** dois dialetos em uso, então diferenças (tipagem, ordenação, constraints; os modelos em `mini-erp/app/models.py` usam `Float`, não `Numeric`)
+  podem passar nos testes SQLite e falhar em PostgreSQL; código de conexão fica mais complexo.
+
+## Decisão
+
+Adotar **A3: PostgreSQL com SQLite como fallback para testes e `make check`**. O engine passa a ser
+criado a partir de uma URL em variável de ambiente, com PostgreSQL como destino do ERP em execução
+e o SQLite temporário mantido na suíte de fumaça.
+
+## Justificativa
+
+A1 não atende RQ-01. A2 atende RQ-01, mas quebra a premissa de RQ-02 (testes autocontidos com banco
+temporário) sem que o repositório tenha infraestrutura para um serviço. A3 atende RQ-01 e RQ-02,
+mantém RQ-05 porque só a camada `db.py` muda, e respeita RQ-04 ao ler a URL do ambiente. O custo é
+o risco de divergência entre dialetos, mitigado com um teste contra PostgreSQL real (ver
+Rastreabilidade). RQ-03 condiciona a implementação: o driver só é adicionado quando o usuário
+pedir explicitamente.
+
+## Consequências
+
+### Positivas
+
+- O ERP deixa de depender de um arquivo local; PostgreSQL permite, em tese, mais de um processo escrevendo (afirmação técnica geral, não medida aqui).
+- Os testes de fumaça seguem sem serviço externo, pois o SQLite temporário continua como padrão.
+- Estimativa, a validar na implementação: a mudança de código fica concentrada em `mini-erp/app/db.py`, mais a documentação (`AGENTS.md`, `mini-erp/README.md`).
+
+### Negativas e riscos
+
+- Divergência entre SQLite (testes) e PostgreSQL (execução): mitigar com um teste de integração
+  contra PostgreSQL, a criar na implementação (não existe hoje).
+- Dados existentes em `mini_erp.db` não migram sozinhos: o seed (`mini-erp/app/seed.py`) recria os
+  dados sintéticos; se algum dado precisar ser preservado, é preciso um script de carga. Aceito
+  enquanto todos os dados forem sintéticos (`AGENTS.md`).
+- Sem ferramenta de migração, `create_all` do SQLAlchemy só cria tabelas ausentes e não altera tabelas existentes; mudanças futuras de
+  esquema em PostgreSQL pedem Alembic (outra dependência, outro ADR). Aceito por ora.
+- Alunos e o Codespace precisam de um PostgreSQL acessível para `make erp`; como subi-lo é
+  pendência.
+
+### Reversão
+
+- Gatilho: se o teste contra PostgreSQL apontar divergências recorrentes com o SQLite, ou se o
+  serviço PostgreSQL se mostrar inviável nos ambientes dos labs, rever para A1 (ou para A2, se a
+  divergência for o problema).
+- Custo de voltar: baixo no código (basta não definir a variável e voltar ao SQLite); o custo real
+  está nos dados gravados em PostgreSQL, que precisariam ser recriados pelo seed.
+
+## Rastreabilidade
+
+| Requisito | Como a decisão atende | Sensor que verifica |
+|---|---|---|
+| RQ-01 | `db.py` cria o engine a partir de URL PostgreSQL do ambiente | Teste de integração que sobe o ERP com URL PostgreSQL e consulta uma rota de leitura |
+| RQ-02 | SQLite temporário permanece como padrão sem a variável | `make test` e `make check` com PASS |
+| RQ-03 | Driver só entra com `uv add` pedido pelo usuário | Revisão do diff de `pyproject.toml` e `uv.lock` |
+| RQ-04 | URL lida de variável de ambiente | Revisão: `grep` por credenciais no diff e nos arquivos de config |
+| RQ-05 | Rotas e schemas não são tocados | Testes de fumaça existentes (`make test`); `make lab1-check` e `make lab3-check` hoje são placeholders que saem com erro (`Makefile`), então ainda não servem de sensor |
+
+## Pendências
+
+- Motivo da migração (volume, concorrência, exigência do integrador): a confirmar com o usuário.
+- Decisores e aprovação do ADR: a confirmar.
+- Como o PostgreSQL será provisionado nos labs e no Codespace (o repositório não tem Docker): a confirmar.
+- Autorização para adicionar o driver com `uv add` (RQ-03): a confirmar.
+- Se algum dado de `mini_erp.db` precisa ser preservado: a confirmar.

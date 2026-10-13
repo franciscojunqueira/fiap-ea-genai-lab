@@ -1,0 +1,3 @@
+Crie um ADR para migrar o banco do Mini-ERP de SQLite para PostgreSQL.
+
+Quando terminar, rode `python3 scripts/validar_adr.py <caminho do ADR>` e corrija até dar PASS.

@@ -1,0 +1,16 @@
+{
+  "modelo": "haiku",
+  "degrau": 4,
+  "validador": "sem ADR",
+  "turnos": 15,
+  "tokens_entrada": 184763,
+  "tokens_saida": 2413,
+  "duracao_s": 29,
+  "arquivos_alterados": [],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 1,
+  "modelos_usados": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "data": "2026-10-12"
+}

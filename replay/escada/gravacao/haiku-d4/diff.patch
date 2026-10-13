@@ -1,0 +1,91 @@
+diff --git a/docs/adr/ADR-001-migracao-sqlite-postgresql.md b/docs/adr/ADR-001-migracao-sqlite-postgresql.md
+new file mode 100644
+index 0000000..3447d0b
+--- /dev/null
++++ b/docs/adr/ADR-001-migracao-sqlite-postgresql.md
+@@ -0,0 +1,85 @@
++# ADR-001: Migração do banco de dados Mini-ERP de SQLite para PostgreSQL
++
++**Status:** Proposto
++**Data:** 2026-10-12
++**Decisores:** a confirmar
++
++## Contexto
++
++O Mini-ERP atualmente usa SQLite em arquivo local (`mini-erp/data/mini_erp.db`, configurável por `ERP_DB_PATH`). O ADR-003 (Aprovado) já antecipou um cenário futuro: "Se o ERP um dia rodar com várias réplicas, SQLite deixa de servir" e indicou uma possível reversão dessa decisão. A necessidade de suportar múltiplas instâncias concorrentes é o gatilho para esta migração.
++
++## Requisitos e restrições
++
++| ID | Requisito ou restrição | Origem |
++|---|---|---|
++| RQ-01 | ERP suporta múltiplas réplicas e acesso concorrente | ADR-003: "Se o ERP um dia rodar com várias réplicas, SQLite deixa de servir" (reversão) |
++| RQ-02 | ORM e models SQLAlchemy reutilizáveis | Investimento atual em `mini-erp/app/models.py` |
++| RQ-03 | Migração não quebra testes existentes | Banco temporário isolado em `ERP_DB_PATH` deve continuar funcionando |
++| RQ-04 | Novo banco customizável por variável de ambiente (mantém padrão atual) | Consistência com `ERP_DB_PATH` e `ERP_BASE_URL` |
++
++## Alternativas consideradas
++
++### A1: Manter SQLite com mecanismos de sincronização
++
++Trocar para WAL (Write-Ahead Logging) ou usar SQLite em modo URI. Aumenta complexidade de infraestrutura nos testes e no Codespace.
++
++- **Prós:** zero mudança de código de negócio.
++- **Contras:** não resolve verdadeiramente o problema de concorrência em múltiplas réplicas; solução instável para escalabilidade; pode adicionar dependências externas.
++
++### A2: Migrar para PostgreSQL
++
++Trocar o driver de SQLite para PostgreSQL; criar serviço PostgreSQL local (ou gerenciado) para dev/testes. Reutilizar toda a lógica SQLAlchemy, models e schemas.
++
++- **Prós:** suporta concorrência real (RQ-01); escalabilidade horiz natural; comunidade grande; ferramentas de migração de dados maduras.
++- **Contras:** adiciona serviço (deve rodar no devcontainer ou ser acessado remotamente); precisa de fixture para testes (banco temporário PostgreSQL ou banco em memória); setup inicial de migrações (Alembic) pode ser necessário no futuro.
++
++### A3: Migrar para MySQL/MariaDB
++
++Mesmas vantagens de RQ-01 e RQ-02, mas menos usual em labs acadêmicos e com menos integração nativa em Codespaces.
++
++- **Prós:** compatível com SQLAlchemy.
++- **Contras:** sem vantagem sobre A2; menos prevalente em práticas de Enterprise Architecture.
++
++## Decisão
++
++Adotar **A2: Migrar para PostgreSQL**. A lógica de negócio, models e schemas SQLAlchemy permanecem idênticos; muda apenas a string de conexão (`DATABASE_URL`) e a dependência de driver.
++
++## Justificativa
++
++A2 é a única alternativa que resolve RQ-01 (concorrência em múltiplas réplicas) sem usar workarounds instáveis (A1) ou alternativas menos apropriadas (A3). RQ-02 se atende completamente: toda a layer SQLAlchemy é agnóstica ao driver (SQLite → PostgreSQL é uma mudança de dialeto, não de sintaxe). RQ-03 se mantém com fixture de banco temporário PostgreSQL ou container efêmero. RQ-04: a variável `ERP_DB_PATH` atual aponta a um arquivo; a nova `ERP_DATABASE_URL` será uma string de conexão PostgreSQL, mantendo a filosofia de customização por variável de ambiente.
++
++## Consequências
++
++### Positivas
++
++- ERP suporta múltiplas réplicas e acesso concorrente sem limites artificiais.
++- Models SQLAlchemy reutilizados; nenhuma reescrita de lógica de negócio.
++- PostgreSQL é agnóstico à camada de aplicação; facilita escalabilidade horizontal futura.
++
++### Negativas e riscos
++
++- Novo serviço PostgreSQL para rodar no devcontainer ou acessado remotamente; custo de startup inicial do `make check` aumenta. Mitigação: provisionar PostgreSQL local no devcontainer (conforme padrão de infraestrutura em AGENTS.md).
++- Testes atuais que usam `ERP_DB_PATH` (string de arquivo local) precisam ser ajustados; a fixture de banco temporário precisa provisionar um PostgreSQL (estratégias: container efêmero ou banco local). Aceito: o overhead não é uma reescrita de testes.
++- Se o PostgreSQL for remoto (não local), aumenta latência de desenvolvimento; mitigação: PostgreSQL local no devcontainer.
++- Migração de dados: se houver dados em produção, é preciso ETL; a confirmar se labs mantêm dados duradouros.
++
++### Reversão
++
++- Rever se os labs deixarem de exigir múltiplas réplicas. Voltar a SQLite custa: reescrever `mini-erp/app/db.py`, desativar Docker, ajustar fixtures de teste, refatorar qualquer schema PostgreSQL específico (sequences, tipos). Estimativa: 2–4h.
++
++## Rastreabilidade
++
++| Requisito | Como a decisão atende | Sensor que verifica |
++|---|---|---|
++| RQ-01 | PostgreSQL oferece mecanismos ACID e lock real para escrita concorrente | Teste: duas instâncias do ERP escrevem/leem simultaneamente sem corrupção; usar `make er-check` após implementação |
++| RQ-02 | Models SQLAlchemy agnósticos ao driver; muda apenas dialeto | Teste: modelos de `models.py` e schemas de `schemas.py` são idênticos antes e depois da migração; grep confirma |
++| RQ-03 | Fixture pytest provisiona banco temporário PostgreSQL para cada teste | Teste: `make test` passa sem dados persistidos entre testes |
++| RQ-04 | Nova variável `ERP_DATABASE_URL` (ou similar) segue padrão de customização | `make erp` e `make check` usam a variável da mesma forma que `ERP_DB_PATH` |
++
++## Pendências
++
++- Gatilho da migração: confirmar qual requisito ou laboratório demanda múltiplas réplicas.
++- Decisores: confirmar quem aprova (professor responsável, time de arquitetura do curso).
++- Cronograma: quando a migração deve estar pronta?
++- Estratégia de testes: usar `pytest-postgresql` (fixture que sobe container), banco local no devcontainer, ou outra abordagem?
++- Dados existentes: há dados em produção no SQLite que precisam ser migrados?

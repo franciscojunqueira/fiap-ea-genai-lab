@@ -1,0 +1,18 @@
+{
+  "modelo": "sonnet",
+  "degrau": 4,
+  "validador": "PASS",
+  "turnos": 13,
+  "tokens_entrada": 191470,
+  "tokens_saida": 4545,
+  "duracao_s": 100,
+  "arquivos_alterados": [
+    "docs/adr/ADR-001-migrar-banco-do-mini-erp-para-postgresql.md"
+  ],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 1,
+  "modelos_usados": [
+    "claude-sonnet-5-5"
+  ],
+  "data": "2026-10-12"
+}

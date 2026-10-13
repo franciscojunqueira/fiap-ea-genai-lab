@@ -1,0 +1,18 @@
+{
+  "modelo": "haiku",
+  "degrau": 3,
+  "validador": "PASS",
+  "turnos": 9,
+  "tokens_entrada": 261714,
+  "tokens_saida": 4471,
+  "duracao_s": 54,
+  "arquivos_alterados": [
+    "docs/adr/ADR-001-sqlite-para-postgresql.md"
+  ],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 0,
+  "modelos_usados": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "data": "2026-10-12"
+}

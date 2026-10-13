@@ -1,0 +1,14 @@
+[FAIL] docs/adr/0001-migrar-banco-de-sqlite-para-postgresql.md
+  ERRO  Nome do arquivo '0001-migrar-banco-de-sqlite-para-postgresql.md' fora do padrão. Use ADR-NNN-titulo-em-kebab-case.md (ex.: ADR-004-cache-de-produtos.md).
+  ERRO  '**Status:**' = 'None'. Use Proposto, Aprovado, Rejeitado ou 'Substituído por ADR-NNN'.
+  ERRO  '**Data:**' = 'None'. Use uma data real no formato AAAA-MM-DD.
+  ERRO  '**Decisores:**' vazio. Se ainda não se sabe quem decide, escreva 'a confirmar' e registre em Pendências.
+  ERRO  Falta a seção '## Requisitos e restrições'. Copie o esqueleto de reference/modelo-adr.md.
+  ERRO  Falta a seção '## Justificativa'. Copie o esqueleto de reference/modelo-adr.md.
+  ERRO  Falta a seção '## Rastreabilidade'. Copie o esqueleto de reference/modelo-adr.md.
+  ERRO  Falta a seção '## Pendências'. Copie o esqueleto de reference/modelo-adr.md.
+  ERRO  Seções fora de ordem. Ordem esperada: Contexto, Requisitos e restrições, Alternativas consideradas, Decisão, Justificativa, Consequências, Rastreabilidade, Pendências.
+  ERRO  A tabela de 'Requisitos e restrições' não tem nenhuma linha com ID no formato RQ-01.
+  ERRO  0 alternativa(s); o padrão exige pelo menos 3 alternativas reais (### A1, ### A2, ### A3).
+  ERRO  A '## Decisão' deve começar por 'Adotar **A<n>: Nome**', indicando a alternativa escolhida.
+  ERRO  Falta '### Reversão' com ao menos um item em '## Consequências'. Toda decisão tem custo; registre-o.

@@ -1,0 +1,12 @@
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "exigir_revisor", "resultado": "bloqueado: revisor não chamado"}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "validar_adr_ao_escrever", "arquivo": "ADR-001-migracao-sqlite-postgresql.md", "resultado": "PASS", "erros": 0}
+{"hook": "exigir_revisor", "resultado": "liberado"}

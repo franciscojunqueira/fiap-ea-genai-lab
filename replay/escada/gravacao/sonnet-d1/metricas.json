@@ -1,0 +1,18 @@
+{
+  "modelo": "sonnet",
+  "degrau": 1,
+  "validador": "FAIL(13 erros)",
+  "turnos": 3,
+  "tokens_entrada": 67389,
+  "tokens_saida": 3745,
+  "duracao_s": 35,
+  "arquivos_alterados": [
+    "docs/adr/0001-migrar-banco-de-sqlite-para-postgresql.md"
+  ],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 0,
+  "modelos_usados": [
+    "claude-sonnet-5-5"
+  ],
+  "data": "2026-10-12"
+}

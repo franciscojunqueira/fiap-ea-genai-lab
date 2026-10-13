@@ -1,0 +1,19 @@
+{
+  "modelo": "haiku",
+  "degrau": 1,
+  "validador": "FAIL(14 erros)",
+  "turnos": 9,
+  "tokens_entrada": 235361,
+  "tokens_saida": 4423,
+  "duracao_s": 52,
+  "arquivos_alterados": [
+    "docs/adr/0001-migrate-sqlite-to-postgresql.md",
+    "docs/adr/README.md"
+  ],
+  "fora_de_docs_adr": [],
+  "negacoes_de_permissao": 3,
+  "modelos_usados": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "data": "2026-10-12"
+}

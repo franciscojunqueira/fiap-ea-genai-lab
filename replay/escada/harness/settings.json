@@ -1,0 +1,34 @@
+{
+  "claudeMdExcludes": [
+    "**/core-banking-api/CLAUDE.md"
+  ],
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Edit(/docs/adr/**)",
+      "Bash(python3 *)",
+      "Bash(mkdir *)",
+      "Agent(revisor-adr)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {"type": "command", "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validar_adr_ao_escrever.py\""}
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/exigir_revisor.py\""}
+        ]
+      }
+    ]
+  }
+}

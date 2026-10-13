@@ -1,0 +1,1 @@
+Crie um ADR para migrar o banco do Mini-ERP de SQLite para PostgreSQL.

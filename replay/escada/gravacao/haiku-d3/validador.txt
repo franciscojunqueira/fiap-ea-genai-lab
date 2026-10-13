@@ -1,0 +1,1 @@
+[PASS] docs/adr/ADR-001-sqlite-para-postgresql.md
