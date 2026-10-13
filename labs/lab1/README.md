@@ -8,19 +8,24 @@ deixar um agente de IA (o Claude Code) implementar e **verificar** se ele fez ce
 
 ### O que o grupo faz: criar nenhum arquivo, editar 5
 
-**Criar: nenhum.** O `make lab1` (passo 1) cria `spec.md`, `verificacao.md`, `sensores.toml` e
-`testes/test_grupo.py` em `labs/lab1/`, já com as instruções dentro. Antes do `make lab1` eles não
-existem: não procurem por eles.
+**Criar: nenhum.** Quatro dos cinco arquivos abaixo **ainda não existem** no repositório: quem os
+cria é o comando `make lab1` (passo 1), copiando os modelos da pasta [modelos/](modelos/). Se vocês
+abrirem `labs/lab1/` antes do `make lab1` (ou olharem pelo site do GitHub), não vão achar `spec.md`,
+`sensores.toml`, `testes/test_grupo.py` nem `verificacao.md`. É o esperado: rodem `make lab1` no
+Codespace e eles aparecem.
 
-**Editar: 5 arquivos.**
+**Editar: 5 arquivos** (todos no Codespace, depois do `make lab1`).
 
-| # | Arquivo | O que fazer nele | Quem do grupo faz | Exemplo (de outro ticket) |
-|---|---|---|---|---|
-| 1 | `labs/lab1/spec.md` | apagar as linhas que começam com `<` e escrever **3 ou mais critérios de aceite** a partir do [ticket.md](ticket.md) | autores do harness | [spec_exemplo.md](exemplos/spec_exemplo.md) |
-| 2 | `AGENTS.md` (na raiz do repositório) | **acrescentar no fim** uma seção `## Mini-ERP` de 4 a 6 linhas; o resto do arquivo não muda | autores do harness | [agents_secao_exemplo.md](exemplos/agents_secao_exemplo.md) |
-| 3 | `labs/lab1/sensores.toml` | trocar **uma palavra**: `ligado = false` vira `ligado = true` | verificador | não precisa |
-| 4 | `labs/lab1/testes/test_grupo.py` | escrever o teste de **1** critério da spec e apagar a linha do `pytest.skip` | verificador | [teste_exemplo.py](exemplos/teste_exemplo.py) |
-| 5 | `labs/lab1/verificacao.md` | responder as 5 perguntas (o que o agente acertou, inventou e omitiu; o que mudar no harness; pergunta de decisão) | verificador e relator | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
+| # | Arquivo | De onde vem | O que fazer nele | Quem do grupo faz | Exemplo (de outro ticket) |
+|---|---|---|---|---|---|
+| 1 | `labs/lab1/spec.md` | criado pelo `make lab1` (modelo: [modelos/spec.md](modelos/spec.md)) | apagar as linhas que começam com `<` e escrever **3 ou mais critérios de aceite** a partir do [ticket.md](ticket.md) | autores do harness | [spec_exemplo.md](exemplos/spec_exemplo.md) |
+| 2 | `AGENTS.md` (na raiz do repositório) | **já existe** | **acrescentar no fim** uma seção `## Mini-ERP` de 4 a 6 linhas; o resto do arquivo não muda | autores do harness | [agents_secao_exemplo.md](exemplos/agents_secao_exemplo.md) |
+| 3 | `labs/lab1/sensores.toml` | criado pelo `make lab1` (modelo: [modelos/sensores.toml](modelos/sensores.toml)) | trocar **uma palavra**: `ligado = false` vira `ligado = true` | verificador | não precisa: é só essa troca |
+| 4 | `labs/lab1/testes/test_grupo.py` | criado pelo `make lab1` (modelo: [modelos/test_grupo.py](modelos/test_grupo.py)) | escrever o teste de **1** critério da spec e apagar a linha do `pytest.skip` | verificador | [teste_exemplo.py](exemplos/teste_exemplo.py) |
+| 5 | `labs/lab1/verificacao.md` | criado pelo `make lab1` (modelo: [modelos/verificacao.md](modelos/verificacao.md)) | responder as 5 perguntas (o que o agente acertou, inventou e omitiu; o que mudar no harness; pergunta de decisão) | verificador e relator | [verificacao_exemplo.md](exemplos/verificacao_exemplo.md) |
+
+Editem sempre o arquivo em `labs/lab1/`, **não** o modelo em `labs/lab1/modelos/`: o check só olha o
+primeiro.
 
 **Não editar: o código.** Quem altera `mini-erp/app/services/pedidos.py` e
 `mini-erp/app/routes/pedidos.py` é **o agente** (passo 4). O grupo só lê o que ele fez (passo 5).
