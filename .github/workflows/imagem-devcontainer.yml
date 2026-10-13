@@ -1,0 +1,33 @@
+# Publica a imagem pré-construída do devcontainer no GHCR. Roda só no repositório-template:
+# os repositórios dos grupos (criados por "Use this template") herdam este arquivo, mas não executam.
+name: Imagem do devcontainer
+
+on:
+  push:
+    branches: [main]
+    paths: [".devcontainer/imagem/**", ".github/workflows/imagem-devcontainer.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  imagem:
+    if: github.repository == 'franciscojunqueira/fiap-ea-genai-lab'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: devcontainers/ci@v0.3
+        with:
+          configFile: .devcontainer/imagem/devcontainer.json
+          imageName: ghcr.io/franciscojunqueira/fiap-ea-genai-lab
+          imageTag: latest,${{ github.sha }}
+          push: always
+          # Sensor: a imagem só é publicada se os testes e o skill-check passarem dentro dela.
+          runCmd: uv sync --frozen && make test && make skill-check

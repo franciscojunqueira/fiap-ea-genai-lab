@@ -1,15 +1,7 @@
 {
   "name": "fiap-ea-genai-lab",
-  "build": { "dockerfile": "Dockerfile" },
+  "image": "ghcr.io/franciscojunqueira/fiap-ea-genai-lab:latest",
   "hostRequirements": { "cpus": 2 },
-  "features": {
-    "ghcr.io/devcontainers/features/node:2": { "version": "lts" },
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
-  },
-  "overrideFeatureInstallOrder": [
-    "ghcr.io/devcontainers/features/node",
-    "ghcr.io/anthropics/devcontainer-features/claude-code"
-  ],
   "containerEnv": {
     "UV_LINK_MODE": "copy"
   },
