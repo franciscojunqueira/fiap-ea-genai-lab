@@ -13,6 +13,8 @@
       "Edit(labs/*/checar.py)",
       "Edit(labs/*/fitness_*.py)",
       "Edit(labs/*/conftest.py)",
+      "Edit(labs/*/sensores.toml)",
+      "Edit(labs/*/testes/**)",
       "Edit(replay/**)",
       "Bash(*lab1-referencia*)",
       "Bash(*labs/lab1/referencia/*)",

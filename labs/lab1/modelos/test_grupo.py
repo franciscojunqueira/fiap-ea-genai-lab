@@ -13,5 +13,10 @@ def test_ca_nn(erp_url):
     pedido = httpx.post(f"{erp_url}/pedidos", json={
         "nome_cliente": "Cliente Sintético Ltda", "itens": [{"produto_id": 2, "quantidade": 1}],
     }).json()
+
+    # Chamadas que podem ser úteis (descomentem as que o CA de vocês precisar):
+    # estoque = httpx.get(f"{erp_url}/estoque/2").json()["quantidade"]   # estoque do produto 2
+    # httpx.post(f"{erp_url}/pedidos/{pedido['id']}/fatura")             # fatura o pedido
+
     resposta = httpx.post(f"{erp_url}/pedidos/{pedido['id']}/cancelar")
-    # assert ...
+    # Escrevam aqui as conferências (asserts) do CA, com uma mensagem em linguagem de negócio.
