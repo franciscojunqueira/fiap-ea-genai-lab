@@ -3,7 +3,7 @@
 
 Cinco itens, cada um com PASS ou com o que fazer para passar:
   1. lab preparado e contratos do professor íntegros;   4. ajuste aprovado por uma pessoa e executado uma vez;
-  2. comparações ruim e boa registradas;               5. contrato.md com a linha de cada tool.
+  2. comparações ruim e boa registradas;               5. contrato.md com a linha de cada tool, uma tool do SGC e a pergunta de decisão.
   3. contrato do grupo comparado, sem executar sem aprovação e sem inventar quantidade;
 O check confere a forma e o estado do ERP. Se o contrato é bom para o Bússola, quem diz é o grupo.
 """
@@ -111,6 +111,14 @@ def item_contrato():
     linhas = [l for l in texto.splitlines() if l.strip().startswith("| minierp:")]
     completas = [l for l in linhas if all(c.strip() for c in l.strip().strip("|").split("|")) and len(l.split("|")) >= 9]
     faltam = [n for n in nomes if not any(f"minierp:{n}" in l for l in completas)]
+    sgc = [l for l in texto.splitlines() if l.strip().startswith("| sgc:")
+           and all(c.strip() for c in l.strip().strip("|").split("|")) and len(l.split("|")) >= 9]
+    if not sgc:
+        problemas.append("A tabela de labs/lab3/contrato.md não tem nenhuma linha completa sgc:nome_da_tool: o contrato do "
+                         "legado sem API (o SGC), com aprovação e idempotência pensadas a partir da Atividade 1.")
+    decisao = texto.split("## Pergunta de decisão", 1)[-1] if "## Pergunta de decisão" in texto else ""
+    if not [l for l in decisao.splitlines() if l.strip() and not l.strip().startswith(("<", "#"))]:
+        problemas.append("labs/lab3/contrato.md sem resposta em 'Pergunta de decisão' (relator).")
     if not nomes:
         problemas.append("Escrevam primeiro o contrato em labs/lab3/descricoes/grupo.toml; a tabela usa os nomes de lá.")
     elif faltam:
@@ -124,7 +132,7 @@ ITENS = [
     ("2. Comparações ruim e boa", item_ruim_boa),
     ("3. Contrato do grupo comparado", item_grupo),
     ("4. Escrita aprovada por uma pessoa e executada", item_aprovacao_ao_vivo),
-    ("5. Contrato MCP registrado", item_contrato),
+    ("5. Contrato MCP registrado (Mini-ERP e SGC) e pergunta de decisão", item_contrato),
 ]
 
 

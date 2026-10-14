@@ -32,6 +32,8 @@ com `git push` (passo 5).
   ao modelo. No prompt, chegam, e o modelo é só *pedido* para não usá-los.
 - **Fato-canário:** um valor que só existe num documento Regulado. Se aparecer na resposta de quem
   não pode ver o documento, o script marca **vazamento**.
+- **`--restricted`:** os scripts chamam o modelo com as ferramentas de arquivo presas à pasta temporária.
+  Sem isso, a busca agêntica lê qualquer arquivo do disco, inclusive os documentos Regulados.
 
 ## Quem faz o quê
 
@@ -79,6 +81,13 @@ make lab2-rodar PIPELINE=agentica
 Cada comando faz 10 chamadas ao modelo (3 por vez) e leva de 1 a 3 minutos. No fim, imprime um
 resumo e a **linha para a planilha da turma**, e grava as respostas num `.md` em `labs/lab2/execucoes/`.
 O relator cola as duas linhas na planilha e na seção "Resultados".
+
+A linha traz, nesta ordem: acerto, citação, vazamentos (o valor sigiloso apareceu ou o documento
+proibido foi citado), existência confirmada (a resposta admitiu que o documento proibido existe),
+latência p50 e p95, tokens novos, tokens lidos do cache e tokens de saída por pergunta, e **US$ por mil
+perguntas**: o custo a preço de API, calculado pelo script com a tabela de preços de
+`config/modelos.toml` (datada). O plano do operador não cobra assim, mas o Bússola em produção
+cobraria; o token lido do cache custa uma fração do novo (Radar).
 
 **3. Mudar uma coisa (10 min).** Escolham **um** parâmetro em `labs/lab2/config.toml`, mudem e rodem
 de novo **um** pipeline. Sugestões:

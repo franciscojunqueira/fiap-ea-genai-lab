@@ -117,6 +117,8 @@ def test_lab3_check_falha_no_inicio_e_passa_preenchido(tmp_path):
     contrato = (lab / "contrato.md").read_text(encoding="utf-8").replace("| | | | | | | |",
         "| minierp:pedir_ajuste_de_estoque | escreve | produto, variação, motivo | ajuste PENDENTE | sim, na tela | não | TI Operacional |\n"
         "| minierp:aplicar_ajuste_aprovado | escreve | ajuste_id | ajuste EXECUTADO | já aprovado | sim | TI Operacional |")
+    assert "sgc:nome_da_tool" in (lab / "contrato.md").read_text(encoding="utf-8")
+    contrato += "\n| sgc:status_do_lote | lê | data do ciclo | etapas e horários | não | sim | TI Operacional |"
     contrato = "\n".join("Texto do grupo." if l.startswith("<") else l for l in contrato.splitlines())
     (lab / "contrato.md").write_text(contrato, encoding="utf-8")
     final = rodar(copia, "labs/lab3/checar.py", env=env)

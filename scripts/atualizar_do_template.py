@@ -4,7 +4,8 @@
 O repositório do grupo nasce do template antes da Aula 1 e não recebe sozinho o que o professor publica
 depois (Labs 2 a 6, correções). Este script busca o template e copia só os arquivos do professor; os
 arquivos do grupo (AGENTS.md, specs, decisões, contratos, ADRs, pacote, código mudado no Lab 1) ficam
-como estão. No fim, lista o que mudou: confiram e façam commit.
+como estão. Planejar → validar → executar: o script recusa rodar com alteração não commitada, mostra a
+lista do que vai trazer e só aplica depois de "s". `--sim` só mostra a lista.
 
 Primeira vez num repositório criado antes deste script existir (uma linha, da raiz do repositório):
     git remote add template https://github.com/franciscojunqueira/fiap-ea-genai-lab.git; git fetch template && git checkout template/main -- scripts/atualizar_do_template.py && python3 scripts/atualizar_do_template.py
@@ -45,6 +46,12 @@ def casa(caminho, padroes):
 
 
 def main():
+    simular = "--sim" in sys.argv
+    # O próprio script pode ter acabado de vir do template (linha de primeira vez): não conta como alteração.
+    sujos = [l for l in git("status", "--porcelain").splitlines() if l.strip() and not l.endswith(Path(__file__).name)]
+    if sujos:
+        sys.exit("Há alterações sem commit. Façam commit antes (git add -A && git commit -m 'Antes de atualizar') "
+                 "e rodem de novo: assim, qualquer arquivo trazido do template pode ser desfeito com o git.")
     if "template" not in git("remote").split():
         git("remote", "add", "template", URL)
         print(f"  remoto 'template' adicionado ({URL})")
@@ -60,16 +67,27 @@ def main():
             trazidos.append(caminho)
         else:
             mantidos.append(caminho)
-    if trazidos:
-        git("checkout", REF, "--", *trazidos)
     for c in trazidos:
-        print(f"  atualizado  {c}")
+        print(f"  trazer      {c}")
     for c in mantidos:
-        print(f"  mantido     {c} (do grupo; para ver a versão do template: git diff HEAD {REF} -- {c})")
+        print(f"  manter      {c} (do grupo; para ver a versão do template: git diff HEAD {REF} -- {c})")
+    if "AGENTS.md" in mantidos:
+        print("\n  O AGENTS.md do template mudou. Ele é do grupo e não é trocado: vejam a diferença com o comando acima e "
+              "copiem as linhas novas da seção 'Estrutura que não é óbvia'.")
+    if not trazidos:
+        print("\nNada a trazer: o repositório já está com os arquivos do professor em dia.")
+        return
+    if simular:
+        print(f"\n{len(trazidos)} arquivo(s) seriam trazidos (--sim: nada foi alterado).")
+        return
+    if input(f"\nTrazer {len(trazidos)} arquivo(s) do template? [s/N] ").strip().lower() not in ("s", "sim"):
+        print("Nada foi alterado.")
+        return
+    git("checkout", REF, "--", *trazidos)
     if any(c in ("pyproject.toml", "uv.lock") for c in trazidos):
         subprocess.run(["uv", "sync", "--frozen", "--quiet"], cwd=RAIZ)
         print("  dependências sincronizadas (uv sync)")
-    print(f"\n{len(trazidos)} arquivo(s) atualizado(s). Rodem `make test` e façam commit: "
+    print(f"\n{len(trazidos)} arquivo(s) trazido(s). Para desfazer: git checkout HEAD -- <arquivo>. Rodem `make test` e façam commit: "
           "git add -A && git commit -m 'Atualiza do template'")
 
 

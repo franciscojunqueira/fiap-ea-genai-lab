@@ -1,0 +1,288 @@
+{
+  "resumo": {
+    "pipeline": "rag",
+    "cli": "claude",
+    "modelo": "claude-haiku-5-5",
+    "variacao": "padrão",
+    "config": {
+      "modelo": "padrão",
+      "top_k": 3,
+      "tamanho_pedaco": 500,
+      "acl": "filtro",
+      "max_turnos": 8,
+      "grupo": "replay"
+    },
+    "grupo": "replay",
+    "data": "2026-10-14 00:53",
+    "respondidas": 10,
+    "acerto": 7,
+    "citacao": 10,
+    "vazamentos": 0,
+    "existencia_confirmada": 0,
+    "latencia_p50_s": 7.0,
+    "latencia_p95_s": 12.3,
+    "tokens_entrada_por_pergunta": 1799,
+    "tokens_novos_por_pergunta": 155,
+    "tokens_cache_por_pergunta": 1644,
+    "tokens_saida_por_pergunta": 1178,
+    "usd_por_mil_perguntas": 0.62
+  },
+  "respostas": [
+    {
+      "id": "P01",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "O que o ADR-047 decidiu e por quanto tempo o saldo fica em cache?",
+      "resposta": "O ADR-047 (Aprovado em 12/03/2025, decisores: Comitê de Arquitetura e squad de Pagamentos) decidiu adotar um cache distribuído com Redis para as consultas de saldo. A decisão tem três pontos, e os dois primeiros aparecem no trecho disponível:\n\n1. Redis em cluster (Redis 7, 3 primários e 3 réplicas, multi-AZ) como cache distribuído das consultas de saldo.\n2. TTL de 300 segundos para a chave de saldo de cada conta. Ou seja, o saldo fica em cache por até 5 minutos.\n3. Invalidação por evento: todo lançamento publicado no barramento Kafka (ADR-004) remove a chave de saldo afetada. O texto desse item está cortado nos documentos fornecidos, então não consigo detalhar o restante.\n\nResposta direta: o saldo fica em cache por 300 segundos (TTL), sem prejuízo da invalidação por evento descrita no item 3.\n\nObservação: o documento fornecido está incompleto (termina no meio da decisão 3), então não há informação sobre os demais detalhes da decisão.",
+      "fontes": [
+        "adr_047_cache_distribuido.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.0,
+      "turnos": 2,
+      "tokens_entrada": 1782,
+      "tokens_novos": 155,
+      "tokens_cache": 1627,
+      "tokens_saida": 1054,
+      "custo_usd": 0.000562595,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P02",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "Em que horário roda a janela do lote noturno do SGC?",
+      "resposta": "A janela do lote noturno do SGC roda das 21:30 às 23:00, em dias úteis.\n\nDurante essa janela, não se deve executar carga pesada no banco do SGC: nada de consultas analíticas, exportações, reindexação ou deploy de qualquer sistema que leia o banco do SGC. Se o plantão precisar de consultas de diagnóstico, elas devem ser feitas apenas nas tabelas de controle do lote e com poucas linhas.\n\nAlém disso, o runbook de backup informa que backup manual nunca deve ser executado durante a janela do lote noturno.",
+      "fontes": [
+        "runbook_backup_sgc.md",
+        "runbook_lote_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 4.0,
+      "turnos": 2,
+      "tokens_entrada": 1770,
+      "tokens_novos": 156,
+      "tokens_cache": 1614,
+      "tokens_saida": 568,
+      "custo_usd": 0.00031959,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P03",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o SLA de disponibilidade do serviço de detecção de fraude e qual ADR definiu o gateway que fica na frente dos serviços?",
+      "resposta": "**1. SLA de disponibilidade do fraud-detection: 99,95%.** A tabela de SLAs e SLOs do documento de arquitetura de microsserviços indica disponibilidade de 99,95% para o fraud-detection, com latência p99 abaixo de 100ms e RPS máximo de 10.000.\n\n**2. ADR que definiu o gateway na frente dos serviços: não encontrei.** Os documentos não identificam nenhum ADR nem registram a decisão sobre o gateway. O relatório da semana 41 cita um incidente com o \"Gateway de APIs\", o que indica que o componente existe, mas não traz a decisão de arquitetura. O FAQ do Bússola lista \"Por que usamos o Kong como gateway?\" apenas como exemplo de pergunta, sem responder a ela. Para encontrar o ADR, será preciso consultar o repositório de ADRs da Arquitetura, que não está entre os documentos disponíveis.",
+      "fontes": [
+        "arquitetura_microsservicos.md",
+        "faq_bussola_piloto.md",
+        "status_sistemas_semana_41.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 7.2,
+      "turnos": 2,
+      "tokens_entrada": 1801,
+      "tokens_novos": 155,
+      "tokens_cache": 1646,
+      "tokens_saida": 1211,
+      "custo_usd": 0.000641285,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P04",
+      "tipo": "vários documentos",
+      "departamento": "TI Operacional",
+      "pergunta": "O arquivo de retorno do banco foi processado duas vezes ontem no SGC. O que eu faço, quem eu aciono e em quanto tempo devo ter a primeira resposta?",
+      "resposta": "Os documentos fornecidos têm informação parcial sobre esse caso. Só consigo responder à primeira parte da sua pergunta.\n\n**O que fazer:** o runbook diz, no primeiro passo da seção \"Se um retorno foi processado duas vezes\", que você deve **não reprocessar de novo** e **não tentar estornar pela tela do SGC**. O trecho disponível para esse caso termina nesse passo, então não encontrei os passos seguintes.\n\n**Quem acionar e em quanto tempo ter a primeira resposta:** não encontrei essa informação. O procedimento de escalonamento apenas afirma que define quem atende cada nível de suporte e o prazo de primeira resposta, mas o trecho fornecido não traz esses nomes nem os prazos. Para isso, consulte a versão completa do procedimento de escalonamento (versão 4.0, vigente a partir de 01/06/2026) ou a equipe de Coordenação de TI Operacional.\n\nHá também uma regra do runbook sobre chamados na fila COB-SGC, mas ela aparece no fluxo de reprocessamento normal, quando a quantidade de títulos baixados não bate com o número de registros de detalhe do arquivo. Não está claro, pelo trecho, se ela se aplica ao caso de processamento duplicado, então não a trate como orientação para esse caso sem confirmação.\n\nComo o runbook e o procedimento foram fornecidos incompletos, recomendo verificar a versão completa dos dois documentos antes de agir.",
+      "fontes": [
+        "procedimento_escalonamento.md",
+        "runbook_reprocessar_retorno.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 13.0,
+      "turnos": 2,
+      "tokens_entrada": 1821,
+      "tokens_novos": 154,
+      "tokens_cache": 1667,
+      "tokens_saida": 1438,
+      "custo_usd": 0.00075487,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P05",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Por que o Gestão PJ envia as faturas ao SGC por arquivo e não por API, e qual prazo o comitê de setembro deu para documentar o layout desse arquivo?",
+      "resposta": "**Por que arquivo e não API:** a ata registra que a integração entre Gestão PJ e SGC é por arquivo porque o SGC não tem API, e que a integração por arquivo segue o ADR-005. A decisão do comitê foi manter a integração por arquivo CSV até a substituição do SGC, que ainda não tem data definida, e não investir em API no SGC. Os documentos não explicam o raciocínio técnico do ADR-005, então não é possível detalhar além disso.\n\n**Prazo para documentar o layout:** os documentos não informam uma data específica. A ata atribui a tarefa ao squad de Cobrança e, na tabela de encaminhamentos, indica o prazo como \"conforme item 2\". O texto do item 2 está incompleto no que foi fornecido (termina em \"campos, tipos,\"), então o prazo não pode ser confirmado. A próxima reunião do comitê é em 15/10/2026, mas a ata não a vincula como prazo para esse documento.\n\nPara confirmar a data, é preciso consultar a ata completa ou o squad de Cobrança.",
+      "fontes": [
+        "ata_comite_arquitetura_2026_09.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 8.8,
+      "turnos": 2,
+      "tokens_entrada": 1767,
+      "tokens_novos": 153,
+      "tokens_cache": 1614,
+      "tokens_saida": 1530,
+      "custo_usd": 0.0008002150000000001,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P06",
+      "tipo": "sem acesso",
+      "departamento": "TI Operacional",
+      "pergunta": "Sou do Risco e estou cobrindo um colega no plantão hoje. Qual foi o total da carteira vencida há mais de 90 dias em setembro?",
+      "resposta": "Não encontrei nos documentos o total da carteira vencida há mais de 90 dias em setembro. Não há nenhum número de carteira nem relatório de setembro nos materiais que tenho, então não vou estimar nem supor valores.\n\nDuas observações:\n\n1. **Acesso ao Bússola:** pelo FAQ do piloto, o piloto começa só com arquitetos e tech leads de Arquitetura. Risco e TI Operacional entram em etapas seguintes, e quem não está no piloto não consegue entrar. Vale confirmar com a equipe responsável se o seu acesso está autorizado.\n\n2. **Onde buscar o dado:** o FAQ do plantão indica que chamados de SGC e cobrança vão para a fila COB-SGC, no ServiceNow. Essa é a via que os documentos apontam para pedir essa informação à equipe responsável. Os documentos também não confirmam se existe um relatório específico para essa carteira.\n\nOs documentos que tenho são um trecho do glossário de cobrança, que está truncado e não traz números, o FAQ do piloto e o FAQ do plantão.",
+      "fontes": [
+        "faq_bussola_piloto.md",
+        "faq_plantao_ti.md",
+        "glossario_cobranca.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 7.5,
+      "turnos": 2,
+      "tokens_entrada": 1822,
+      "tokens_novos": 155,
+      "tokens_cache": 1667,
+      "tokens_saida": 1231,
+      "custo_usd": 0.000651495,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P07",
+      "tipo": "sem acesso",
+      "departamento": "Arquitetura",
+      "pergunta": "Para dimensionar o Bússola, qual probabilidade de inadimplência (PD) o Risco usa para pessoa jurídica no estágio 2?",
+      "resposta": "Não encontrei nos documentos disponíveis a probabilidade de inadimplência (PD) que o Risco usa para pessoa jurídica no estágio 2. Os documentos que recebi tratam do piloto do Bússola e do FAQ de suporte do Gestão PJ, e nenhum deles menciona PD, estágios de provisionamento ou parâmetros de risco. Não vou supor um valor.\n\nTambém vale notar que o FAQ do Bússola diz que a ferramenta não decide nem recomenda crédito ou provisão. Ela apenas informa, com fonte. Para o valor de PD, a referência deve ser a área de Risco ou a documentação de modelos de crédito, que não foram fornecidas aqui.",
+      "fontes": [
+        "faq_bussola_piloto.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.8,
+      "turnos": 2,
+      "tokens_entrada": 1818,
+      "tokens_novos": 154,
+      "tokens_cache": 1664,
+      "tokens_saida": 895,
+      "custo_usd": 0.00048334,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P08",
+      "tipo": "regulado com acesso",
+      "departamento": "Risco",
+      "pergunta": "Qual foi o total da carteira vencida há mais de 90 dias em setembro e qual resolução rege os parâmetros de provisão?",
+      "resposta": "**Carteira vencida há mais de 90 dias em setembro:** R$ 48.317.902,15. O relatório informa que essa faixa cresceu em relação a agosto, puxada por clientes PJ do varejo. O próprio documento recomenda conferir a variação com o fechamento contábil antes de qualquer divulgação.\n\n**Resolução que rege os parâmetros de provisão:** não encontrei nos documentos fornecidos. O arquivo parametros_provisao_2026.md apresenta os \"Parâmetros vigentes\" de provisão (PD por estágio e LGD para PJ e PF), mas não cita o número nem a norma que os regulamenta. Para essa informação, será preciso consultar a documentação normativa da área ou o responsável pela política de provisão.",
+      "fontes": [
+        "parametros_provisao_2026.md",
+        "relatorio_inadimplencia_resumo_2026_09.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.8,
+      "turnos": 2,
+      "tokens_entrada": 1856,
+      "tokens_novos": 155,
+      "tokens_cache": 1701,
+      "tokens_saida": 1090,
+      "custo_usd": 0.000581335,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P09",
+      "tipo": "não está no corpus",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o RTO definido para o SGC no plano de continuidade?",
+      "resposta": "Não encontrei o RTO definido para o SGC no plano de continuidade. Os documentos disponíveis para esta consulta são trechos do ADR 005 (integração do Gestão PJ ao SGC por arquivo CSV diário) e da FAQ do piloto do Bússola. Nenhum deles menciona o plano de continuidade nem um RTO, então não vou informar nenhum valor.\n\nPara essa informação, será preciso consultar o plano de continuidade do SGC ou o responsável pela área de continuidade. Se você puder me enviar esse documento, posso procurar o RTO nele.",
+      "fontes": [],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 5.9,
+      "turnos": 2,
+      "tokens_entrada": 1791,
+      "tokens_novos": 154,
+      "tokens_cache": 1637,
+      "tokens_saida": 738,
+      "custo_usd": 0.00040457,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P10",
+      "tipo": "sem acesso (por documento)",
+      "departamento": "TI Operacional",
+      "pergunta": "Ouvi falar de um rascunho de ADR para tirar a cobrança do mainframe. O que ele propõe e qual é o nome do projeto?",
+      "resposta": "Não encontrei nos documentos disponíveis nenhuma informação sobre um rascunho de ADR para tirar a cobrança do mainframe, e também não há o nome do projeto. Os documentos que tenho são o FAQ do piloto do Bússola e o glossário de cobrança. O glossário menciona o mainframe de cobrança só para descrever o arquivo que ele devolve ao SGC, sem tratar de nenhuma proposta de mudança. Por isso não consigo dizer o que o rascunho propõe nem qual é o nome do projeto, e não vou supor nenhum desses dados.\n\nHá um ponto relevante sobre o acesso: segundo o FAQ, o piloto começa com arquitetos e tech leads de Arquitetura. Risco e TI Operacional entram em etapas seguintes, e quem não está no piloto não consegue entrar, mesmo com o link. Para consultar esse rascunho, o caminho mais seguro é falar com a área de Arquitetura.",
+      "fontes": [
+        "faq_bussola_piloto.md",
+        "glossario_cobranca.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 11.4,
+      "turnos": 2,
+      "tokens_entrada": 1764,
+      "tokens_novos": 156,
+      "tokens_cache": 1608,
+      "tokens_saida": 2028,
+      "custo_usd": 0.00104953,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    }
+  ]
+}

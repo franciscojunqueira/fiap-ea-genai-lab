@@ -24,7 +24,7 @@ SECOES = ["Hipótese", "Resultados", "Decisão por tipo de pergunta", "Permissã
 VEREDITO = re.compile(r"\b(confere|não confere|nao confere|parcial)\b", re.I)
 # SHA-256 das perguntas e do corpus; recalcular quando eles mudarem (tests/test_lab2.py acusa a divergência).
 INTEGRIDADE = {
-    "labs/lab2/perguntas.toml": "7c020fcf768f37bdae52a53599e65a548ee99231c583d59341656cbb445b4241",
+    "labs/lab2/perguntas.toml": "61bff205a3b32dbc8f1c7912c142894038e1d0d3d53b0a466ce5622d615a6e8c",
     "knowledge/techcorp/": "10f2b5bc071ae73fe43fc4e8e760eddfe8f0cf3a4b867e055c84e7c12e4cf0e1",
 }
 

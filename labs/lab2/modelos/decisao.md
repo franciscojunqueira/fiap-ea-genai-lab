@@ -21,7 +21,7 @@ Esta decisão vai para a seção "Decisão de conhecimento" de integrador/pacote
 
 ## Custo × volume
 
-<Tokens por pergunta × 4.500 perguntas por dia útil (cenário alvo do caso) = tokens por dia da estratégia escolhida, e a latência p95 contra a RC-06 (8 s para TI Operacional). O preço por token entra no Lab 5 (Aula 3).>
+<US$ por mil perguntas (da linha do script) × 4,5 = custo por dia útil no cenário alvo (4.500 perguntas), para a estratégia escolhida e para a alternativa; e a latência p95 contra a RC-06 (8 s para TI Operacional). É preço de API, sem infraestrutura nem pessoas: o TCO completo é o Lab 5 (Aula 3).>
 
 ## Verificação
 
@@ -33,4 +33,4 @@ Esta decisão vai para a seção "Decisão de conhecimento" de integrador/pacote
 
 ## Pergunta de decisão
 
-<Com os números da turma: o que o Bússola usa para o plantão de TI, que pede 8 s no p95 e 24×7, e quanto isso custa por mês no cenário alvo?>
+<Com os números da turma: o que o Bússola usa para o plantão de TI, que pede 8 s no p95 e 24×7, e quanto isso custa por dia útil no cenário alvo?>

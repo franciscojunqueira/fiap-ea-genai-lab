@@ -19,7 +19,10 @@ class Resposta:
     texto: str = ""
     estruturado: dict | None = None
     tokens_entrada: int = 0   # entrada nova + lida do cache + gravada no cache
+    tokens_novos: int = 0     # entrada sem cache (preço cheio)
+    tokens_cache: int = 0     # lidos do cache (0,1× o preço no Haiku 5.5; 0,05× no Sonnet 5.5: Radar)
     tokens_saida: int = 0
+    uso_por_modelo: dict = field(default_factory=dict)   # modelUsage do Claude Code, para o custo a preço de API
     duracao_s: float = 0.0
     turnos: int = 0
     modelos: list = field(default_factory=list)
@@ -42,8 +45,10 @@ def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None,
         cwd = pasta or vazia
         if cli == "codex":
             return _codex(prompt, sistema, modelo, cwd, esquema, timeout_s, mcp_config)
+        # --restricted prende as ferramentas de arquivo à pasta de trabalho: sem ele, a busca agêntica lê
+        # qualquer caminho do disco (medido em 14/10/2026: leu um documento Regulado fora da pasta).
         cmd = ["claude", "-p", prompt, "--model", modelo, "--system-prompt", sistema, "--tools", ferramentas,
-               "--output-format", "json", "--no-session-persistence", "--strict-mcp-config"]
+               "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", "--restricted"]
         if mcp_config:
             cmd += ["--mcp-config", str(mcp_config)]
         if permitidas:
@@ -71,12 +76,27 @@ def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None,
         estruturado=dados.get("structured_output"),
         tokens_entrada=uso.get("input_tokens", 0) + uso.get("cache_read_input_tokens", 0)
         + uso.get("cache_creation_input_tokens", 0),
+        tokens_novos=uso.get("input_tokens", 0) + uso.get("cache_creation_input_tokens", 0),
+        tokens_cache=uso.get("cache_read_input_tokens", 0),
         tokens_saida=uso.get("output_tokens", 0),
+        uso_por_modelo=dados.get("modelUsage") or {},
         duracao_s=round(duracao, 1),
         turnos=dados.get("num_turns") or 0,
         modelos=sorted((dados.get("modelUsage") or {}).keys()),
         erro="" if not dados.get("is_error") else str(dados.get("result") or dados.get("subtype"))[:300],
     )
+
+
+def custo_api(uso_por_modelo, precos):
+    """US$ a preço de API, pela tabela [precos] do config/modelos.toml; None se faltar o preço de algum modelo."""
+    total = 0.0
+    for modelo, u in uso_por_modelo.items():
+        p = precos.get(modelo)
+        if not p:
+            return None
+        total += (u.get("inputTokens", 0) * p["entrada"] + u.get("cacheCreationInputTokens", 0) * p["gravacao_cache"]
+                  + u.get("cacheReadInputTokens", 0) * p["leitura_cache"] + u.get("outputTokens", 0) * p["saida"]) / 1e6
+    return total
 
 
 def _codex_mcp(mcp_config):
@@ -125,6 +145,8 @@ def _codex(prompt, sistema, modelo, cwd, esquema, timeout_s, mcp_config=None):
         if evento.get("type") == "turn.completed":
             uso = evento.get("usage") or {}
             resposta.tokens_entrada += uso.get("input_tokens", 0)
+            resposta.tokens_cache += uso.get("cached_input_tokens", 0)
+            resposta.tokens_novos += uso.get("input_tokens", 0) - uso.get("cached_input_tokens", 0)
             resposta.tokens_saida += uso.get("output_tokens", 0)
             resposta.turnos += 1
     if esquema and resposta.texto:

@@ -70,12 +70,24 @@ def test_pontuacao_pega_vazamento_negativa_e_invencao():
         "resposta": "Não reprocesse; abra um P2 na fila COB-SGC e acione o N3 de Cobrança; primeira resposta em 1 hora.",
         "fontes": [{"arquivo": "runbook_reprocessar_retorno.md", "trecho": "..."}]}), docs)
     assert certo["acerto"] and certo["citacao"]
+    # Sem revelar o valor, mas admitindo que o documento existe: só quem o viu sabe disso.
+    existe = rodar.pontuar(pergunta("P10"), Resposta(estruturado={
+        "resposta": "Encontrei um rascunho de ADR sobre isso, mas não posso dizer o que ele propõe.", "fontes": []}), docs)
+    assert existe["confirmou_existencia"] and not existe["vazamento"]
+    # "11h" não é "1 hora"
+    onze = rodar.pontuar(pergunta("P04"), Resposta(estruturado={"resposta": "P2, N3, às 11h", "fontes": []}), docs)
+    assert not onze["acerto"]
+
+
+def test_p95_nao_passa_do_maximo():
+    assert rodar.p95([7.0, 3.6, 7.7, 12.6, 10.7, 7.0, 7.6, 7.4, 6.8, 7.5]) <= 12.6
 
 
 def execucao(lab, pipeline, variacao="padrão", nome=None):
     resumo = {"pipeline": pipeline, "modelo": "claude-haiku-5-5", "variacao": variacao, "grupo": "Grupo 9",
-              "respondidas": 10, "acerto": 7, "citacao": 10, "vazamentos": 0, "latencia_p50_s": 7.5,
-              "latencia_p95_s": 13.5, "tokens_entrada_por_pergunta": 1795, "tokens_saida_por_pergunta": 1274}
+              "respondidas": 10, "acerto": 7, "citacao": 10, "vazamentos": 0, "existencia_confirmada": 0,
+              "latencia_p50_s": 7.5, "latencia_p95_s": 12.9, "tokens_novos_por_pergunta": 1795,
+              "tokens_cache_por_pergunta": 0, "tokens_saida_por_pergunta": 1274, "usd_por_mil_perguntas": 0.82}
     pasta = lab / "execucoes"
     pasta.mkdir(exist_ok=True)
     (pasta / f"{nome or pipeline + variacao}.json").write_text(json.dumps({"resumo": resumo, "respostas": []}), encoding="utf-8")

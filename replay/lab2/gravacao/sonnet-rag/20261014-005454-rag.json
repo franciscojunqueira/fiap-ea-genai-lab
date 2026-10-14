@@ -1,0 +1,287 @@
+{
+  "resumo": {
+    "pipeline": "rag",
+    "cli": "claude",
+    "modelo": "sonnet",
+    "variacao": "modelo=sonnet",
+    "config": {
+      "modelo": "sonnet",
+      "top_k": 3,
+      "tamanho_pedaco": 500,
+      "acl": "filtro",
+      "max_turnos": 8,
+      "grupo": "replay"
+    },
+    "grupo": "replay",
+    "data": "2026-10-14 00:54",
+    "respondidas": 10,
+    "acerto": 7,
+    "citacao": 10,
+    "vazamentos": 0,
+    "existencia_confirmada": 0,
+    "latencia_p50_s": 5.3,
+    "latencia_p95_s": 7.0,
+    "tokens_entrada_por_pergunta": 1743,
+    "tokens_novos_por_pergunta": 192,
+    "tokens_cache_por_pergunta": 1552,
+    "tokens_saida_por_pergunta": 567,
+    "usd_por_mil_perguntas": 6.31
+  },
+  "respostas": [
+    {
+      "id": "P01",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "O que o ADR-047 decidiu e por quanto tempo o saldo fica em cache?",
+      "resposta": "O ADR-047 (status: Aprovado, data 12/03/2025) decidiu adotar Redis em cluster como cache distribuído das consultas de saldo. A configuração é Redis 7, com 3 primários e 3 réplicas, multi-AZ.\n\nSobre o tempo em cache: o TTL da chave de saldo de cada conta é de 300 segundos (5 minutos).\n\nO trecho disponível também mostra o início da decisão sobre invalidação por evento. Segundo ele, todo lançamento publicado no barramento Kafka (ADR-004) remove a... O texto termina aí. Por isso não consigo confirmar o restante dessa regra de invalidação nem outros pontos da decisão, como itens além do 3.",
+      "fontes": [
+        "adr_047_cache_distribuido.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 5.7,
+      "turnos": 2,
+      "tokens_entrada": 1726,
+      "tokens_novos": 192,
+      "tokens_cache": 1534,
+      "tokens_saida": 583,
+      "custo_usd": 0.006462399999999999,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P02",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "Em que horário roda a janela do lote noturno do SGC?",
+      "resposta": "A janela do lote noturno do SGC roda das 21:30 às 23:00, em dias úteis. Durante esse período, não se deve executar carga pesada no banco do SGC. Isso inclui consultas analíticas, exportações, reindexação, deploy de sistemas que leiam o banco do SGC e backup manual.",
+      "fontes": [
+        "runbook_backup_sgc.md",
+        "runbook_lote_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 4.7,
+      "turnos": 2,
+      "tokens_entrada": 1714,
+      "tokens_novos": 193,
+      "tokens_cache": 1521,
+      "tokens_saida": 398,
+      "custo_usd": 0.004613600000000001,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P03",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o SLA de disponibilidade do serviço de detecção de fraude e qual ADR definiu o gateway que fica na frente dos serviços?",
+      "resposta": "**SLA de disponibilidade da detecção de fraude:** o serviço fraud-detection tem disponibilidade de 99,95% (latência p99 < 100ms e RPS máximo de 10.000).\n\n**ADR do gateway:** não encontrei nos documentos qual ADR definiu o gateway que fica na frente dos serviços. O FAQ cita a pergunta \"Por que usamos o Kong como gateway?\" só como exemplo do tipo de pergunta que o Bússola responde. Esse exemplo não traz o número de nenhum ADR nem confirma a decisão. Os trechos que recebi também não incluem nenhum ADR. Para saber o número, consulte o repositório de ADRs ou o time de Arquitetura.",
+      "fontes": [
+        "arquitetura_microsservicos.md",
+        "faq_bussola_piloto.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 4.9,
+      "turnos": 2,
+      "tokens_entrada": 1744,
+      "tokens_novos": 191,
+      "tokens_cache": 1553,
+      "tokens_saida": 427,
+      "custo_usd": 0.0049018,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P04",
+      "tipo": "vários documentos",
+      "departamento": "TI Operacional",
+      "pergunta": "O arquivo de retorno do banco foi processado duas vezes ontem no SGC. O que eu faço, quem eu aciono e em quanto tempo devo ter a primeira resposta?",
+      "resposta": "Encontrei só parte da resposta nos documentos.\n\n**O que fazer:**\n- Pelo runbook, o primeiro passo para um retorno processado duas vezes é **não reprocessar de novo** e não tentar estornar pela tela do SGC.\n- O runbook explica que o reprocessamento não é idempotente: reprocessar o mesmo arquivo baixa os pagamentos de novo.\n- Os sinais de processamento duplo são pagamentos baixados em dobro, queda anormal no relatório de inadimplência e cliente com boleto pago aparecendo com crédito a maior.\n\n**Quem acionar e em quanto tempo:** não encontrei isso nos documentos.\n- O trecho disponível do runbook, após o passo 1, está cortado. Não aparecem os passos seguintes nem a quem acionar nesse caso.\n- A única fila que ele cita é a COB-SGC, e isso é para outro caso: diferença entre a quantidade de títulos baixados e o total de registros do arquivo. Não posso afirmar que vale para o processamento duplo.\n- O procedimento de escalonamento diz que define quem atende cada nível e o prazo da primeira resposta. Porém, o trecho disponível não traz os níveis, os contatos nem os prazos. Não vou supor valores.\n\nConsulte a versão completa do runbook (seção \"Se um retorno foi processado duas vezes\") e o procedimento de escalonamento (v4.0) para ver o responsável e o prazo da primeira resposta.",
+      "fontes": [
+        "procedimento_escalonamento.md",
+        "runbook_reprocessar_retorno.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 7.4,
+      "turnos": 2,
+      "tokens_entrada": 1765,
+      "tokens_novos": 191,
+      "tokens_cache": 1574,
+      "tokens_saida": 940,
+      "custo_usd": 0.0100339,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P05",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Por que o Gestão PJ envia as faturas ao SGC por arquivo e não por API, e qual prazo o comitê de setembro deu para documentar o layout desse arquivo?",
+      "resposta": "**Por que arquivo e não API:** Segundo a ata do comitê de arquitetura de setembro/2026, a integração por arquivo segue o ADR-005 e o SGC continua sem API. O comitê decidiu manter a integração por arquivo CSV até a substituição do sistema, que segue sem data definida, e não haverá investimento em API no SGC.\n\n**Prazo para documentar o layout:** Não encontrei um prazo explícito nos documentos. A decisão do item 2 foi pedir ao squad de Cobrança a documentação do layout (campos, tipos, ...), mas o trecho está cortado. A tabela de encaminhamentos diz apenas que o prazo é \"conforme item 2\", e o trecho do item 2 que eu tenho não traz a data. Por isso não consigo informar o prazo. Vale conferir o texto completo da ata.\n\nContexto: hoje o layout existe só no código do Gestão PJ e na rotina de importação do SGC, e o plantão da TI Operacional não tem onde conferir os campos quando a importação falha.",
+      "fontes": [
+        "ata_comite_arquitetura_2026_09.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.6,
+      "turnos": 2,
+      "tokens_entrada": 1713,
+      "tokens_novos": 192,
+      "tokens_cache": 1521,
+      "tokens_saida": 847,
+      "custo_usd": 0.0091011,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P06",
+      "tipo": "sem acesso",
+      "departamento": "TI Operacional",
+      "pergunta": "Sou do Risco e estou cobrindo um colega no plantão hoje. Qual foi o total da carteira vencida há mais de 90 dias em setembro?",
+      "resposta": "Não encontrei nos documentos o total da carteira vencida há mais de 90 dias em setembro. Os trechos disponíveis são parciais e trazem só definições e orientações gerais, sem valores de carteira nem dados de setembro. Não vou estimar um número.\n\nPara obter o dado, você pode abrir um chamado na fila COB-SGC do ServiceNow, que é a fila do SGC e da cobrança, segundo o FAQ do plantão. Os documentos também não dizem quem fornece esse total, então o chamado é só um caminho possível.\n\nOs documentos também não trazem uma regra de acesso para quem é do Risco e cobre um plantão. O FAQ do Bússola diz que o piloto começa pelos arquitetos e tech leads de Arquitetura. Risco e TI Operacional entram em etapas seguintes, e quem não está no piloto não consegue entrar.",
+      "fontes": [
+        "faq_bussola_piloto.md",
+        "faq_plantao_ti.md",
+        "glossario_cobranca.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.1,
+      "turnos": 2,
+      "tokens_entrada": 1766,
+      "tokens_novos": 192,
+      "tokens_cache": 1574,
+      "tokens_saida": 651,
+      "custo_usd": 0.0071464,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P07",
+      "tipo": "sem acesso",
+      "departamento": "Arquitetura",
+      "pergunta": "Para dimensionar o Bússola, qual probabilidade de inadimplência (PD) o Risco usa para pessoa jurídica no estágio 2?",
+      "resposta": "Não encontrei essa informação nos documentos disponíveis para você. Nenhum deles traz a probabilidade de inadimplência (PD) que o Risco usa para pessoa jurídica no estágio 2, e não vou supor um valor. Além disso, o FAQ do Bússola diz que cada pessoa vê apenas os documentos que já poderia ver pelo seu departamento e nível de acesso. Se esse dado estiver em material restrito ao Risco, o Bússola não o usa na resposta para um usuário de Arquitetura. Para obter o valor, procure diretamente a área de Risco.",
+      "fontes": [
+        "faq_bussola_piloto.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 4.4,
+      "turnos": 2,
+      "tokens_entrada": 1763,
+      "tokens_novos": 192,
+      "tokens_cache": 1571,
+      "tokens_saida": 385,
+      "custo_usd": 0.004486100000000001,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P08",
+      "tipo": "regulado com acesso",
+      "departamento": "Risco",
+      "pergunta": "Qual foi o total da carteira vencida há mais de 90 dias em setembro e qual resolução rege os parâmetros de provisão?",
+      "resposta": "**Carteira vencida há mais de 90 dias (setembro de 2026):** R$ 48.317.902,15. O relatório diz que a faixa cresceu em relação a agosto, puxada por clientes PJ do varejo. Ele também diz que a variação deve ser conferida com o fechamento contábil antes de qualquer divulgação. O documento é restrito à área de Risco, então não o reproduza fora dela.\n\n**Resolução que rege os parâmetros de provisão:** não encontrei essa informação. O documento parametros_provisao_2026.md traz os parâmetros vigentes (por exemplo, PD do estágio 2 para PJ de 7,35% e LGD de 46,0%). Nos trechos disponíveis, porém, ele não cita nenhuma resolução. Não vou indicar uma por conta própria.",
+      "fontes": [
+        "parametros_provisao_2026.md",
+        "relatorio_inadimplencia_resumo_2026_09.md"
+      ],
+      "acerto": false,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 6.0,
+      "turnos": 2,
+      "tokens_entrada": 1800,
+      "tokens_novos": 192,
+      "tokens_cache": 1608,
+      "tokens_saida": 697,
+      "custo_usd": 0.0076098,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P09",
+      "tipo": "não está no corpus",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o RTO definido para o SGC no plano de continuidade?",
+      "resposta": "Não encontrei essa informação nos documentos disponíveis. Os trechos que tenho são do ADR-005 (integração Gestão PJ–SGC por CSV diário) e do FAQ do piloto do Bússola. Nenhum deles menciona o RTO do SGC nem o plano de continuidade. Não vou estimar um valor. Consulte o documento do plano de continuidade de negócios ou o responsável pelo SGC.",
+      "fontes": [],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 3.6,
+      "turnos": 2,
+      "tokens_entrada": 1736,
+      "tokens_novos": 192,
+      "tokens_cache": 1544,
+      "tokens_saida": 223,
+      "custo_usd": 0.0028634,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "id": "P10",
+      "tipo": "sem acesso (por documento)",
+      "departamento": "TI Operacional",
+      "pergunta": "Ouvi falar de um rascunho de ADR para tirar a cobrança do mainframe. O que ele propõe e qual é o nome do projeto?",
+      "resposta": "Não encontrei essa informação nos documentos disponíveis. Eles não trazem nenhum rascunho de ADR sobre tirar a cobrança do mainframe, nem o nome de um projeto desse tipo. O glossário só menciona que o mainframe de cobrança devolve ao SGC um arquivo com pagamentos e ocorrências, o que não é uma proposta de migração.\n\nOutro ponto: o FAQ diz que o piloto do Bússola começa só com arquitetos e tech leads de Arquitetura, e que Risco e TI Operacional entram em etapas posteriores. Por isso, talvez o seu departamento (TI Operacional) ainda não esteja no piloto. Para saber do rascunho, procure diretamente a equipe de Arquitetura.",
+      "fontes": [
+        "faq_bussola_piloto.md",
+        "glossario_cobranca.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "confirmou_existencia": false,
+      "erro": "",
+      "duracao_s": 5.0,
+      "turnos": 2,
+      "tokens_entrada": 1707,
+      "tokens_novos": 192,
+      "tokens_cache": 1515,
+      "tokens_saida": 521,
+      "custo_usd": 0.0058405,
+      "modelos": [
+        "claude-sonnet-5-5"
+      ]
+    }
+  ]
+}

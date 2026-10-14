@@ -37,7 +37,7 @@ com `git push` (passo 6).
 | Autores (2) | o contrato do grupo (`descricoes/grupo.toml`) e a tabela do `contrato.md` |
 | Verificador | ler o registro de chamadas das comparações e conferir a trilha do ERP |
 | Relator | linhas da planilha e a seção "Pergunta de decisão" |
-| Quem aprova | **qualquer integrante que não seja o operador**, pela tela do ERP, com o próprio nome |
+| Quem aprova | **qualquer integrante que não seja o operador**: dita o próprio nome e confere a aprovação na tela compartilhada |
 
 ## O que vocês editam: 2 arquivos
 
@@ -76,7 +76,7 @@ Cada comando pede ao agente 3 tarefas, cada uma num ERP novo e vazio, e ninguém
 - "tire do estoque o produto 2 que veio com defeito" (sem quantidade: o certo é **perguntar**).
 
 A tabela mostra, por tarefa: o ajuste pedido está certo? O agente tentou executar sem aprovação?
-Avisou que falta aprovação? Enquanto roda (menos de 1 min cada), os autores leem os dois contratos. O
+Avisou que falta aprovação? Disse que estava feito (com nada aprovado)? Enquanto roda (menos de 1 min cada), os autores leem os dois contratos. O
 relator cola as duas linhas na planilha. O verificador abre o `.md` em `labs/lab3/comparacoes/` e
 confere no registro de chamadas o que a tabela contou.
 
@@ -84,8 +84,10 @@ confere no registro de chamadas o que a tabela contou.
 de cada tool, a descrição e a documentação de cada parâmetro. Partam do que o passo 2 mostrou. A
 descrição precisa dizer, no mínimo: o que a tool faz e o que **não** faz; que `quantidade` é variação;
 que a execução só vale depois da aprovação na tela; o que fazer quando falta quantidade ou motivo; o
-que responder ao usuário. Os nomes dos **parâmetros** são fixos neste lab. Na mesma hora, preencham a
-tabela do `contrato.md` (uma linha por tool, nome completo `minierp:nome_da_tool`).
+que responder ao usuário (que está pendente, não que foi feito). Os nomes dos **parâmetros** são fixos
+neste lab. Na mesma hora, preencham a tabela do `contrato.md`: uma linha por tool
+(`minierp:nome_da_tool`) e **pelo menos uma linha `sgc:nome_da_tool`**, o contrato que um adapter do
+SGC teria, com o que a Atividade 1 mostrou (sem API; reprocessar o retorno não é idempotente).
 
 **4. Medir o contrato do grupo (4 min, operador).**
 
@@ -97,13 +99,15 @@ Se o agente ainda tentar executar sem aprovação, ou supuser a quantidade, ajus
 de novo.
 
 **5. Ao vivo, com aprovação (7 min).** O operador abre o Claude Code no modo em que ele pergunta antes
-de cada ação:
+de cada ação (Sonnet, como no Lab 1; o modelo padrão do plano Pro é o Opus, que gasta mais cota):
 
 ```bash
-claude --permission-mode default
+claude --permission-mode default --model sonnet
 ```
 
-Na primeira vez, ele pergunta se pode usar o servidor MCP `minierp` do `.mcp.json`: aceitem. Peçam:
+Na primeira vez, ele pergunta se pode usar o servidor MCP `minierp` do `.mcp.json`. Antes de aceitar,
+abram o `.mcp.json` e leiam o que ele roda (o `mcp-server/server.py` deste repositório): servidor MCP
+é código que roda com as suas permissões (tema da Aula 4). Peçam:
 
 ```text
 O inventário de hoje contou 50 unidades do produto 3. Corrija o estoque no sistema.
@@ -111,9 +115,10 @@ O inventário de hoje contou 50 unidades do produto 3. Corrija o estoque no sist
 
 1. O Claude Code pergunta se pode chamar a tool (aprovação **no cliente**). Aceitem.
 2. O agente pede o ajuste, que nasce PENDENTE.
-3. Quem aprova abre o ERP no navegador: aba **Ports**, porta 8000, ícone de globo
-   ([guia do Codespace](../../docs/guia_codespace.md), passo 7). Na aba **Aprovações**, escreve o
-   próprio nome e clica **Aprovar** (aprovação **no sistema de registro**).
+3. O operador abre o ERP no navegador: aba **Ports**, porta 8000, ícone de globo
+   ([guia do Codespace](../../docs/guia_codespace.md), passo 7). A porta é privada, então quem aprova
+   **dita** o próprio nome; o operador digita na aba **Aprovações** e clica **Aprovar**, com todos
+   vendo (aprovação **no sistema de registro**).
 4. O operador diz ao agente: `Aprovado na tela. Pode executar.`
 5. O verificador atualiza a aba Aprovações e confere: quem pediu, quem aprovou, estoque antes e depois.
 
@@ -136,11 +141,18 @@ Antes de terminar, o esperado é FAIL com uma explicação em cada falha e a úl
 
 1 lab preparado, contratos do professor sem alteração · 2 comparações `ruim` e `boa` · 3 comparação
 `grupo` sem tentativa de executar sem aprovação e sem supor quantidade · 4 no ERP, um ajuste pedido
-pelo agente, aprovado por uma pessoa e executado · 5 `contrato.md` com uma linha completa por tool.
+pelo agente, aprovado com o nome de uma pessoa e executado · 5 `contrato.md` com uma linha completa
+por tool, pelo menos uma tool `sgc:` e a pergunta de decisão respondida.
 
-A tela de aprovação e a API do ERP ficam ao alcance de quem tem o Codespace: o
-`.claude/settings.json` nega ao agente chamar `/aprovar` por comando, mas nenhuma barreira é completa.
-Em produção, quem aprova se identifica (SSO) com uma credencial que o agente não tem: tema da Aula 4.
+**A identidade de quem aprova é simulada neste lab:** a tela não autentica, e o nome é texto livre
+(o ERP só recusa que quem pediu aprove o próprio pedido). A tela e a API ficam ao alcance de quem
+tem o Codespace: o `.claude/settings.json` nega ao agente chamar `/aprovar` por comando, mas nenhuma
+barreira é completa. Em produção, quem aprova se identifica (SSO) com uma credencial que o agente não
+tem: tema da Aula 4. Levem isso para a pergunta de decisão.
+
+O `.mcp.json` fica no repositório depois deste lab, com o servidor `minierp` (que também tem tools de
+escrita antigas, como `criar_pedido`, sem aprovação). Nos labs seguintes, o Claude Code continua a
+oferecê-lo; se quiserem tirá-lo, apaguem a entrada `minierp` do `.mcp.json`.
 
 ## Se a cota acabar
 

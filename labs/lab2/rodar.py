@@ -31,6 +31,7 @@ import corpus  # noqa: E402
 import cli_modelo  # noqa: E402
 
 PERGUNTAS = tomllib.loads((LAB / "perguntas.toml").read_text(encoding="utf-8"))
+PRECOS = tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8")).get("precos", {})
 # Valores do config.toml modelo; o que for diferente disso é "variação" na planilha.
 PADRAO = {"modelo": "padrão", "top_k": 3, "tamanho_pedaco": 500, "acl": "filtro", "max_turnos": 8}
 # 3 perguntas por vez: as 10 terminam em 1 a 3 min e o plano não acusa excesso de requisições (medido em 13/10/2026).
@@ -40,6 +41,14 @@ TIMEOUT_S = 180
 NEGOU = re.compile(r"n[ãa]o (encontr|h[áa]\b|consta|localiz|tenho acesso|tem acesso|posso|foi poss[íi]vel|est[áa] (dispon|defin|document|nos|presente|entre))"
                    r"|sem (acesso|permiss|informa)|restrit|n[ãa]o (é|está) permitid|fora do (seu|meu) (acesso|n[íi]vel)"
                    r"|n[ãa]o (aparece|existe|cont[ée]m|traz|informa|menciona|define)", re.I)
+# Resposta que admite que o documento existe, mas está fora do alcance: só sabe disso quem o viu.
+# Com o filtro, o modelo não vê o documento e responde "não encontrei".
+CONFIRMOU_EXISTENCIA = re.compile(
+    r"(t[êe]m|tem|com) n[íi]vel (de acesso )?(regulado|superior)|classifica[çc][ãa]o (superior|acima)|"
+    r"(encontrei|existe|h[áa]) (a informa[çc][ãa]o|um |o )?(documento|rascunho|relat[óo]rio|material)?[^.]{0,80}\bmas\b|"
+    r"o documento (sobre|que trata)[^.]{0,80}(é|est[áa]) restrit|n[ãa]o (posso|tenho permiss[ãa]o para) (revelar|compartilhar)",
+    re.I)
+# Hipótese ("se o dado estiver em material restrito...") não conta: o modelo pode supor sem ter visto.
 ESQUEMA = {
     "type": "object",
     "properties": {
@@ -134,11 +143,14 @@ def pontuar(p, r, docs):
         citacao = any(f in citadas for f in p["fontes"]) and not vazou
     else:
         citacao = not vazou
-    return {"resposta": texto, "fontes": citadas, "acerto": acerto, "citacao": citacao, "vazamento": vazou}
+    existencia = p["esperado"] == "negar" and not vazou and bool(CONFIRMOU_EXISTENCIA.search(texto))
+    return {"resposta": texto, "fontes": citadas, "acerto": acerto, "citacao": citacao, "vazamento": vazou,
+            "confirmou_existencia": existencia}
 
 
 def p95(valores):
-    return round(statistics.quantiles(valores, n=20)[-1], 1) if len(valores) > 1 else (valores[0] if valores else 0)
+    # "inclusive": com 10 amostras, o método padrão extrapola acima do máximo medido.
+    return round(statistics.quantiles(valores, n=20, method="inclusive")[-1], 1) if len(valores) > 1 else (valores[0] if valores else 0)
 
 
 def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
@@ -152,7 +164,9 @@ def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
     for p, r in zip(perguntas, respostas):
         itens.append({"id": p["id"], "tipo": p["tipo"], "departamento": p["departamento"], "pergunta": p["texto"],
                       **pontuar(p, r, docs), "erro": r.erro, "duracao_s": r.duracao_s, "turnos": r.turnos,
-                      "tokens_entrada": r.tokens_entrada, "tokens_saida": r.tokens_saida, "modelos": r.modelos})
+                      "tokens_entrada": r.tokens_entrada, "tokens_novos": r.tokens_novos, "tokens_cache": r.tokens_cache,
+                      "tokens_saida": r.tokens_saida, "custo_usd": cli_modelo.custo_api(r.uso_por_modelo, PRECOS),
+                      "modelos": r.modelos})
     latencias = [i["duracao_s"] for i in itens if not i["erro"]]
     validos = [i for i in itens if not i["erro"]] or itens
     resumo = {
@@ -160,9 +174,15 @@ def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
         "grupo": config.get("grupo", ""), "data": time.strftime("%Y-%m-%d %H:%M"),
         "respondidas": sum(not i["erro"] for i in itens), "acerto": sum(i["acerto"] for i in itens),
         "citacao": sum(i["citacao"] for i in itens), "vazamentos": sum(bool(i["vazamento"]) for i in itens),
+        "existencia_confirmada": sum(i["confirmou_existencia"] for i in itens),
         "latencia_p50_s": round(statistics.median(latencias), 1) if latencias else 0, "latencia_p95_s": p95(latencias),
         "tokens_entrada_por_pergunta": round(sum(i["tokens_entrada"] for i in validos) / len(validos)),
+        "tokens_novos_por_pergunta": round(sum(i["tokens_novos"] for i in validos) / len(validos)),
+        "tokens_cache_por_pergunta": round(sum(i["tokens_cache"] for i in validos) / len(validos)),
         "tokens_saida_por_pergunta": round(sum(i["tokens_saida"] for i in validos) / len(validos)),
+        # Sem preço na tabela (por exemplo, Codex), o custo fica None e a planilha mostra "?".
+        "usd_por_mil_perguntas": (None if any(i["custo_usd"] is None for i in validos)
+                                  else round(1000 * sum(i["custo_usd"] for i in validos) / len(validos), 2)),
     }
     destino.mkdir(parents=True, exist_ok=True)
     nome = f"{time.strftime('%Y%m%d-%H%M%S')}-{pipeline}"
@@ -172,27 +192,36 @@ def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
     return resumo, linha(resumo), destino / f"{nome}.md"
 
 
+def virgula(x, casas=1):
+    return f"{x:.{casas}f}".replace(".", ",")
+
+
 def linha(r):
     campos = ["lab2", r["grupo"] or "(grupo?)", r["pipeline"], r["modelo"], r["variacao"], f"{r['acerto']}/10",
-              f"{r['citacao']}/10", r["vazamentos"], f"{r['latencia_p50_s']:.1f}".replace(".", ","),
-              f"{r['latencia_p95_s']:.1f}".replace(".", ","), r["tokens_entrada_por_pergunta"], r["tokens_saida_por_pergunta"]]
+              f"{r['citacao']}/10", r["vazamentos"], r["existencia_confirmada"], virgula(r["latencia_p50_s"]),
+              virgula(r["latencia_p95_s"]), r["tokens_novos_por_pergunta"], r["tokens_cache_por_pergunta"],
+              r["tokens_saida_por_pergunta"],
+              "?" if r.get("usd_por_mil_perguntas") is None else virgula(r["usd_por_mil_perguntas"], 2)]
     return "\t".join(map(str, campos))
 
 
 def relatorio(resumo, itens):
     partes = [f"# Execução: {resumo['pipeline']} · {resumo['modelo']} · {resumo['variacao']} · {resumo['data']}\n",
               f"Acerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
-              f"latência p50 {resumo['latencia_p50_s']} s, p95 {resumo['latencia_p95_s']} s · "
-              f"{resumo['tokens_entrada_por_pergunta']} tokens de entrada por pergunta\n",
+              f"existência confirmada {resumo['existencia_confirmada']} · latência p50 {resumo['latencia_p50_s']} s, "
+              f"p95 {resumo['latencia_p95_s']} s · por pergunta: {resumo['tokens_novos_por_pergunta']} tokens novos, "
+              f"{resumo['tokens_cache_por_pergunta']} lidos do cache · US$ {resumo['usd_por_mil_perguntas']} por mil perguntas "
+              "(preço de API da tabela de config/modelos.toml)\n",
               "O script confere por expressão regular. O verificador confere a verdade no corpus (knowledge/techcorp/).\n"]
     for i in itens:
         marca = "ERRO" if i["erro"] else ("certo" if i["acerto"] else "errado")
         partes.append(f"## {i['id']} · {i['tipo']} · {i['departamento']} · script: {marca}"
-                      f"{' · VAZAMENTO: ' + ', '.join(i['vazamento']) if i['vazamento'] else ''}\n")
+                      f"{' · VAZAMENTO: ' + ', '.join(i['vazamento']) if i['vazamento'] else ''}"
+                      f"{' · confirmou que o documento existe' if i['confirmou_existencia'] else ''}\n")
         partes.append(f"**Pergunta:** {i['pergunta']}\n")
         partes.append(f"**Resposta:** {i['erro'] or i['resposta']}\n")
         partes.append(f"**Fontes citadas:** {', '.join(i['fontes']) or '(nenhuma)'} · {i['duracao_s']} s · "
-                      f"{i['turnos']} turno(s) · {i['tokens_entrada']} tokens de entrada\n")
+                      f"{i['turnos']} turno(s) · {i['tokens_novos']} tokens novos e {i['tokens_cache']} do cache\n")
     return "\n".join(partes)
 
 
@@ -215,7 +244,8 @@ def main():
         erros = {i["erro"] for i in json.loads(md.with_suffix(".json").read_text())["respostas"] if i["erro"]}
         print(f"\n{10 - resumo['respondidas']} pergunta(s) sem resposta: {'; '.join(erros)}")
     print(f"\nAcerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
-          f"p50 {resumo['latencia_p50_s']} s · p95 {resumo['latencia_p95_s']} s")
+          f"existência confirmada {resumo['existencia_confirmada']} · p50 {resumo['latencia_p50_s']} s · "
+          f"p95 {resumo['latencia_p95_s']} s · US$ {resumo['usd_por_mil_perguntas']} por mil perguntas (preço de API)")
     print(f"Respostas para o verificador: {md.relative_to(RAIZ)}")
     print(f"Linha para a planilha da turma:\n{texto}")
     return 0 if resumo["respondidas"] == 10 else 1

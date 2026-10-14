@@ -15,3 +15,19 @@ timeout_s = 60
 # (platform.claude.com/docs/en/about-claude/models/overview, conferido em 13/10/2026), e o alias `haiku`
 # ainda apontava para ele numa conta Max nesse dia. Os replays dos Labs 2 e 3 foram gravados neste modelo.
 modelo = "claude-haiku-5-5"
+
+# Preço de API em US$ por milhão de tokens, para o "US$ por mil perguntas" do Lab 2. Não é o custo do
+# plano do operador: é quanto o Bússola pagaria pela API. Fonte: platform.claude.com/docs/en/about-claude/pricing,
+# conferida em 14/10/2026 (Haiku 5.5 vale para prompts de até 100 mil tokens). Revisar por turma (Radar).
+# O total_cost_usd do Claude Code não serve: a versão 2.1.284 não reconhecia o claude-haiku-5-5 e o estimava errado.
+[precos.claude-haiku-5-5]
+entrada = 0.10
+gravacao_cache = 0.125
+leitura_cache = 0.01
+saida = 0.50
+
+[precos.claude-sonnet-5-5]
+entrada = 2.00
+gravacao_cache = 2.50
+leitura_cache = 0.10
+saida = 10.00
