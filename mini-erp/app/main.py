@@ -5,8 +5,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from app.db import engine, SessionLocal, Base
 from app.models import Produto, Estoque, Pedido, ItemPedido, Fatura  # noqa: F401
+from app.models_ajustes import AjusteEstoque  # noqa: F401
 from app.seed import seed_db
-from app.routes import produtos, estoque, pedidos, faturas, alertas
+from app.routes import produtos, estoque, pedidos, faturas, alertas, ajustes
 from app.services.erros import NaoEncontrado, RegraDeNegocio
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -47,6 +48,7 @@ app.include_router(estoque.router)
 app.include_router(pedidos.router)
 app.include_router(faturas.router)
 app.include_router(alertas.router)
+app.include_router(ajustes.router)
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

@@ -1,0 +1,30 @@
+# Contrato do GRUPO para as tools de ajuste de estoque (Lab 3, passo 3). Os autores escrevem.
+# Troquem cada PREENCHER. Partam do que a comparação ruim × boa mostrou (labs/lab3/descricoes/).
+# Os nomes dos PARÂMETROS são fixos neste lab (produto_id, quantidade, motivo, ajuste_id); o nome da
+# tool, a descrição e a documentação de cada parâmetro são de vocês. Lembrem: o ERP recebe a
+# VARIAÇÃO do estoque, e só executa depois que uma pessoa aprova na tela.
+
+# Opcional: true faz o Claude Code pedir aprovação no terminal a cada chamada, mesmo em modo auto.
+aprovacao_no_cliente = false
+
+[solicitar]
+nome = "PREENCHER"            # letras minúsculas, números e _, por exemplo verbo_objeto
+descricao = """PREENCHER"""
+
+[solicitar.parametros]
+produto_id = "PREENCHER"
+quantidade = "PREENCHER"
+motivo = "PREENCHER"
+
+# Opcional: anotações MCP (dicas ao cliente; o Codex usa somente_leitura para decidir se pede aprovação).
+# [solicitar.anotacoes]
+# somente_leitura = false
+# destrutiva = false
+# idempotente = false
+
+[executar]
+nome = "PREENCHER"
+descricao = """PREENCHER"""
+
+[executar.parametros]
+ajuste_id = "PREENCHER"

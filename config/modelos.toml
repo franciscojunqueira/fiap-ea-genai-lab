@@ -8,3 +8,10 @@
 claude = "haiku"
 # A chamada mínima levou 3,7 s (medida em 12/10/2026). 60 s cobrem rede lenta sem deixar o check preso.
 timeout_s = 60
+
+[labs]
+# Modelo das chamadas por script dos Labs 2 e 3 (`modelo = "padrão"` no config.toml do lab).
+# Fixado pelo ID, não pelo alias: o Haiku 4.5 é legado, com aposentadoria "não antes de 15/10/2026"
+# (platform.claude.com/docs/en/about-claude/models/overview, conferido em 13/10/2026), e o alias `haiku`
+# ainda apontava para ele numa conta Max nesse dia. Os replays dos Labs 2 e 3 foram gravados neste modelo.
+modelo = "claude-haiku-5-5"

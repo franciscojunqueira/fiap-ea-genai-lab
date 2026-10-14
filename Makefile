@@ -1,7 +1,7 @@
 # Comandos dos labs. `make` sem alvo lista os comandos.
 .DEFAULT_GOAL := help
 .PHONY: help check test erp mcp skill-check \
-        lab1 lab1-referencia lab1-extra lab2 lab3 lab4 lab5 lab6 \
+        lab1 lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
         legado er-check checkpoint-check pacote-check
 
@@ -37,16 +37,33 @@ lab1-referencia: ## Lab 1, plano B: aplica o código de referência (cota esgota
 	@$(RUN) python labs/lab1/referencia/aplicar.py
 lab1-extra: ## Lab 1, desafio extra: skill escrevendo-adrs sem × com, no Haiku
 	@$(RUN) python labs/lab1/extra.py $(ARGS)
-lab2 lab3: ## Labs 2 e 3 (Aula 2)
-	@echo "$@: em construção, disponível antes da Aula 2."
+lab2: ## Lab 2 (Aula 2): prepara o config e a decisão do grupo
+	@$(RUN) python labs/lab2/preparar.py
+lab2-rodar: ## Lab 2: roda as 10 perguntas (PIPELINE=rag | agentica | contexto; CLI=codex opcional)
+	@$(RUN) python labs/lab2/rodar.py $(PIPELINE) $(if $(CLI),--cli $(CLI))
+lab2-check: ## Lab 2: PASS/FAIL dos 5 itens
+	@$(RUN) python labs/lab2/checar.py
+lab2-replay: ## Lab 2, plano B: copia as execuções gravadas (cota esgotada)
+	@$(RUN) python labs/lab2/usar_replay.py
+lab3: ## Lab 3 (Aula 2): prepara o contrato e a descrição do grupo
+	@$(RUN) python labs/lab3/preparar.py
+lab3-comparar: ## Lab 3: 3 cenários com o contrato VERSAO=ruim | boa | grupo (CLI=codex opcional)
+	@$(RUN) python labs/lab3/comparar.py $(VERSAO) $(if $(MODELO),--modelo $(MODELO)) $(if $(CLI),--cli $(CLI))
+lab3-check: ## Lab 3: PASS/FAIL dos 5 itens
+	@$(RUN) python labs/lab3/checar.py
+lab3-replay: ## Lab 3, plano B: copia as comparações gravadas (cota esgotada)
+	@$(RUN) python labs/lab3/usar_replay.py
 lab4 lab5: ## Labs 4 e 5 (Aula 3)
 	@echo "$@: em construção, disponível antes da Aula 3."
 lab6: ## Lab 6 (Aula 4)
 	@echo "lab6: em construção, disponível antes da Aula 4."
 
 # Um check que ainda não existe não pode dar PASS: imprime e sai com erro.
-lab2-check lab3-check lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
+lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
 	@$(MAKE) --no-print-directory $(subst -check,,$@) && exit 1
+
+atualizar: ## Traz do repositório-template os labs novos e as correções, sem tocar nos arquivos do grupo
+	@python3 scripts/atualizar_do_template.py
 
 legado: ## Roda um ciclo do SGC, o legado do projeto integrador (não usa modelo)
 	@$(RUN) python integrador/scripts/demo_legado.py

@@ -1,0 +1,37 @@
+# Contrato BOM das tools de ajuste de estoque (do professor: não editar).
+# Nome que diz o que acontece, descrição que diz o efeito, quando usar, quando não usar e o que
+# responder ao usuário; documentação de cada parâmetro com unidade e sinal.
+
+[solicitar]
+nome = "solicitar_ajuste_estoque"
+descricao = """Pede um ajuste no estoque de um produto do Gestão PJ. NÃO altera o estoque: cria um pedido
+PENDENTE que uma pessoa precisa aprovar na tela do ERP (aba Aprovações). Depois de chamar, diga ao
+usuário o número do ajuste e que ele está aguardando aprovação; nunca diga que o estoque já mudou.
+Para deixar o estoque num valor final X (por exemplo, depois de uma contagem de inventário), chame
+antes consultar_estoque e peça a diferença: X menos o estoque atual. Se o usuário não disse a
+quantidade ou o motivo, pergunte; não suponha. Não use para corrigir pedido ou fatura."""
+
+[solicitar.parametros]
+produto_id = "ID do produto (inteiro), como em listar_produtos."
+quantidade = "VARIAÇÃO do estoque, não o valor final: +10 dá entrada de 10 unidades; -3 tira 3. Nunca zero."
+motivo = "Por que o ajuste é necessário (por exemplo: 'contagem de inventário', 'avaria no recebimento'). Obrigatório."
+
+[solicitar.anotacoes]
+somente_leitura = false
+destrutiva = false
+idempotente = false
+
+[executar]
+nome = "executar_ajuste_estoque"
+descricao = """Aplica um ajuste de estoque JÁ APROVADO por uma pessoa na tela do ERP. Se o ajuste ainda
+estiver pendente, o ERP recusa: avise o usuário que falta a aprovação e não tente de novo sozinho.
+Chamar duas vezes o mesmo ajuste é seguro: a segunda chamada devolve o mesmo resultado, sem mexer
+no estoque outra vez."""
+
+[executar.parametros]
+ajuste_id = "Número do ajuste devolvido por solicitar_ajuste_estoque."
+
+[executar.anotacoes]
+somente_leitura = false
+destrutiva = true
+idempotente = true

@@ -1,0 +1,19 @@
+# Contrato RUIM das tools de ajuste de estoque (do professor: não editar).
+# Nome que sugere "valor final" sobre uma API que recebe a variação, e descrições de uma linha.
+# Defeito comum em APIs reais: é o que o lab mede, não um espantalho.
+
+[solicitar]
+nome = "atualizar_estoque"
+descricao = "Atualiza o estoque de um produto."
+
+[solicitar.parametros]
+produto_id = "ID do produto."
+quantidade = "Quantidade."
+motivo = "Motivo."
+
+[executar]
+nome = "confirmar_atualizacao"
+descricao = "Confirma a atualização de estoque."
+
+[executar.parametros]
+ajuste_id = "ID da atualização."

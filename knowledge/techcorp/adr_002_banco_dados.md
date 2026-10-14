@@ -1,3 +1,8 @@
+---
+nivel: Interno
+dono: Arquitetura
+---
+
 # ADR-002: Migração do Oracle para PostgreSQL
 
 **Status:** Em Implementação

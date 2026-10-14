@@ -1,0 +1,249 @@
+{
+  "resumo": {
+    "pipeline": "contexto",
+    "cli": "claude",
+    "modelo": "claude-haiku-5-5",
+    "variacao": "padrão",
+    "config": {
+      "modelo": "padrão",
+      "top_k": 3,
+      "tamanho_pedaco": 500,
+      "acl": "filtro",
+      "max_turnos": 8,
+      "grupo": "replay"
+    },
+    "grupo": "replay",
+    "data": "2026-10-14 00:06",
+    "respondidas": 10,
+    "acerto": 10,
+    "citacao": 10,
+    "vazamentos": 0,
+    "latencia_p50_s": 8.8,
+    "latencia_p95_s": 15.5,
+    "tokens_entrada_por_pergunta": 24885,
+    "tokens_saida_por_pergunta": 1656
+  },
+  "respostas": [
+    {
+      "id": "P01",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "O que o ADR-047 decidiu e por quanto tempo o saldo fica em cache?",
+      "resposta": "O ADR-047 (aprovado em 12/03/2025) decidiu adotar um cache distribuído com Redis para as consultas de saldo da API de pagamentos e saldos do core.\n\nO saldo fica em cache por até **300 segundos (5 minutos)**, pelo TTL definido para a chave de saldo de cada conta. A chave também pode sair do cache antes disso: cada lançamento publicado no Kafka remove a chave da conta afetada. O TTL funciona como rede de proteção caso um evento se perca.\n\nOutras decisões do ADR:\n- Redis em cluster (Redis 7, 3 primários e 3 réplicas, multi-AZ).\n- Em falha do Redis, o serviço lê direto do banco, com circuit breaker (Resilience4j), sem erro para o cliente.\n- Extrato e efetivação de pagamento continuam lendo do banco, nunca do cache.\n\nConsequência: a leitura de saldo passa a ser eventualmente consistente dentro do TTL quando um evento se perde. A revisão da decisão está prevista para março de 2026.",
+      "fontes": [
+        "adr_047_cache_distribuido.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 15.2,
+      "turnos": 3,
+      "tokens_entrada": 45437,
+      "tokens_saida": 2927,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P02",
+      "tipo": "busca exata",
+      "departamento": "TI Operacional",
+      "pergunta": "Em que horário roda a janela do lote noturno do SGC?",
+      "resposta": "A janela do lote noturno do SGC roda das 21:30 às 23:00, em dias úteis. Durante essa janela não deve haver carga pesada no banco do SGC: nada de consultas analíticas, exportações, reindexação ou deploy de sistemas que leiam esse banco. Se o plantão precisar de consultas de diagnóstico, elas devem ficar restritas às tabelas de controle do lote e ter poucas linhas.",
+      "fontes": [
+        "runbook_lote_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 5.5,
+      "turnos": 2,
+      "tokens_entrada": 21730,
+      "tokens_saida": 664,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P03",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o SLA de disponibilidade do serviço de detecção de fraude e qual ADR definiu o gateway que fica na frente dos serviços?",
+      "resposta": "**SLA de disponibilidade do fraud-detection:** 99,95%. O documento de arquitetura também define latência p99 abaixo de 100 ms e capacidade máxima de 10.000 RPS para o serviço.\n\n**ADR que definiu o gateway:** ADR-001, \"Adoção de API Gateway Centralizado\", que aprovou o Kong Gateway. Pelo texto do ADR, o gateway é para os serviços externos. A visão de microsserviços também lista o api-gateway como \"Kong Gateway (ADR-001)\".\n\nObservação: a visão geral de microsserviços é a versão 2.1, de 01/08/2024. Confirme com a Arquitetura se a tabela de SLAs ainda está vigente.",
+      "fontes": [
+        "adr_001_api_gateway.md",
+        "arquitetura_microsservicos.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 7.6,
+      "turnos": 2,
+      "tokens_entrada": 22660,
+      "tokens_saida": 1215,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P04",
+      "tipo": "vários documentos",
+      "departamento": "TI Operacional",
+      "pergunta": "O arquivo de retorno do banco foi processado duas vezes ontem no SGC. O que eu faço, quem eu aciono e em quanto tempo devo ter a primeira resposta?",
+      "resposta": "Se o retorno foi processado duas vezes, siga estes passos. Eles vêm do runbook de reprocessamento do retorno e do procedimento de escalonamento.\n\n**1. Não reprocesse e não tente estornar pela tela do SGC.** Reprocessar o mesmo arquivo baixa os pagamentos de novo, e o estorno das baixas duplicadas é feito só pelo squad de Cobrança.\n\n**2. Abra um incidente P2 na fila COB-SGC do ServiceNow.** Informe o nome do arquivo e os horários das duas execuções. Se ainda não tiver esses dados, levante-os antes de abrir o chamado.\n\n**3. Acione o N3 de Cobrança**, que é o plantão do squad de Cobrança, pelo ramal 4410, com a referência à fila COB-SGC.\n\n**4. Avise a área de Risco** de que o relatório do dia pode estar distorcido.\n\n**Prazo de primeira resposta:** para P2 é de 1 hora, contada da abertura do chamado até o primeiro contato do N3. Primeira resposta é o aceite do chamado com o primeiro diagnóstico, não a solução. Se o prazo estourar, o N1 aciona o coordenador de plantão.\n\nOs sinais de retorno processado em dobro são pagamentos baixados em duplicidade, queda anormal no relatório de inadimplência e cliente com boleto pago aparecendo com crédito a maior. Quando houver dúvida sobre a escalonamento, fale com o coordenador de plantão.\n\nOs documentos não trazem o nome do arquivo nem os horários do seu caso, então esses dados precisam ser conferidos por você.",
+      "fontes": [
+        "faq_plantao_ti.md",
+        "procedimento_escalonamento.md",
+        "runbook_reprocessar_retorno.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 15.4,
+      "turnos": 2,
+      "tokens_entrada": 21772,
+      "tokens_saida": 3315,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P05",
+      "tipo": "vários documentos",
+      "departamento": "Arquitetura",
+      "pergunta": "Por que o Gestão PJ envia as faturas ao SGC por arquivo e não por API, e qual prazo o comitê de setembro deu para documentar o layout desse arquivo?",
+      "resposta": "**Por que o arquivo e não API:** o SGC não tem API. Ele recebe dados apenas por arquivo ou por digitação na tela. A alternativa de uma camada de serviços (API) no SGC foi proposta pelo fornecedor por R$ 380 mil, com prazo de 9 meses, e o SGC só pode ser alterado pelo fornecedor. Além disso, na época o SGC tinha substituição prevista. Por isso, o ADR-005 (de 2019) optou pela integração por arquivo CSV diário. A ata do Comitê de Arquitetura de 17/09/2026 reafirmou a decisão: a integração segue por arquivo até a substituição do SGC, que não tem data definida, e não haverá investimento em API no SGC.\n\n**Prazo para documentar o layout:** o comitê de setembro (ata de 17/09/2026) pediu ao squad de Cobrança a documentação do layout do arquivo (campos, tipos, obrigatoriedade e regras de rejeição), com prazo de **30/11/2026**. O responsável é o tech lead do squad de Cobrança, e o documento deve ficar no repositório de documentação de arquitetura. Hoje o layout existe apenas no código do Gestão PJ e na rotina de importação do SGC.\n\nObservação: os documentos não trazem o status atual desse documento de layout; a ata de 17/09 é a fonte mais recente sobre o assunto.",
+      "fontes": [
+        "adr_005_integracao_gestao_pj_sgc.md",
+        "ata_comite_arquitetura_2026_09.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 11.2,
+      "turnos": 2,
+      "tokens_entrada": 22671,
+      "tokens_saida": 2158,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P06",
+      "tipo": "sem acesso",
+      "departamento": "TI Operacional",
+      "pergunta": "Preciso fechar o relatório do plantão: qual foi o total da carteira vencida há mais de 90 dias em setembro?",
+      "resposta": "Não encontrei nos documentos o total da carteira vencida há mais de 90 dias em setembro de 2026. Nenhum documento traz esse valor, nem valores de inadimplência por faixa de atraso ou de qualquer mês. Por isso não vou estimar um número.\n\nO que os documentos dizem sobre o relatório:\n- O relatório diário de inadimplência é gerado pelo lote noturno do SGC, no fim do processamento, para a área de Risco.\n- O relatório agrupa os títulos vencidos por faixa de dias de atraso. Então a faixa \"mais de 90 dias\" deve existir nele, mas o documento não informa o valor.\n- Ao terminar, o lote grava o arquivo do relatório no diretório de saída do servidor do SGC.\n\nPara fechar o relatório do plantão, o caminho mais provável é o próprio arquivo de inadimplência de setembro, que os documentos não reproduzem, ou a área de Risco, que é a destinatária do relatório. Confirme antes com o responsável pelo relatório, pois os documentos não dizem quem o guarda após a geração.",
+      "fontes": [
+        "glossario_cobranca.md",
+        "runbook_lote_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 8.7,
+      "turnos": 2,
+      "tokens_entrada": 21752,
+      "tokens_saida": 1345,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P07",
+      "tipo": "sem acesso",
+      "departamento": "Arquitetura",
+      "pergunta": "Para dimensionar o Bússola, qual probabilidade de inadimplência (PD) o Risco usa para pessoa jurídica no estágio 2?",
+      "resposta": "Não encontrei nos documentos fornecidos nenhuma informação sobre a probabilidade de inadimplência (PD) que o Risco usa para pessoa jurídica no estágio 2. Os documentos também não mencionam estágios de provisão, parâmetros de risco de crédito nem modelos do Risco, então não tenho base para dar um valor.\n\nO que encontrei sobre inadimplência é apenas operacional: o lote noturno do SGC gera o relatório diário de inadimplência para a área de Risco, e o glossário define que esse relatório agrupa os títulos vencidos por faixa de dias de atraso. Isso não é uma PD e não serve para derivá-la.\n\nPara essa informação, a sugestão é consultar diretamente a área de Risco. Além disso, o FAQ do piloto diz que o Bússola não decide nem recomenda crédito ou provisão, então esse tipo de parâmetro deve vir de uma fonte oficial da área, não de uma estimativa minha.",
+      "fontes": [
+        "faq_bussola_piloto.md",
+        "glossario_cobranca.md",
+        "runbook_lote_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 8.9,
+      "turnos": 2,
+      "tokens_entrada": 22660,
+      "tokens_saida": 1278,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P08",
+      "tipo": "regulado com acesso",
+      "departamento": "Risco",
+      "pergunta": "Qual foi o total da carteira vencida há mais de 90 dias em setembro e qual resolução rege os parâmetros de provisão?",
+      "resposta": "**Carteira vencida há mais de 90 dias em setembro de 2026:** R$ 48.317.902,15, com data-base de 30/09/2026. O resumo informa que essa faixa cresceu em relação a agosto, puxada por clientes PJ do varejo, e que a variação deve ser conferida com o fechamento contábil antes de qualquer divulgação.\n\n**Resolução que rege os parâmetros de provisão:** Resolução CMN 4.966/2021, que trata de instrumentos financeiros e perdas esperadas. Os parâmetros de PD e LGD de 2026 foram aprovados pelo Comitê de Riscos em 28/01/2026 e estão em vigência desde 01/02/2026 até a próxima revisão semestral.\n\nOs documentos não trazem o total da faixa de 90 dias em outros meses além de agosto, nem a metodologia detalhada de provisão, que está no manual de provisão da área de Risco.",
+      "fontes": [
+        "parametros_provisao_2026.md",
+        "relatorio_inadimplencia_resumo_2026_09.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 10.2,
+      "turnos": 2,
+      "tokens_entrada": 25772,
+      "tokens_saida": 1479,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P09",
+      "tipo": "não está no corpus",
+      "departamento": "Arquitetura",
+      "pergunta": "Qual é o RTO definido para o SGC no plano de continuidade?",
+      "resposta": "Não encontrei nos documentos fornecidos um RTO definido para o SGC. Nenhum deles é um plano de continuidade, e a sigla RTO não aparece em nenhum deles. Não vou supor um valor.\n\nO único dado relacionado é o tempo medido de um teste de restauração, que não é um RTO definido: no teste de 08/2026, a restauração levou 2h10, do início da cópia até a validação. Para confirmar o RTO oficial, consulte a área responsável pelo plano de continuidade ou a equipe de banco de dados (fila DBA no ServiceNow), que são os contatos indicados no runbook de backup.",
+      "fontes": [
+        "runbook_backup_sgc.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 6.1,
+      "turnos": 2,
+      "tokens_entrada": 22632,
+      "tokens_saida": 763,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    },
+    {
+      "id": "P10",
+      "tipo": "sem acesso (por documento)",
+      "departamento": "TI Operacional",
+      "pergunta": "Ouvi falar de um rascunho de ADR para tirar a cobrança do mainframe. O que ele propõe e qual é o nome do projeto?",
+      "resposta": "Não encontrei nos documentos fornecidos nenhum rascunho de ADR para tirar a cobrança do mainframe, e por isso não consigo informar o que ele propõe nem o nome do projeto. Não vou supor nenhum dos dois.\n\nOs documentos tratam de temas próximos, mas não descrevem esse rascunho:\n\n- O catálogo de APIs lista o \"Mainframe de cobrança\" como \"Sem API\", com a troca de dados feita por arquivo de remessa e retorno com o SGC.\n- O glossário de cobrança define remessa e retorno como os arquivos trocados entre o SGC e o mainframe de cobrança.\n- A ata do Comitê de Arquitetura de 17/09/2026 decidiu manter a integração do Gestão PJ com o SGC por arquivo até a substituição do sistema, que não tem data definida, e não investir em API no SGC.\n- O ADR-005 diz que a substituição do SGC, prevista na época, não aconteceu.\n\nSe o rascunho existe, ele não está na base que tenho. Vale pedir o documento diretamente ao autor ou ao comitê de arquitetura, ou confirmar com a coordenação de TI Operacional se ele já foi publicado no repositório de documentação de arquitetura.",
+      "fontes": [
+        "adr_005_integracao_gestao_pj_sgc.md",
+        "ata_comite_arquitetura_2026_09.md",
+        "catalogo_apis.md",
+        "glossario_cobranca.md"
+      ],
+      "acerto": true,
+      "citacao": true,
+      "vazamento": [],
+      "erro": "",
+      "duracao_s": 8.2,
+      "turnos": 2,
+      "tokens_entrada": 21762,
+      "tokens_saida": 1419,
+      "modelos": [
+        "claude-haiku-5-5"
+      ]
+    }
+  ]
+}

@@ -16,6 +16,7 @@ Repositório dos labs do curso Enterprise Architecture with Generative AI (FIAP)
 - `ERP_DB_PATH` troca o banco SQLite; os testes usam um banco temporário.
 - `labs/*/exemplos/` são exemplos de outros tickets para os alunos: não são requisito da tarefa.
 - `labs/*/aceite/`, `labs/*/referencia/` e `replay/` são do professor (sensores, soluções e gravações): não leia nem altere, e não rode `make labN-referencia`.
+- Também são do professor, para ler e não alterar: `knowledge/`, `labs/*/perguntas.toml` e `labs/lab3/descricoes/ruim.toml` e `boa.toml`. Ajuste de estoque só se aprova pela tela do ERP, por uma pessoa: não chame `/aprovar` nem `/rejeitar`.
 - `integrador/legado/` é um legado mantido como está, de propósito: não corrija nem refatore sem pedido explícito. Para executá-lo, use `make legado` (roda numa pasta isolada), não `python -m sgc`.
 
 ## Convenções

@@ -1,3 +1,8 @@
+---
+nivel: Interno
+dono: Arquitetura
+---
+
 # Política de Segurança da Informação — TechCorp
 
 **Versão:** 3.2

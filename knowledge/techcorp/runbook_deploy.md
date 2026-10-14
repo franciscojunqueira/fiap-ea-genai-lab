@@ -1,3 +1,8 @@
+---
+nivel: Público
+dono: TI Operacional
+---
+
 # Runbook: Deploy em Produção — TechCorp
 
 **Responsável:** Time de Plataforma

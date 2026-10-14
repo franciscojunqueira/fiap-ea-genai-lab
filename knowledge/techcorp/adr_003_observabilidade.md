@@ -1,3 +1,8 @@
+---
+nivel: Interno
+dono: Arquitetura
+---
+
 # ADR-003: Stack de Observabilidade Unificada
 
 **Status:** Aprovado

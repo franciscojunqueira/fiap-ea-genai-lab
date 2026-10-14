@@ -1,3 +1,8 @@
+---
+nivel: Interno
+dono: Arquitetura
+---
+
 # ADR-001: Adoção de API Gateway Centralizado
 
 **Status:** Aprovado

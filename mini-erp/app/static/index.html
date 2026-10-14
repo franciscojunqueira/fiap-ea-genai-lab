@@ -360,6 +360,7 @@
     <a data-page="novo-pedido"><i class="fa-solid fa-file-circle-plus"></i> Novo Pedido</a>
     <a data-page="faturas"><i class="fa-solid fa-file-invoice-dollar"></i> Faturas</a>
     <a data-page="alertas"><i class="fa-solid fa-bell"></i> Alertas</a>
+    <a data-page="aprovacoes"><i class="fa-solid fa-user-check"></i> Aprovações</a>
   </nav>
 
   <main>
@@ -539,6 +540,22 @@
           <button class="btn btn-primary btn-sm" onclick="loadAlertas()"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button>
         </div>
         <div id="alertas-table"></div>
+      </div>
+    </div>
+
+    <!-- ════════ APROVAÇÕES (Lab 3) ════════ -->
+    <div id="page-aprovacoes" class="page">
+      <div class="page-title"><i class="fa-solid fa-user-check" style="color:var(--primary)"></i> Aprovações</div>
+      <p class="page-subtitle">Ajustes de estoque pedidos pelo agente. Só uma pessoa aprova; o agente executa depois.</p>
+      <div class="card">
+        <div class="card-header" style="justify-content:space-between">
+          <span><i class="fa-solid fa-clipboard-check"></i> Ajustes de estoque</span>
+          <span>
+            <input id="aprovador-nome" placeholder="Seu nome (quem aprova)" style="padding:6px 10px;border:1px solid var(--gray-300);border-radius:6px;margin-right:8px">
+            <button class="btn btn-primary btn-sm" onclick="loadAjustes()"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button>
+          </span>
+        </div>
+        <div id="ajustes-table"></div>
       </div>
     </div>
 
@@ -862,6 +879,43 @@ async function enviarAlerta() {
     document.getElementById('alerta-msg').value = '';
     document.getElementById('alerta-detalhes').value = '';
     loadAlertas();
+  } catch {}
+}
+// ── Aprovações (Lab 3) ──
+async function loadAjustes() {
+  try {
+    const data = await api('/ajustes');
+    if (!data.length) {
+      document.getElementById('ajustes-table').innerHTML = '<div class="empty-state"><i class="fa-solid fa-clipboard"></i><p>Nenhum ajuste pedido</p></div>';
+      return;
+    }
+    const badge = { PENDENTE: 'warning', APROVADO: 'info', EXECUTADO: 'success', REJEITADO: 'danger' };
+    document.getElementById('ajustes-table').innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Produto</th><th>Variação</th><th>Motivo</th><th>Status</th><th>Pedido por</th><th>Aprovado por</th><th>Estoque antes → depois</th><th></th></tr></thead>
+      <tbody>${data.map(a => `<tr>
+        <td><strong>#${a.id}</strong></td>
+        <td>${a.produto_id}</td>
+        <td><strong>${a.variacao > 0 ? '+' : ''}${a.variacao}</strong></td>
+        <td>${a.motivo}</td>
+        <td><span class="badge badge-${badge[a.status] || 'warning'}">${a.status}</span></td>
+        <td>${a.solicitado_por}</td>
+        <td>${a.aprovado_por || '—'}</td>
+        <td>${a.estoque_antes ?? '—'} → ${a.estoque_depois ?? '—'}</td>
+        <td style="white-space:nowrap">${a.status === 'PENDENTE' ? `
+          <button class="btn btn-success btn-sm" onclick="decidirAjuste(${a.id}, 'aprovar')">Aprovar</button>
+          <button class="btn btn-sm" onclick="decidirAjuste(${a.id}, 'rejeitar')">Rejeitar</button>` : ''}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch {}
+}
+loadAjustes();
+
+async function decidirAjuste(id, acao) {
+  const aprovador = document.getElementById('aprovador-nome').value.trim();
+  if (!aprovador) return toast('Escreva seu nome no campo acima antes de decidir', 'error');
+  try {
+    await api(`/ajustes/${id}/${acao}`, { method: 'POST', body: JSON.stringify({ aprovador }) });
+    toast(`Ajuste #${id}: ${acao === 'aprovar' ? 'aprovado' : 'rejeitado'} por ${aprovador}`);
+    loadAjustes();
   } catch {}
 }
 </script>

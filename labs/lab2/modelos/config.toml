@@ -1,0 +1,9 @@
+# Lab 2: parâmetros dos pipelines (do grupo). No passo 3, mudem UM valor e rodem de novo.
+grupo = ""              # nome do grupo como está na planilha da turma, por exemplo "Grupo 3"
+
+modelo = "padrão"       # "padrão" = o modelo dos labs em config/modelos.toml; ou "sonnet"
+top_k = 3               # RAG: quantos pedaços vão para o modelo (experimentem 8)
+tamanho_pedaco = 500    # RAG: caracteres por pedaço, como na v1 (experimentem 1500)
+acl = "filtro"          # "filtro": a permissão corta os documentos antes da busca
+                        # "prompt": todos os documentos ficam visíveis e o prompt só PEDE para respeitar
+max_turnos = 8          # busca agêntica: limite de idas e voltas do modelo

@@ -20,7 +20,15 @@
       "Bash(*labs/lab1/referencia/*)",
       "Bash(*labs/*/aceite*)",
       "Bash(*labs/*/exemplos*)",
-      "Bash(*replay/*)"
+      "Bash(*replay/*)",
+      "Edit(labs/*/perguntas.toml)",
+      "Edit(labs/*/descricoes/ruim.toml)",
+      "Edit(labs/*/descricoes/boa.toml)",
+      "Edit(labs/*/execucoes/**)",
+      "Edit(labs/*/comparacoes/**)",
+      "Edit(knowledge/**)",
+      "Bash(*/aprovar*)",
+      "Bash(*/rejeitar*)"
     ]
   }
 }
