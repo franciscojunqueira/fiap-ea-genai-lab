@@ -1,8 +1,8 @@
 # Lab 1 com Codex
 
-Para o grupo cujo operador usa o **Codex** (plano ChatGPT) em vez do Claude Code. O login e o
-comando de abrir o Codex estão no [guia do Codex](../../docs/guia_codex.md), passos 5 e 6: o
-operador faz isso antes da aula.
+Para o grupo cujo operador usa o **Codex** (plano ChatGPT) em vez do Claude Code. O operador faz o
+login antes da aula ([guia do Codex](../../docs/guia_codex.md), passo 5). O comando de abrir o Codex,
+no passo 6 do mesmo guia, é usado na aula.
 
 Sigam o [README do Lab 1](README.md) normalmente: o problema, os papéis, os arquivos e os passos
 **1, 2, 4 e 5** são os mesmos. Só o **passo 3** muda, e está abaixo. O `make lab1-check` confere os

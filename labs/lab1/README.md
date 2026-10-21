@@ -8,8 +8,8 @@ Claude Code) implementar e **verificar** o que ele fez e o que inventou.
 dele: **guias** que orientam antes (a spec, o `AGENTS.md`) e **sensores** que conferem depois (testes,
 a fitness function, a pessoa que verifica).
 
-**Antes da aula:** o operador já tem o Codespace do grupo aberto e logado
-([guia do Codespace](../../docs/guia_codespace.md), passos 1 a 5).
+**Antes da aula:** o operador já tem o Codespace do grupo criado e logado
+([guia do Codespace](../../docs/guia_codespace.md), passos 1 a 5). No dia, ele reabre esse Codespace (passo 9).
 
 **Operador com Codex (plano ChatGPT)?** Sigam este README normalmente; no **passo 3**, usem a versão
 Codex em [codex.md](codex.md).

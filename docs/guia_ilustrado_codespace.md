@@ -8,8 +8,10 @@ GitHub e o Claude Code mudam de aparência com frequência, então o texto dos b
 **Como ler as imagens:** caixa **vermelha** é onde clicar ou o que conferir (o número indica a ordem);
 caixa **amarela com "!"** é o que evitar.
 
-**Tempo total:** cerca de 15 minutos, dos quais uns 5 são espera enquanto o Codespace é montado. Faça
-antes da Aula 1.
+**Tempo total:** cerca de 15 minutos, dos quais uns 5 são espera enquanto o Codespace é montado.
+
+**O preparo vai do passo 1 ao passo 5** e deve ser feito antes da Aula 1. Ele termina quando o
+`make check` mostra **PASS: 4 ok**. O passo 6 já é da aula.
 
 **Vai usar o Codex (plano ChatGPT)?** As telas dos passos 2 a 4 valem igual. O login (passo 5) é
 outro: siga o [guia do Codex](guia_codex.md).
@@ -163,31 +165,29 @@ Enter para sair.
 ![Claude Code aberto, com a caixa de digitação](img/guia_ilustrado/20_claude_aberto.png)
 
 De volta ao terminal, rode `make check`. Agora o esperado é **PASS: 4 ok, 0 aviso(s), 0 falha(s)**.
-Pronto: o ambiente está configurado. O login fica guardado no Codespace.
+O login fica guardado no Codespace.
 
 ![make check com 4 ok](img/guia_ilustrado/21_make_check_4ok.png)
 
-## 6. Rodar o primeiro exercício (Lab 1, na aula)
+> **Fim do preparo.** Se o `make check` mostrou **PASS: 4 ok, 0 aviso(s), 0 falha(s)**, o ambiente
+> do grupo está pronto. Não rodem nada do Lab 1 agora: ele começa na aula. Pare o
+> Codespace (passo 9) e volte a ele no dia da aula. O passo 6 é da aula; os demais são de consulta.
 
-No explorador, abra `labs` → `lab1` e clique em **README.md (1)**: ele abre já formatado. É o
-roteiro do lab.
+---
+
+## 6. Na aula: onde começa o Lab 1
+
+No dia da aula, no explorador, abra `labs` → `lab1` e clique em **README.md (1)**: ele abre já
+formatado. É o roteiro do lab. Siga-o **a partir do passo 1**.
 
 ![README do Lab 1 aberto e formatado](img/guia_ilustrado/22_readme_lab1.png)
 
-No terminal:
-
-```bash
-make lab1
-make lab1-check
-```
-
-O esperado é `[OK] 1. Lab preparado`, os demais itens com `[FALHA]` e a explicação de cada um, e no
-fim `lab1-check: FAIL (1/7 itens)`. **Esse FAIL é o ponto de partida**, não um erro. A última linha,
+No passo 1 do lab, o operador roda `make lab1` e `make lab1-check`. O esperado é
+`[OK] 1. Lab preparado`, os demais itens com `[FALHA]` e a explicação de cada um, e no fim
+`lab1-check: FAIL (1/7 itens)`. **Esse FAIL é o ponto de partida**, não um erro. A última linha,
 `make: *** [...] Error 1`, também é normal: é como o `make` avisa que o check deu FAIL.
 
 ![Saída do make lab1-check com FAIL 1/7](img/guia_ilustrado/23_lab1_check_fail.png)
-
-A partir daqui, siga o README do lab.
 
 ## 9. Parar o Codespace ao terminar
 

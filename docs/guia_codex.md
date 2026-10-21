@@ -8,7 +8,8 @@ curso.
 Só muda o que é do agente: o login, o comando que abre o agente e alguns detalhes dentro dos labs.
 O Codespace, os `make` e os checks são os mesmos.
 
-> Façam os passos 1 a 5 **antes da Aula 1**, como no guia do Codespace.
+> Façam os passos 1 a 5 **antes da Aula 1**, como no guia do Codespace. O preparo termina no passo 5.3,
+> quando o `make check` mostra PASS: 4 ok. Os passos 6 a 8 são para a aula e para consulta.
 
 ---
 
@@ -69,6 +70,13 @@ O login fica guardado no Codespace, em `~/.codex/auth.json`. Esse arquivo vale c
 copie nem mostre. Nas próximas vezes não precisa repetir o login, a menos que alguém faça "Rebuild
 container".
 
+> **Fim do preparo.** Se o `make check` mostrou **PASS: 4 ok, 0 aviso(s), 0 falha(s)**, o ambiente
+> do grupo está pronto. Não rodem nada do Lab 1 agora: ele começa na aula. Pare o
+> Codespace (passo 9 do [guia do Codespace](guia_codespace.md)) e volte a ele no dia da aula. Os
+> passos 6 a 8 deste guia são para a aula e para consulta.
+
+---
+
 ## 6. Abrir o Codex nos labs: sempre com este comando
 
 ```bash
@@ -121,7 +129,7 @@ Cada lab é escrito para o Claude Code e indica onde o Codex é diferente. No **
 O `make labN`, a fitness function e o `make labN-check` são os mesmos: não dependem do agente.
 
 **O resto é igual para todos:** salvar o trabalho com `git push`, parar o Codespace, a cota e o
-segundo assinante estão nos passos 7 a 12 do [guia do Codespace](guia_codespace.md).
+segundo assinante estão nos passos 8 a 11 do [guia do Codespace](guia_codespace.md).
 
 ## 8. Deu errado?
 

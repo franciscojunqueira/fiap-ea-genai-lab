@@ -1,7 +1,14 @@
-# Guia do Codespace: do zero ao primeiro exercício
+# Guia do Codespace: do zero ao ambiente pronto
 
 Todos os labs do curso rodam num **Codespace**: um computador na nuvem do GitHub, aberto no seu
-navegador, com tudo instalado. Você não instala nada na sua máquina. Siga os passos na ordem.
+navegador, com tudo instalado. Você não instala nada na sua máquina.
+
+**Este guia tem duas partes.**
+- **Preparo, antes da Aula 1 (passos 1 a 5).** Siga na ordem. O preparo termina quando o `make check`
+  mostra **PASS: 4 ok, 0 aviso(s), 0 falha(s)**.
+- **Durante o curso (passos 6 a 12).** Não fazem parte do preparo. Os passos 8 (salvar) e 9 (parar)
+  valem toda vez que usar o Codespace; os demais, quando a aula ou o lab pedir.
+
 Prefere ver as telas? O [guia ilustrado](guia_ilustrado_codespace.md) mostra os passos 2 a 6 e 9 com
 imagens, marcando onde clicar.
 
@@ -24,6 +31,9 @@ compartilhada do operador.
    de autoformação divulgada no Portal do Aluno). Ele vai adicionar você ao repositório do grupo.
 3. **Aceite o convite** que chega por e-mail, ou em https://github.com/notifications, em até 7 dias:
    depois disso ele expira e o operador precisa convidar de novo.
+
+Não é operador nem segundo assinante? **O seu preparo termina aqui.** Na aula, você acompanha pela
+tela compartilhada do operador.
 
 ## 2. Criar o repositório do grupo (operador, uma vez)
 
@@ -111,26 +121,22 @@ As telas de cada passo estão no [guia ilustrado](guia_ilustrado_codespace.md).
 
 **Codex (alternativa, plano ChatGPT):** o login é outro (`codex login --device-auth`, depois de ligar
 uma opção no ChatGPT) e o Codex precisa de um comando próprio para abrir no Codespace. Siga o
-[guia do Codex](guia_codex.md), passos 5 e 6.
+[guia do Codex](guia_codex.md), passo 5. O passo 6 de lá é para a aula.
 
 O login fica guardado no Codespace: nas próximas vezes não precisa repetir, a menos que alguém faça
 "Rebuild container".
 
-## 6. Rodar o primeiro exercício (Lab 1, na aula)
+> **Fim do preparo.** Se o `make check` mostrou **PASS: 4 ok, 0 aviso(s), 0 falha(s)**, o ambiente
+> do grupo está pronto. Não rodem nada do Lab 1 agora: ele começa na aula. Pare o
+> Codespace (passo 9) e volte a ele no dia da aula. O passo 6 é da aula; os demais são de consulta.
 
-1. No explorador, abra `labs/lab1/README.md` com **Open Preview**: é o roteiro do lab.
-2. No terminal:
-   ```bash
-   make lab1         # prepara o lab
-   make lab1-check   # FAIL é o esperado agora: as mensagens dizem o que falta
-   ```
-   O esperado: `[OK] 1. Lab preparado`, os outros itens com `[FALHA]` e a explicação de cada um, e no
-   fim `lab1-check: FAIL (1/7 itens)`. É o ponto de partida do lab. A última linha,
-   `make: *** [...] Error 1`, também é normal: é como o `make` avisa que o check deu FAIL.
-3. Siga o README a partir do passo 2. Cada lab tem o seu `labs/labN/README.md` e confere com
-   `make labN-check`.
+---
 
-Para testar antes da aula sem gastar cota: `make lab1` e `make lab1-check` não usam o agente.
+## 6. Na aula: onde começa o Lab 1
+
+No dia da aula, reabra o Codespace que já existe (passo 9), abra o `labs/lab1/README.md` com
+**Open Preview** e siga o README **a partir do passo 1**. Cada lab tem o seu `labs/labN/README.md` e
+confere o resultado com `make labN-check`.
 
 ## 7. Ver o Mini-ERP no navegador (quando o lab pedir)
 
