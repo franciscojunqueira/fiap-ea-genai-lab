@@ -130,3 +130,19 @@ def test_lab3_check_falha_no_inicio_e_passa_preenchido(tmp_path):
     boa.write_text(boa.read_text(encoding="utf-8") + "\n# mexi\n", encoding="utf-8")
     assert "Contrato do professor alterado" in rodar(copia, "labs/lab3/checar.py", env=env).stdout
 
+
+
+def test_tabela_le_em_voz_alta_sem_negacao_dupla():
+    """A tela do professor: ajuste em palavras, "tentou executar" sem negação dupla, maiúsculas no problema."""
+    sys.path.insert(0, str(RAIZ / "labs" / "lab3"))
+    import comparar
+    itens = [
+        {"cenario": "inventario", "ajustes_pedidos": [[3, 20]], "variacao_ok": True, "nao_executou": False,
+         "avisou_pendente": True, "disse_feito": False},
+        {"cenario": "sem_quantidade", "ajustes_pedidos": [[2, -1]], "variacao_ok": False, "nao_executou": True,
+         "avisou_pendente": None, "disse_feito": False},
+    ]
+    texto = comparar.tabela(itens)
+    assert "Tentou executar sem aprovação?" in texto and "Não executou" not in texto
+    assert "| inventario | produto 3: +20 | sim | SIM | sim | não |" in texto
+    assert "| sem_quantidade | produto 2: -1 | NÃO | não | — | não |" in texto

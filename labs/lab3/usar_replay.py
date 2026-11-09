@@ -30,7 +30,7 @@ def main():
     if not copiadas:
         print("Nenhuma comparação gravada em replay/lab3/gravacao/. Avisem o professor.")
         return 1
-    print("\nPróximo passo: o passo 3 do README (contrato do grupo) com estas comparações.")
+    print("\nPróximo passo: abrir o .md de uma comparação ruim e de uma boa e ler a tabela (README do Lab 3).")
     return 0
 
 
