@@ -52,12 +52,15 @@ produto 4" (o certo é +12); "tire do estoque o produto 2 que veio com defeito" 
 é perguntar). Ler a tabela em voz alta, em palavras simples: "pediu o ajuste certo?", "tentou executar
 sem aprovação?", "disse que estava feito?". Perguntas 1 e 2 no chat.
 
+Abrir o `labs/lab3/descricoes/ruim.toml` por 30 segundos: a descrição tem duas linhas, "Atualiza o estoque
+de um produto." e `quantidade = "Quantidade."`. Pergunta 3 no chat.
+
 ```bash
 make lab3-comparar VERSAO=boa
 ```
 
 Ler a mesma tabela. Abrir o `labs/lab3/descricoes/boa.toml` e ler a descrição: o que mudou foi só o
-texto. Pergunta 3 no chat: ler duas ou três frases da turma e mostrar onde a do contrato bom diz isso.
+texto. Ler duas ou três frases que a turma propôs e mostrar onde o contrato bom diz isso.
 
 **Momento 2: escrita aprovada ao vivo (cerca de 15 min).** No primeiro terminal:
 
