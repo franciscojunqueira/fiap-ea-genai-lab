@@ -82,7 +82,7 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
 |---|---|---|---|
 | 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
 | 2 | Operador | `make atividade2` | "preparada" nas duas seções e os números do Lab 2 do grupo: anotem |
-| 3 | Operador | `claude`, colar o pedido abaixo e esperar. Se o Claude Code perguntar se pode criar o arquivo, responder Yes. Sair com `/exit` | o agente diz o nome do arquivo novo em `docs/adr/` |
+| 3 | Operador | Antes, o grupo combina a decisão em uma frase: como o Bússola acessa o SGC. `claude`, colar o pedido abaixo, com a frase do grupo no lugar dos colchetes, e esperar. Se o Claude Code perguntar se pode criar o arquivo, responder Yes. Sair com `/exit` | o agente diz o nome do arquivo novo em `docs/adr/` |
 | 4 | Verificador | abrir o ADR no painel de arquivos, à esquerda, e responder sim ou não: cada fato do SGC cita o arquivo de onde veio? Algum decisor, prazo ou requisito foi inventado? As alternativas do ADR existem no caso? Corrigir o que o agente inventou | — |
 | 5 | Autores | abrir `integrador/pacote/01-design.md` no painel de arquivos; os autores dizem as respostas e o operador troca cada `[PREENCHER: ...]`, com os colchetes (são 10, nas seções "Decisão de conhecimento" e "Contrato MCP"; os PREENCHER das outras seções ficam para o pacote final) | — |
 | 6 | Operador | `make atividade2-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
@@ -91,7 +91,7 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
 O pedido do ADR (passo 3), para colar:
 
 ```text
-Registre um ADR sobre como o Bússola acessa o SGC. Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. Não invente decisores nem requisitos: marque como "a confirmar" o que não estiver nos arquivos.
+Registre um ADR sobre como o Bússola acessa o SGC. A decisão do grupo é: [troquem por uma frase com a decisão do grupo]. Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. Não invente decisores nem requisitos: marque como "a confirmar" o que não estiver nos arquivos.
 ```
 
 No Contrato MCP, as duas primeiras linhas são as tools da demonstração do Lab 3, e a linha
