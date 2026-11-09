@@ -71,7 +71,9 @@ def main():
         print(f"  remoto 'template' adicionado ({URL})")
     print("  buscando o template...")
     git("fetch", "--quiet", "template")
-    mudados = [l for l in git("diff", "--name-only", "HEAD", REF).splitlines() if l]
+    # Compara o template com os arquivos como estão no disco, não com o último commit: um arquivo já trazido
+    # por uma rodada anterior e ainda sem commit está em dia e não pode bloquear a próxima rodada.
+    mudados = [l for l in git("diff", "--name-only", REF).splitlines() if l]
     no_template = set(git("ls-tree", "-r", "--name-only", REF).splitlines())
     trazidos, mantidos = [], []
     for caminho in mudados:

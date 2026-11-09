@@ -39,3 +39,37 @@ def test_aviso_do_agents_so_quando_falta_linha(tmp_path, monkeypatch, capsys):
     atualizar.avisar_agents()
     saida = capsys.readouterr().out
     assert "1 linha(s)" in saida and "- regra B" in saida
+
+
+def test_atualizar_duas_vezes_sem_commit_nao_bloqueia(tmp_path, monkeypatch, capsys):
+    """Piloto de 09/11/2026: a 2ª rodada recusava por arquivos já trazidos (iguais ao template) e sem commit."""
+    import subprocess
+
+    def g(pasta, *args):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=pasta, check=True,
+                       capture_output=True)
+
+    template, grupo = tmp_path / "template", tmp_path / "grupo"
+    (template / "labs/lab3").mkdir(parents=True)
+    (template / "labs/lab3/README.md").write_text("v1\n", encoding="utf-8")
+    g(tmp_path, "init", "-q", "-b", "main", str(template))
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v1")
+    g(tmp_path, "clone", "-q", str(template), str(grupo))
+    g(grupo, "remote", "add", "template", str(template))
+    (template / "labs/lab3/README.md").write_text("v2\n", encoding="utf-8")
+    g(template, "commit", "-q", "-am", "v2")
+
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    assert (grupo / "labs/lab3/README.md").read_text(encoding="utf-8") == "v2\n"
+    atualizar.main()   # sem commit entre as rodadas: não pode recusar
+    assert "Nada a trazer" in capsys.readouterr().out
+
+    # Alteração do grupo num arquivo do professor, sem commit, continua protegida.
+    (grupo / "labs/lab3/README.md").write_text("do grupo\n", encoding="utf-8")
+    import pytest
+    with pytest.raises(SystemExit, match="alterações sem commit"):
+        atualizar.main()
