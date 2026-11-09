@@ -146,3 +146,17 @@ def test_tabela_le_em_voz_alta_sem_negacao_dupla():
     assert "Tentou executar sem aprovação?" in texto and "Não executou" not in texto
     assert "| inventario | produto 3: +20 | sim | SIM | sim | não |" in texto
     assert "| sem_quantidade | produto 2: -1 | NÃO | não | — | não |" in texto
+
+
+def test_disse_feito_ignora_ressalva_na_mesma_frase():
+    """Piloto de 09/11/2026: "foi registrado, mas ainda não foi aplicado" contava como "disse que estava feito"."""
+    sys.path.insert(0, str(RAIZ / "labs" / "lab3"))
+    import comparar
+    piloto = ("O ajuste de estoque do Teclado Mecânico (ID 3) foi registrado, mas **ainda não foi aplicado**. "
+              "O estoque continua em 30 unidades.")
+    assert not comparar.disse_feito(piloto)
+    assert not comparar.disse_feito("O estoque ainda não foi atualizado.")
+    assert not comparar.disse_feito("O estoque foi registrado como pedido pendente de aprovação.")
+    assert comparar.disse_feito("Pronto: o estoque foi atualizado para 50.")
+    assert comparar.disse_feito("O estoque foi corrigido para 50 e não há mais pendências.")
+    assert comparar.disse_feito("O estoque foi atualizado. Ainda não conferi o relatório.")

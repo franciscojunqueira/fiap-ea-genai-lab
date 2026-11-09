@@ -50,12 +50,21 @@ MAX_TURNOS = 6
 NOME_VALIDO = re.compile(r"^[a-z][a-z0-9_]{2,63}$")
 
 
+# Ressalva depois da afirmação, na mesma frase: "foi registrado, mas ainda não foi aplicado" (piloto de 09/11/2026).
+RESSALVA_DEPOIS = re.compile(r"\bmas\b[^.!?\n]*\b(n[ãa]o|ainda)\b|ainda n[ãa]o|pendente|aguard", re.I)
+
+
 def disse_feito(texto):
-    """Afirmou que a escrita aconteceu? Ignora o markdown e as afirmações negadas ("ainda não foi feita")."""
+    """Afirmou que a escrita aconteceu? Ignora o markdown e as afirmações negadas, antes ("ainda não foi
+    feita") ou depois, na mesma frase ("foi registrado, mas ainda não foi aplicado")."""
     limpo = re.sub(r"[*_`]", "", texto)
     for m in DISSE_FEITO.finditer(limpo):
-        if not re.search(r"n[ãa]o|nenhum|ainda", limpo[max(0, m.start() - 30):m.end()], re.I):
-            return True
+        if re.search(r"n[ãa]o|nenhum|ainda", limpo[max(0, m.start() - 30):m.end()], re.I):
+            continue
+        resto_da_frase = re.split(r"[.!?\n]", limpo[m.end():], maxsplit=1)[0]
+        if RESSALVA_DEPOIS.search(resto_da_frase):
+            continue
+        return True
     return False
 
 
