@@ -76,27 +76,29 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
 
 **Objetivo.** Registrar as primeiras decisões enquanto os Labs 2 e 3 estão frescos.
 
-**Passos.**
+**Passos.** Um comando por vez, no Codespace do operador, na ordem.
 
-1. **1º ADR**, com a skill `escrevendo-adrs` (peça ao agente: "registre um ADR sobre ..."). Tema
-   sugerido: como o Bússola acessa o SGC, com os fatos da Atividade 1. Citem os requisitos do
-   caso (RC-NN) na tabela de requisitos.
-2. **`pacote/01-design.md`, seção "Decisão de conhecimento"**: o que o Bússola usa para cada tipo de
-   pergunta, onde fica a permissão e qual número do Lab 2 sustenta a decisão. Os números são os do
-   grupo, em `labs/lab2/execucoes/` no Codespace do operador; o grupo que ficou sem cota usa os testes do
-   professor (`make lab2-replay`) e diz isso.
-3. **`pacote/01-design.md`, seção "Contrato MCP"**: copiem as três linhas da tabela abaixo e completem
-   só as duas células com **?**, na linha `sgc:`: quem aprova o pedido de reprocessamento e se
-   reprocessar duas vezes dá o mesmo resultado (se não der, como o grupo protege). A resposta está na
-   engenharia reversa do grupo (Atividade 1).
+| # | Quem | O que fazer | O que aparece |
+|---|---|---|---|
+| 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
+| 2 | Operador | `make atividade2` | "preparada" nas duas seções e os números do Lab 2 do grupo: anotem |
+| 3 | Operador | `claude`, colar o pedido abaixo, esperar o ADR e sair com `/exit` | um arquivo novo em `docs/adr/` |
+| 4 | Verificador | abrir o ADR e responder sim ou não: cada fato do SGC tem fonte? Algum decisor, prazo ou requisito foi inventado? As três alternativas são reais? Corrigir o que o agente inventou | — |
+| 5 | Autores | abrir `integrador/pacote/01-design.md` e trocar cada `[PREENCHER: ...]`, com os colchetes, pela resposta do grupo (são 10, nas seções "Decisão de conhecimento" e "Contrato MCP") | — |
+| 6 | Operador | `make atividade2-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
+| 7 | Relator | colar no Portal o link e o SHA da caixa | — |
 
-   | Servidor:ferramenta | Lê ou escreve | Entrada | Saída | Aprovação humana | Idempotente | Departamentos |
-   |---|---|---|---|---|---|---|
-   | minierp:solicitar_ajuste_estoque | Escreve um pedido, não o estoque | produto_id, quantidade (variação com sinal), motivo | número do ajuste, status PENDENTE | Não para pedir; o ajuste só vale depois de aprovado na tela | Não: duas chamadas criam dois pedidos; a aprovação barra o segundo | TI Operacional |
-   | minierp:executar_ajuste_estoque | Escreve no estoque | ajuste_id | status EXECUTADO, estoque antes e depois | Sim: o ERP recusa o que não foi aprovado | Sim: a segunda chamada devolve o mesmo resultado | TI Operacional |
-   | sgc:pedir_reprocessamento_retorno | Escreve um pedido, não reprocessa | nome do arquivo de retorno, motivo | número do pedido, status PENDENTE | ? Quem aprova? | ? Reprocessar duas vezes dá o mesmo resultado? Se não, como protegem? | TI Operacional |
-4. `make checkpoint-check` até dar PASS. Depois, `git add -A` (leva também as execuções do Lab 2),
-   commit e push.
+O pedido do ADR (passo 3), para colar:
+
+```text
+Registre um ADR sobre como o Bússola acessa o SGC. Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. Não invente decisores nem requisitos: marque como "a confirmar" o que não estiver nos arquivos.
+```
+
+No Contrato MCP, as duas primeiras linhas são as tools da demonstração do Lab 3, e a linha
+`sgc:pedir_reprocessamento_retorno` pede só duas respostas: quem aprova e se reprocessar duas vezes dá o
+mesmo resultado (se não der, como o grupo protege). A resposta está na engenharia reversa do grupo
+(Atividade 1). Os números do Lab 2 são os do grupo; o grupo que ficou sem cota usa os testes do
+professor (`make lab2-replay`) e diz isso.
 
 **Na Aula 3.** Devolutiva coletiva: o professor comenta os padrões que viu nos checkpoints da
 turma, sem nota.

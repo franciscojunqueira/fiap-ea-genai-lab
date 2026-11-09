@@ -99,10 +99,10 @@ produção, quem aprova se identifica (SSO) com uma credencial que o agente não
 
 ## Depois da aula: a Atividade 2
 
-A seção "Contrato MCP" do `integrador/pacote/01-design.md` copia as três linhas da tabela da Atividade 2
-(`integrador/atividades.md`): as duas tools do Mini-ERP desta demonstração e uma tool `sgc:` em que o
-grupo completa só duas células, quem aprova e se reprocessar é idempotente, com o que a Atividade 1
-mostrou.
+O `make atividade2` põe na seção "Contrato MCP" do `integrador/pacote/01-design.md` uma tabela de três
+linhas: as duas tools do Mini-ERP desta demonstração e uma tool `sgc:` em que o grupo completa só duas
+células, quem aprova e se reprocessar é idempotente, com o que a Atividade 1 mostrou. Os passos estão
+em `integrador/atividades.md`.
 
 ## Refazer em casa (opcional, sem nota)
 
