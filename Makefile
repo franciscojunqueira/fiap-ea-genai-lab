@@ -3,7 +3,7 @@
 .PHONY: help check test erp mcp skill-check \
         lab1 lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
-        legado er-check checkpoint-check pacote-check
+        legado er-check checkpoint-check pacote-check atividade2 atividade2-entregar
 
 RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
@@ -73,6 +73,12 @@ er-check: ## Confere a engenharia reversa (Atividade 1 do integrador)
 
 checkpoint-check: ## Confere o checkpoint (Atividade 2 do integrador)
 	@$(RUN) python integrador/scripts/checar_entrega.py checkpoint
+
+atividade2: ## Atividade 2: prepara o 01-design.md para preencher e mostra os números do Lab 2
+	@$(RUN) python integrador/scripts/atividade2.py preparar
+
+atividade2-entregar: ## Atividade 2: confere, faz commit e push e mostra o link e o SHA para o Portal
+	@$(RUN) python integrador/scripts/atividade2.py entregar
 
 pacote-check: ## Confere o pacote final (Atividade 3 do integrador)
 	@$(RUN) python integrador/scripts/checar_entrega.py final
