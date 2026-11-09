@@ -28,7 +28,7 @@ DO_PROFESSOR = [
     "integrador/scripts/*", "integrador/legado/*",
     "labs/*/README.md", "labs/*/codex.md", "labs/*/ticket.md", "labs/*/*.py", "labs/*/modelos/*",
     "labs/*/aceite/*", "labs/*/referencia/*", "labs/*/exemplos/*", "labs/*/perguntas.toml",
-    "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml", "labs/*/descricoes/boa_sem_frase.toml",
+    "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",
 ]
 # Do grupo: nunca sobrescrever, mesmo que case com um padrão acima.
 DO_GRUPO = ["docs/adr/*", "labs/*/testes/*", "labs/*/execucoes/*", "labs/*/comparacoes/*", "labs/*/descricoes/grupo.toml"]

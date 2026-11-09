@@ -10,65 +10,37 @@ o resultado. **Ninguém programa. Não há arquivo para preencher nem check.**
 **Quem faz:** só o **operador** digita, no Codespace, com a tela compartilhada na sala do grupo. Os
 outros acompanham, leem e respondem. O **relator** escreve as respostas no chat principal, na volta.
 
-## As duas palavras do lab
+## Os três passos e o que cada um mostra
 
-- **RAG:** o código recorta os documentos em pedaços e manda ao modelo só os pedaços mais parecidos
-  com a pergunta. Quem escolhe o que o modelo lê é o código.
-- **Busca agêntica:** o modelo recebe a pasta com os documentos e procura sozinho, em várias idas e
-  voltas. Quem escolhe o que o modelo lê é o modelo.
+| Passo, na sala do grupo | Comando (operador) | O conceito |
+|---|---|---|
+| 1. Responder com RAG | `make lab2-rodar PIPELINE=rag` | **o código** escolhe o que o modelo lê: só os pedaços mais parecidos com a pergunta |
+| 2. Responder com busca agêntica | `make lab2-rodar PIPELINE=agentica` | **o modelo** escolhe o que lê: procura sozinho na pasta, em várias idas e voltas |
+| 3. Abrir a P03 | abrir `labs/lab2/execucoes/`, o arquivo que termina em `-rag.md`, e procurar `## P03` | o script confere palavras, não a verdade |
 
 Nos dois jeitos, os documentos que o departamento de quem pergunta não pode ver nem entram: a
 permissão fica num filtro, antes do modelo.
 
-## Passos
+Cada comando leva de 1 a 3 minutos. No fim, aparece uma linha que começa com **Acerto**: anotem a
+linha de cada um.
 
-**Antes da aula (operador).** Abra o Codespace do grupo, o que já existe, e rode no terminal:
+## Antes da aula (operador)
+
+Abra o Codespace do grupo, o que já existe, e rode no terminal, um de cada vez:
 
 ```bash
 make atualizar
 make check
-```
-
-O `make atualizar` traz este lab para o repositório do grupo. Ele mostra a lista do que vai trazer e
-pede confirmação: digite `s`. Depois, salve para o grupo todo:
-
-```bash
-git add -A
-git commit -m "Atualiza do template"
-git push
-```
-
-Se o `make atualizar` não existir, veja "Atualizar do template", no fim.
-
-O `make check` precisa terminar com **PASS**. Se terminar com **NÃO PRONTO**, falta o login: digite
-`claude`, faça o login, saia com `/exit` e rode `make check` de novo.
-
-**1. Preparar (operador, na sala principal, 2 min).**
-
-```bash
 make lab2
 ```
 
-Ele confere o login e cria o `labs/lab2/config.toml`. Não mudem nada nesse arquivo.
-
-**2. Rodar o primeiro jeito, o RAG (operador, na sala do grupo).**
-
-```bash
-make lab2-rodar PIPELINE=rag
-```
-
-Leva de 1 a 3 minutos. No fim, aparece uma linha que começa com **Acerto**. Anotem essa linha.
-
-**3. Rodar o segundo jeito, a busca agêntica (operador).**
-
-```bash
-make lab2-rodar PIPELINE=agentica
-```
-
-Anotem a linha **Acerto** desta execução também.
-
-**4. Abrir a P03 (operador, com a tela compartilhada).** Na barra da esquerda, abra a pasta
-`labs/lab2/execucoes/` e o arquivo que termina em `-rag.md`. Procure `## P03`.
+- O `make atualizar` traz este lab para o repositório do grupo. Ele mostra a lista do que vai trazer e
+  pede confirmação: digite `s`. Depois, salve para o grupo todo: `git add -A`, depois
+  `git commit -m "Atualiza do template"`, depois `git push`. Se o `make atualizar` não existir, veja
+  "Atualizar do template", no fim.
+- O `make check` precisa terminar com **PASS**. Se terminar com **NÃO PRONTO**, falta o login: digite
+  `claude`, faça o login, saia com `/exit` e rode `make check` de novo.
+- O `make lab2` confere o login e prepara o lab. Não mudem o arquivo que ele cria.
 
 ## As 3 perguntas do grupo
 

@@ -130,15 +130,3 @@ def test_lab3_check_falha_no_inicio_e_passa_preenchido(tmp_path):
     boa.write_text(boa.read_text(encoding="utf-8") + "\n# mexi\n", encoding="utf-8")
     assert "Contrato do professor alterado" in rodar(copia, "labs/lab3/checar.py", env=env).stdout
 
-
-def test_boa_sem_frase_e_o_contrato_bom_menos_a_frase_de_perguntar():
-    """A demonstração do ditado depende disso: só a frase de perguntar muda entre os dois contratos."""
-    import tomllib
-    pasta = RAIZ / "labs/lab3/descricoes"
-    boa = tomllib.loads((pasta / "boa.toml").read_text(encoding="utf-8"))
-    sem = tomllib.loads((pasta / "boa_sem_frase.toml").read_text(encoding="utf-8"))
-    frase = " Se o usuário não disse a\nquantidade ou o motivo, pergunte; não suponha."
-    assert frase in boa["solicitar"]["descricao"]
-    assert sem["solicitar"]["descricao"] == boa["solicitar"]["descricao"].replace(frase, "")
-    sem["solicitar"]["descricao"] = boa["solicitar"]["descricao"]
-    assert sem == boa
