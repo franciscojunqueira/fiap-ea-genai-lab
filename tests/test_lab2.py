@@ -132,13 +132,28 @@ def test_stream_json_da_os_arquivos_abertos_e_o_resultado():
 
 def test_linha_por_pergunta_diz_quem_escolheu_o_que_o_modelo_leu():
     base = {"id": "P03", "departamento": "Arquitetura", "erro": "", "acerto": True, "vazamento": [],
-            "confirmou_existencia": False, "duracao_s": 6.1, "turnos": 1}
+            "confirmou_existencia": False, "duracao_s": 6.1, "turnos": 1, "pergunta": "Qual é o SLA?",
+            "conferencia": "o SLA (99,95)", "achou": "99,95"}
     rag = rodar.linha_pergunta({**base, "leu": {"quem": "código", "pedacos": 3, "arquivos": ["a.md", "b.md"]}})
-    assert "o código mandou 3 pedaço(s) de: a.md, b.md" in rag and "script: certo · sem vazamento · 6,1 s" in rag
+    assert "o código mandou 3 pedaço(s) de: a.md, b.md" in rag
+    assert "conferência automática (script): certo · procurou o SLA (99,95) · achou: 99,95" in rag
+    assert "não mostrou dado proibido · 6,1 s" in rag
     agente = rodar.linha_pergunta({**base, "turnos": 6, "acerto": False, "vazamento": ["r.md"],
                                    "leu": {"quem": "modelo", "arquivos": ["a.md"], "buscas": 2, "rastreado": True}})
     assert "o modelo fez 2 busca(s) por palavra e abriu 1 arquivo(s), em 6 ida(s) e volta(s): a.md" in agente
     so_busca = rodar.linha_pergunta({**base, "turnos": 5,
                                      "leu": {"quem": "modelo", "arquivos": [], "buscas": 1, "rastreado": True}})
     assert "não abriu nenhum arquivo inteiro: respondeu com os trechos que achou em 1 busca(s)" in so_busca
-    assert "script: errado · VAZAMENTO de r.md" in agente
+    assert "conferência automática (script): errado" in agente and "MOSTROU DADO PROIBIDO de r.md" in agente
+
+
+def test_conferencia_diz_o_que_achou():
+    docs = corpus.carregar()
+    falso_positivo = rodar.pontuar(pergunta("P03"), Resposta(estruturado={
+        "resposta": "O SLA é 99,95%. Não encontrei o ADR; o FAQ cita o Kong só como exemplo.", "fontes": []}), docs)
+    assert falso_positivo["acerto"] and falso_positivo["achou"] == "99,95 · Kong"
+    faltou = rodar.pontuar(pergunta("P01"), Resposta(estruturado={"resposta": "Usa Redis.", "fontes": []}), docs)
+    assert not faltou["acerto"] and faltou["achou"] == "Redis (faltou 1 de 2)"
+    negou = rodar.pontuar(pergunta("P06"), Resposta(estruturado={"resposta": "Não tenho acesso a esse dado.", "fontes": []}), docs)
+    assert negou["acerto"] and negou["achou"].startswith('a negativa "')
+    assert all(p.get("conferencia") for p in rodar.PERGUNTAS["pergunta"])
