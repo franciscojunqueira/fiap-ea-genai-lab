@@ -62,11 +62,10 @@ def avisar_agents():
 
 def main():
     simular = "--sim" in sys.argv
-    # O próprio script pode ter acabado de vir do template (linha de primeira vez): não conta como alteração.
-    sujos = [l for l in git("status", "--porcelain").splitlines() if l.strip() and not l.endswith(Path(__file__).name)]
-    if sujos:
-        sys.exit("Há alterações sem commit. Façam commit antes (git add -A && git commit -m 'Antes de atualizar') "
-                 "e rodem de novo: assim, qualquer arquivo trazido do template pode ser desfeito com o git.")
+    # Caminhos com alteração sem commit (inclusive arquivos novos). O próprio script pode ter acabado de vir do
+    # template (linha de primeira vez): não conta.
+    sujos = {l[3:].split(" -> ")[-1].strip('"') for l in git("status", "--porcelain", "--untracked-files=all").splitlines() if l.strip()}
+    sujos.discard(f"scripts/{Path(__file__).name}")
     if "template" not in git("remote").split():
         git("remote", "add", "template", URL)
         print(f"  remoto 'template' adicionado ({URL})")
@@ -83,6 +82,13 @@ def main():
         else:
             mantidos.append(caminho)
     remover = [c for c in REMOVIDOS if (RAIZ / c).exists() and c not in no_template]
+    # Só recusa se a alteração sem commit está num arquivo que o script vai trocar ou apagar: é o único caso em
+    # que algo se perderia. Arquivos do grupo (execuções do Lab 2, config.toml, AGENTS.md) não atrapalham.
+    em_risco = sorted(sujos & set(trazidos + remover))
+    if em_risco:
+        sys.exit("Há alterações sem commit em arquivo(s) que o template vai trocar: " + ", ".join(em_risco) + ". "
+                 "Façam commit antes (git add -A && git commit -m 'Antes de atualizar') e rodem de novo: assim, "
+                 "a versão de vocês pode ser recuperada com o git.")
     for c in trazidos:
         print(f"  trazer      {c}")
     for c in remover:
