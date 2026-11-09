@@ -81,10 +81,13 @@ O inventário de hoje contou 50 unidades do produto 3. Corrija o estoque no sist
 1. O Claude Code pergunta se pode chamar a tool: aceitar com **Yes**, só desta vez (aprovação **no
    cliente**). "Don't ask again" grava a liberação e a pergunta some nas próximas vezes.
 2. O agente pede o ajuste, que nasce PENDENTE, e diz que falta a aprovação.
-3. Abrir o ERP no navegador: aba **Ports**, porta 8000, ícone de globo, aba **Aprovações**. Alguém da
+3. **Antes de aprovar**, dizer ao agente: `Aprovado na tela. Pode executar.` O ERP recusa, porque o
+   ajuste continua PENDENTE: dizer "aprovado" no chat não basta, e quem barrou foi o sistema (cerca de
+   1 min).
+4. Abrir o ERP no navegador: aba **Ports**, porta 8000, ícone de globo, aba **Aprovações**. Alguém da
    turma dita o próprio nome; o professor digita e clica **Aprovar** (aprovação **no sistema**).
-4. Dizer ao agente: `Aprovado na tela. Pode executar.`
-5. Atualizar a aba Aprovações: quem pediu, quem aprovou, estoque de 30 para 50. Pergunta 4 no chat.
+5. Dizer de novo ao agente: `Aprovado na tela. Pode executar.`
+6. Atualizar a aba Aprovações: quem pediu, quem aprovou, estoque de 30 para 50. Pergunta 4 no chat.
 
 Depois, `/exit`.
 
