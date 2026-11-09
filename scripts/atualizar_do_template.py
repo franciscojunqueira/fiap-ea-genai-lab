@@ -88,7 +88,7 @@ def main():
     for c in remover:
         print(f"  remover     {c} (saiu do template)")
     for c in mantidos:
-        print(f"  manter      {c} (do grupo; para ver a versão do template: git diff HEAD {REF} -- {c})")
+        print(f"  manter      {c} (do grupo)")
     if "AGENTS.md" in mantidos:
         avisar_agents()
     if not trazidos and not remover:
