@@ -307,7 +307,7 @@ def main():
         sys.exit(problema)
     config = ler_config()
     print(f"Rodando {args.pipeline} · {modelo_efetivo(config, args.cli)} · {variacao(config)} "
-          f"({PARALELO} perguntas por vez; leva de 1 a 3 min)...", flush=True)
+          f"({PARALELO} perguntas por vez; leva cerca de 1 minuto)...", flush=True)
     resumo, texto, md = rodar(args.pipeline, config, args.cli)
     if resumo["respondidas"] < 10:
         erros = {i["erro"] for i in json.loads(md.with_suffix(".json").read_text())["respostas"] if i["erro"]}

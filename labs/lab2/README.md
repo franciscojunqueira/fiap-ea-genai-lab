@@ -26,7 +26,7 @@ grava os pedaços num banco vetorial ou de busca, e a **consulta**, a cada pergu
 é pequeno (27 documentos): o índice é de palavras (BM25, em `labs/lab2/corpus.py`) e é montado na hora,
 a cada comando. O conceito é o mesmo: o código escolhe os pedaços antes de o modelo ler.
 
-Cada comando leva de 1 a 3 minutos. Enquanto ele roda, acompanhem na tela, pergunta a pergunta, **o
+Cada comando leva cerca de 1 minuto. Enquanto ele roda, acompanhem na tela, pergunta a pergunta, **o
 que o modelo leu** (quem escolheu) e **o que o script concluiu** (certo ou errado, se houve vazamento, se
 a resposta admitiu que um documento proibido existe). No fim, aparece uma linha que começa com
 **Acerto**, com os totais: anotem a linha de cada um.
