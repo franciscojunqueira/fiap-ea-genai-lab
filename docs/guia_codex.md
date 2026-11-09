@@ -21,7 +21,7 @@ Iguais para todos: siga os passos **1 a 4** do [guia do Codespace](guia_codespac
 
 ```text
 [AVISO] Agente de código instalado, sem login
-== PASS: 3 ok, 1 aviso(s), 0 falha(s) ==
+== NÃO PRONTO: 3 ok, 1 aviso(s), 0 falha(s). Falta o login do operador: ... ==
 ```
 
 ## 5. Fazer login no Codex (operador e segundo assinante, uma vez)

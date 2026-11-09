@@ -147,7 +147,7 @@ git push
 ```
 
 Se der FAIL, corrijam o que a mensagem diz e rodem `make lab1-check` de novo antes do commit. Com
-PASS 7/7, o relator cola na planilha da turma a linha que o check imprime no fim.
+PASS 7/7, o relator escreve no chat principal, no debrief, a linha que o check imprime no fim.
 
 ## O que o `make lab1-check` confere
 

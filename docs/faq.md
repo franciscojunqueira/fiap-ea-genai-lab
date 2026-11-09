@@ -20,8 +20,8 @@ o `server.py`, confira se as 10 tools originais continuam lá.
 
 ## Login e cota
 
-**AVISO "Agente de código instalado, sem login".** Normal antes do primeiro login: ver o passo 3 do
-[checklist do operador](checklist_operador.md).
+**AVISO "Agente de código instalado, sem login" e NÃO PRONTO na última linha.** Normal antes do
+primeiro login: ver o passo 3 do [checklist do operador](checklist_operador.md).
 
 **O navegador autorizou, mas o terminal não continuou.** Isso é comum em containers. Copie o código
 que o navegador mostrar e cole no terminal.

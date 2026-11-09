@@ -6,7 +6,7 @@ Uso (da raiz do repositório):  python3 replay/lab2/gravar.py [<condição> ...]
 Condições: <modelo>-<pipeline>[-acl-prompt], com modelo haiku (o dos labs, config/modelos.toml) ou
 sonnet e pipeline rag, agentica ou contexto. A perna de contexto longo só existe aqui: a turma a vê
 no debrief. Salva em replay/lab2/gravacao/<condição>/ o .json e o .md de cada execução e imprime a
-linha da planilha. Gasta cota do plano de quem roda (80 chamadas curtas na gravação completa).
+linha de resultado. Gasta cota do plano de quem roda (80 chamadas curtas na gravação completa).
 """
 import sys
 from pathlib import Path

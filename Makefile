@@ -37,12 +37,12 @@ lab1-referencia: ## Lab 1, plano B: aplica o código de referência (cota esgota
 	@$(RUN) python labs/lab1/referencia/aplicar.py
 lab1-extra: ## Lab 1, desafio extra: skill escrevendo-adrs sem × com, no Haiku
 	@$(RUN) python labs/lab1/extra.py $(ARGS)
-lab2: ## Lab 2 (Aula 2): prepara o config e a decisão do grupo
+lab2: ## Lab 2 (Aula 2): prepara o config e confere o login do operador
 	@$(RUN) python labs/lab2/preparar.py
 lab2-rodar: ## Lab 2: roda as 10 perguntas (PIPELINE=rag | agentica | contexto; CLI=codex opcional)
 	@$(RUN) python labs/lab2/rodar.py $(PIPELINE) $(if $(CLI),--cli $(CLI))
-lab2-check: ## Lab 2: PASS/FAIL dos 5 itens
-	@$(RUN) python labs/lab2/checar.py
+lab2-check: ## Lab 2: não tem check (as respostas vão no chat; os números, na Atividade 2)
+	@echo "O Lab 2 não tem check: respondam às 3 perguntas do labs/lab2/README.md. Os números vão para a Atividade 2 (make checkpoint-check)."
 lab2-replay: ## Lab 2, plano B: copia as execuções gravadas (cota esgotada)
 	@$(RUN) python labs/lab2/usar_replay.py
 lab3: ## Lab 3 (Aula 2): prepara o contrato e a descrição do grupo

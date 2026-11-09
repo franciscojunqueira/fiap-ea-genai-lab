@@ -19,8 +19,8 @@ leva alguns minutos.
 1. No repositório do grupo: **Code → Codespaces → Create codespace on main**.
 2. Espere o build terminar e clique em **Trust Folder & Continue** quando o editor perguntar se você
    confia na pasta.
-3. Clique no terminal e rode `make check`. Nessa primeira vez, o resultado esperado é **PASS com 1
-   aviso** ("Agente de código instalado, sem login").
+3. Clique no terminal e rode `make check`. Nessa primeira vez, o resultado esperado é **NÃO PRONTO**,
+   com 1 aviso ("Agente de código instalado, sem login"): falta o login, que é o passo 3.
 
 ## 3. Fazer login no agente
 

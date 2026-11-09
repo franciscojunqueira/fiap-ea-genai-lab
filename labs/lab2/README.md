@@ -1,138 +1,104 @@
 # Lab 2: RAG × busca agêntica
 
-**O problema.** O Bússola, o assistente do caso (`integrador/caso.md`), precisa responder perguntas
-da Arquitetura, do Risco e do plantão de TI com fonte (RC-01) e sem mostrar a um departamento o que
-ele não pode ver (RC-02). De onde vem o conhecimento? Vocês não vão programar: vão **medir** dois
-jeitos prontos de responder, sobre os mesmos documentos e as mesmas 10 perguntas, e **decidir** com
-os números.
+**Em resumo.** O Bússola, o assistente do caso (`integrador/caso.md`), precisa responder perguntas
+com fonte (RC-01) e sem mostrar a um departamento o que ele não pode ver (RC-02). Há dois jeitos
+prontos de responder. Vocês rodam os dois com as mesmas 10 perguntas e respondem 3 perguntas sobre
+o resultado. **Ninguém programa. Não há arquivo para preencher nem check.**
 
-**Objetivo.** Ver que a decisão de conhecimento é de arquitetura: custo por pergunta, latência,
-permissão e citação, e não "qual é mais moderno". E ver onde a permissão precisa ficar.
+**Tempo:** 30 min de lab e 15 de intervalo, que o grupo faz quando quiser.
 
-**Antes da aula:** o operador tem o Codespace aberto e logado, e rodou `make atualizar` (traz os
-Labs 2 e 3 para o repositório do grupo; se o comando não existir, veja "Atualizar do template", no
-fim).
+**Quem faz:** só o **operador** digita, no Codespace, com a tela compartilhada na sala do grupo. Os
+outros acompanham, leem e respondem. O **relator** escreve as respostas no chat principal, na volta.
 
-**Tempo:** 45 min de trabalho, mais 15 de intervalo, que o grupo faz quando quiser.
+## As duas palavras do lab
 
-**Pronto quando:** `make lab2-check` mostra `lab2-check: PASS (5/5 itens)` e o trabalho foi enviado
-com `git push` (passo 5).
+- **RAG:** o código recorta os documentos em pedaços e manda ao modelo só os pedaços mais parecidos
+  com a pergunta. Quem escolhe o que o modelo lê é o código.
+- **Busca agêntica:** o modelo recebe a pasta com os documentos e procura sozinho, em várias idas e
+  voltas. Quem escolhe o que o modelo lê é o modelo.
 
-**Termos.**
-- **Corpus:** os 27 documentos da TechCorp em `knowledge/techcorp/`. Cada um tem um cabeçalho com o
-  nível (Público < Interno < Regulado) e, às vezes, os departamentos que podem vê-lo.
-- **RAG:** o script recorta os documentos em pedaços, acha os `top_k` pedaços mais parecidos com a
-  pergunta (busca por palavras, BM25) e só eles vão para o modelo. Quem escolhe o que o modelo lê é o
-  código.
-- **Busca agêntica:** o modelo recebe uma pasta com os documentos e procura sozinho (Grep, Glob, Read),
-  em várias idas e voltas. Quem escolhe o que ele lê é o modelo.
-- **Contexto longo:** todos os documentos vão no prompt. Ninguém escolhe. Vocês veem esta perna no
-  replay, no debrief.
-- **Permissão no filtro × no prompt:** no filtro, os documentos que o usuário não pode ver nem chegam
-  ao modelo. No prompt, chegam, e o modelo é só *pedido* para não usá-los.
-- **Fato-canário:** um valor que só existe num documento Regulado. Se aparecer na resposta de quem
-  não pode ver o documento, o script marca **vazamento**.
-- **`--restricted`:** os scripts chamam o modelo com as ferramentas de arquivo presas à pasta temporária.
-  Sem isso, a busca agêntica lê qualquer arquivo do disco, inclusive os documentos Regulados.
-
-## Quem faz o quê
-
-Só o **operador** digita. Os outros ditam e conferem na tela compartilhada.
-
-| Papel | Responde por |
-|---|---|
-| Operador | os comandos `make` |
-| Autores (2) | a hipótese e a decisão em `labs/lab2/decisao.md` |
-| Verificador | conferir no corpus 4 respostas e registrar na seção "Verificação" |
-| Relator | colar as linhas do script na planilha da turma e na seção "Resultados" |
-
-## O que vocês editam: 2 arquivos
-
-Os dois aparecem em `labs/lab2/` no passo 1 (o `make lab2` os copia de [modelos/](modelos/)).
-
-| Arquivo | O que fazer nele | Quem dita |
-|---|---|---|
-| `labs/lab2/config.toml` | escrever o nome do grupo em `grupo`; no passo 3, mudar **um** parâmetro | operador |
-| `labs/lab2/decisao.md` | responder as 7 seções e apagar as linhas que começam com `<` | autores, verificador, relator |
-
-As perguntas ([perguntas.toml](perguntas.toml)), o corpus e os scripts são do professor: não editem.
+Nos dois jeitos, os documentos que o departamento de quem pergunta não pode ver nem entram: a
+permissão fica num filtro, antes do modelo.
 
 ## Passos
 
-**1. Preparar e apostar (8 min).** O operador roda:
+**Antes da aula (operador).** Abra o Codespace do grupo, o que já existe, e rode no terminal:
+
+```bash
+make atualizar
+make check
+```
+
+O `make atualizar` traz este lab para o repositório do grupo. Ele mostra a lista do que vai trazer e
+pede confirmação: digite `s`. Depois, salve para o grupo todo:
+
+```bash
+git add -A
+git commit -m "Atualiza do template"
+git push
+```
+
+Se o `make atualizar` não existir, veja "Atualizar do template", no fim.
+
+O `make check` precisa terminar com **PASS**. Se terminar com **NÃO PRONTO**, falta o login: digite
+`claude`, faça o login, saia com `/exit` e rode `make check` de novo.
+
+**1. Preparar (operador, na sala principal, 2 min).**
 
 ```bash
 make lab2
 ```
 
-e escreve o nome do grupo em `labs/lab2/config.toml` (`grupo = "Grupo 3"`). Todos leem as 10
-perguntas em [perguntas.toml](perguntas.toml): cada uma tem o departamento de quem pergunta e o tipo
-(busca exata, vários documentos, sem acesso, regulado com acesso, não está no corpus). **Antes de
-rodar**, os autores escrevem a seção "Hipótese" do `decisao.md`: qual dos dois jeitos vai melhor em
-cada tipo, e por quê.
+Ele confere o login e cria o `labs/lab2/config.toml`. Não mudem nada nesse arquivo.
 
-**2. Medir (7 min, operador).**
+**2. Rodar o primeiro jeito, o RAG (operador, na sala do grupo).**
 
 ```bash
 make lab2-rodar PIPELINE=rag
+```
+
+Leva de 1 a 3 minutos. No fim, aparece uma linha que começa com **Acerto**. Anotem essa linha.
+
+**3. Rodar o segundo jeito, a busca agêntica (operador).**
+
+```bash
 make lab2-rodar PIPELINE=agentica
 ```
 
-Cada comando faz 10 chamadas ao modelo (3 por vez) e leva de 1 a 3 minutos. No fim, imprime um
-resumo e a **linha para a planilha da turma**, e grava as respostas num `.md` em `labs/lab2/execucoes/`.
-O relator cola as duas linhas na planilha e na seção "Resultados".
+Anotem a linha **Acerto** desta execução também.
 
-A linha traz, nesta ordem: acerto, citação, vazamentos (o valor sigiloso apareceu ou o documento
-proibido foi citado), existência confirmada (a resposta admitiu que o documento proibido existe),
-latência p50 e p95, tokens novos, tokens lidos do cache e tokens de saída por pergunta, e **US$ por mil
-perguntas**: o custo a preço de API, calculado pelo script com a tabela de preços de
-`config/modelos.toml` (datada). O plano do operador não cobra assim, mas o Bússola em produção
-cobraria; o token lido do cache custa uma fração do novo (Radar).
+**4. Abrir a P03 (operador, com a tela compartilhada).** Na barra da esquerda, abra a pasta
+`labs/lab2/execucoes/` e o arquivo que termina em `-rag.md`. Procure `## P03`.
 
-**3. Mudar uma coisa (10 min).** Escolham **um** parâmetro em `labs/lab2/config.toml`, mudem e rodem
-de novo **um** pipeline. Sugestões:
-- `top_k = 8`: o RAG acerta mais perguntas de vários documentos? Quanto custa a mais?
-- `modelo = "sonnet"`: um modelo maior compensa o custo?
-- `acl = "prompt"`: o que acontece com os vazamentos quando a permissão é só um pedido ao modelo?
-- `tamanho_pedaco = 1500`: pedaços maiores ajudam?
+## As 3 perguntas do grupo
 
-Os grupos escolhem coisas diferentes: no debrief, a planilha junta tudo. Depois, voltem o parâmetro ao
-valor original.
+1. Qual acertou mais: o RAG ou a busca agêntica?
+2. Qual custa mais por mil perguntas? É o valor em US$ no fim da linha **Acerto**.
+3. Na P03, a resposta do RAG disse qual ADR definiu o gateway? E o script marcou "certo" ou "errado"?
 
-**4. Conferir (10 min, verificador e relator).** Abram o `.md` de uma execução em `labs/lab2/execucoes/`.
-O script acerta por **expressão regular**: ele confere se os fatos esperados aparecem, não se a
-resposta é verdadeira. O verificador escolhe 3 respostas que o script deu como **certas** e 1 dada
-como **errada**, confere no corpus (`knowledge/techcorp/`) e preenche a tabela da seção "Verificação"
-com o número da pergunta (P01 a P10) e o veredito: `confere`, `não confere` ou `parcial`.
+Na volta à sala principal, o relator escreve as 3 respostas no chat.
 
-**5. Decidir e fechar (10 min).** Os autores escrevem as seções "Decisão por tipo de pergunta",
-"Permissão por documento (RC-02)", "Custo × volume" e "Pergunta de decisão". Usem os números das
-linhas, não impressões. O operador fecha:
+**O que é cada número da linha Acerto:** acerto (os fatos esperados apareceram), citação (citou um
+documento certo e nenhum proibido), vazamentos (apareceu um dado de documento que a pessoa não pode
+ver), existência confirmada (a resposta admitiu que o documento proibido existe), latência p50 e p95
+(de 10 perguntas, a metade e quase todas foram respondidas em até tantos segundos) e o custo em US$ por
+mil perguntas, a preço de API. O plano do operador não cobra assim, mas o Bússola em produção cobraria.
 
-```bash
-make lab2-check
-git add -A
-git commit -m "Lab 2 do grupo N"
-git push
-```
+O script confere as respostas procurando palavras, e não a verdade. A pergunta 3 mostra por quê.
 
-O esperado antes de terminar é FAIL, com uma explicação em cada falha e a última linha
-`make: *** [...] Error 1`: as mensagens dizem o que falta. Essa decisão vai para a seção "Decisão de
-conhecimento" do `integrador/pacote/01-design.md`, no checkpoint.
+## Depois da aula: a Atividade 2
 
-## O que o `make lab2-check` confere
+Os arquivos de `labs/lab2/execucoes/` ficam no Codespace do operador e vão no commit da Atividade 2.
+Lá, a seção "Decisão de conhecimento" do `integrador/pacote/01-design.md` usa estes números.
 
-1 lab preparado, perguntas e corpus sem alteração · 2 uma execução completa de `rag` e uma de
-`agentica` · 3 uma execução com um parâmetro mudado · 4 `decisao.md` preenchido, com pelo menos 2
-linhas do script coladas sem edição · 5 quatro respostas conferidas pelo verificador.
+## Se algo der errado
 
-## Se a cota acabar
-
-1. O segundo assinante do grupo continua do passo em que pararam: o trabalho está nos arquivos.
-2. Sem nenhum assinante: uma **pessoa** (nunca o agente) roda `make lab2-replay`, que copia para
-   `labs/lab2/execucoes/` as execuções gravadas pelo professor: os dois pipelines e a variação
-   `acl = "prompt"` (as linhas saem com "replay" no lugar do nome do grupo). Com elas, façam os passos
-   4 e 5 e registrem no `decisao.md` que usaram o replay.
+- **Erro no comando:** copiem a mensagem, abram o Claude Code (`claude`) e peçam ajuda com ela.
+- **A cota acabou ou o Codespace não abre:** o segundo assinante do grupo abre o Codespace dele, roda
+  `git pull` e `make lab2` e continua do passo em que pararam. Sem nenhum assinante, acompanhem a tela
+  de outro grupo e respondam com os números dele, ou uma **pessoa** (nunca o agente) roda
+  `make lab2-replay`, que copia as execuções gravadas pelo professor para `labs/lab2/execucoes/`. Com o
+  replay, a linha **Acerto** está no começo de cada `.md`; usem os arquivos sem `acl-prompt` no nome.
 
 ## Codex
 
@@ -142,7 +108,7 @@ linhas do script coladas sem edição · 5 quatro respostas conferidas pelo veri
 | modelo do `config/modelos.toml` | o modelo padrão da conta ChatGPT; os números não comparam com os dos grupos Claude |
 | busca agêntica com Grep, Glob e Read | o Codex busca com os comandos dele, na mesma pasta temporária |
 
-Se o caminho Codex falhar, usem `make lab2-replay` e registrem no `decisao.md`.
+Se o caminho Codex falhar, usem `make lab2-replay`.
 
 ## Atualizar do template
 

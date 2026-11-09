@@ -23,7 +23,7 @@ O workflow roda `make test` e `make skill-check` dentro da imagem antes de publi
 manualmente, em Actions → Imagem do devcontainer → Run workflow, para pegar o Claude Code mais recente).
 
 **Ciclo no Codespace:** `onCreateCommand` instala as dependências Python, o Codex e o MCP Inspector;
-`postCreateCommand` roda `make check`. O check de modelo dá AVISO até o operador fazer login, e isso é esperado.
+`postCreateCommand` roda `make check`. O check de modelo dá AVISO, e a última linha diz NÃO PRONTO, até o operador fazer login; isso é esperado e não reprova a criação do Codespace (código de saída 0).
 
 Fontes, verificadas em 2026-10-12: github.com/devcontainers/ci,
 docs.github.com/en/codespaces/prebuilding-your-codespaces/about-github-codespaces-prebuilds e

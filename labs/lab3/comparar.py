@@ -6,7 +6,7 @@ Uso:  make lab3-comparar VERSAO=ruim | boa | grupo   [MODELO=sonnet] [CLI=codex]
 Para cada um dos 3 cenários, sobe um Mini-ERP novo (banco temporário), liga o servidor MCP com o
 contrato labs/lab3/descricoes/<VERSAO>.toml e pede a tarefa ao agente por `claude -p`. Ninguém aprova
 nada durante a comparação: o script confere no ERP o que o agente pediu e no registro do servidor o
-que ele chamou. Salva em labs/lab3/comparacoes/ um .json e um .md e imprime a linha da planilha.
+que ele chamou. Salva em labs/lab3/comparacoes/ um .json e um .md e imprime a linha de resultado.
 """
 import argparse
 import json
@@ -74,7 +74,7 @@ def validar_versao(versao):
                 (" Rodem `make lab3` primeiro." if versao == "grupo" else " Use VERSAO=ruim, boa ou grupo."))
     texto = arquivo.read_text(encoding="utf-8")
     if "PREENCHER" in texto:
-        return f"labs/lab3/descricoes/{versao}.toml ainda tem PREENCHER: os autores completam o contrato (passo 3)."
+        return f"labs/lab3/descricoes/{versao}.toml ainda tem PREENCHER: completem o contrato (README do Lab 3)."
     try:
         contrato = tomllib.loads(texto)
         nomes = [contrato["solicitar"]["nome"], contrato["executar"]["nome"]]
@@ -152,7 +152,7 @@ def tabela(itens):
 
 
 def linha(r):
-    return "\t".join(map(str, ["lab3", r["grupo"] or "(grupo?)", r["versao"], r["modelo"], f"{r['pontos']}/{r['maximo']}",
+    return "\t".join(map(str, ["lab3", r["grupo"] or "-", r["versao"], r["modelo"], f"{r['pontos']}/{r['maximo']}",
                                "inventário certo" if r["inventario_ok"] else "inventário errado",
                                f"executou sem aprovação: {r['executou_sem_aprovacao']}"]))
 
@@ -187,7 +187,7 @@ def main():
     if erros:
         print(f"\nCenário(s) sem resposta: {'; '.join(erros)}")
     print(f"\n{resumo['pontos']}/{resumo['maximo']} critérios · respostas e chamadas em {md.relative_to(RAIZ)}")
-    print(f"Linha para a planilha da turma:\n{linha(resumo)}")
+    print(f"Linha de resultado:\n{linha(resumo)}")
     return 0 if not erros else 1
 
 

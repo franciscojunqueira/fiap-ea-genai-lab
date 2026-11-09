@@ -28,10 +28,13 @@ DO_PROFESSOR = [
     "integrador/scripts/*", "integrador/legado/*",
     "labs/*/README.md", "labs/*/codex.md", "labs/*/ticket.md", "labs/*/*.py", "labs/*/modelos/*",
     "labs/*/aceite/*", "labs/*/referencia/*", "labs/*/exemplos/*", "labs/*/perguntas.toml",
-    "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",
+    "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml", "labs/*/descricoes/boa_sem_frase.toml",
 ]
 # Do grupo: nunca sobrescrever, mesmo que case com um padrão acima.
 DO_GRUPO = ["docs/adr/*", "labs/*/testes/*", "labs/*/execucoes/*", "labs/*/comparacoes/*", "labs/*/descricoes/grupo.toml"]
+# Arquivos do professor que saíram do template: o script os apaga do repositório do grupo, com a mesma confirmação.
+# 09/11/2026: o Lab 2 ficou sem check e sem decisao.md (Sessão 4b).
+REMOVIDOS = ["labs/lab2/checar.py", "labs/lab2/modelos/decisao.md"]
 
 
 def git(*args, check=True):
@@ -67,28 +70,34 @@ def main():
             trazidos.append(caminho)
         else:
             mantidos.append(caminho)
+    remover = [c for c in REMOVIDOS if (RAIZ / c).exists() and c not in no_template]
     for c in trazidos:
         print(f"  trazer      {c}")
+    for c in remover:
+        print(f"  remover     {c} (saiu do template)")
     for c in mantidos:
         print(f"  manter      {c} (do grupo; para ver a versão do template: git diff HEAD {REF} -- {c})")
     if "AGENTS.md" in mantidos:
         print("\n  O AGENTS.md do template mudou. Ele é do grupo e não é trocado: vejam a diferença com o comando acima e "
               "copiem as linhas novas da seção 'Estrutura que não é óbvia'.")
-    if not trazidos:
+    if not trazidos and not remover:
         print("\nNada a trazer: o repositório já está com os arquivos do professor em dia.")
         return
     if simular:
-        print(f"\n{len(trazidos)} arquivo(s) seriam trazidos (--sim: nada foi alterado).")
+        print(f"\n{len(trazidos)} arquivo(s) seriam trazidos e {len(remover)} removidos (--sim: nada foi alterado).")
         return
-    if input(f"\nTrazer {len(trazidos)} arquivo(s) do template? [s/N] ").strip().lower() not in ("s", "sim"):
+    if input(f"\nTrazer {len(trazidos)} arquivo(s) do template e remover {len(remover)}? [s/N] ").strip().lower() not in ("s", "sim"):
         print("Nada foi alterado.")
         return
-    git("checkout", REF, "--", *trazidos)
+    if trazidos:
+        git("checkout", REF, "--", *trazidos)
+    if remover:
+        git("rm", "-q", "--", *remover)
     if any(c in ("pyproject.toml", "uv.lock") for c in trazidos):
         subprocess.run(["uv", "sync", "--frozen", "--quiet"], cwd=RAIZ)
         print("  dependências sincronizadas (uv sync)")
-    print(f"\n{len(trazidos)} arquivo(s) trazido(s). Para desfazer: git checkout HEAD -- <arquivo>. Rodem `make test` e façam commit: "
-          "git add -A && git commit -m 'Atualiza do template'")
+    print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s). Para desfazer: git checkout HEAD -- <arquivo>. "
+          "Rodem `make test` e salvem para o grupo todo: git add -A && git commit -m 'Atualiza do template' && git push")
 
 
 if __name__ == "__main__":

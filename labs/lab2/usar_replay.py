@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Plano B do Lab 2 (make lab2-replay): copia execuções gravadas para labs/lab2/execucoes/. Executar.
 
-Para o grupo que ficou sem cota: com as execuções gravadas, dá para fazer a verificação e a decisão.
-Copia os dois pipelines no modelo dos labs e a variação acl = "prompt". Na planilha, a linha sai com
-"replay" no lugar do nome do grupo, e o professor vê que o grupo usou o plano B.
+Para o grupo sem cota ou sem assinante: com as execuções gravadas, o grupo responde às 3 perguntas do lab.
+Copia os dois pipelines no modelo dos labs e a variação acl = "prompt". Na linha de resultado, sai
+"replay" no lugar do nome do grupo, e a Atividade 2 diz que o grupo usou o plano B.
 """
 import json
 import shutil
@@ -30,7 +30,7 @@ def main():
     if not copiadas:
         print("Nenhuma execução gravada em replay/lab2/gravacao/. Avisem o professor.")
         return 1
-    print("\nPróximo passo: `make lab2-check` e os passos 4 e 5 do README com estas execuções.")
+    print("\nPróximo passo: respondam às 3 perguntas do README com estas execuções (os arquivos -rag e -agentica).")
     return 0
 
 

@@ -9,8 +9,8 @@ Uso:  make lab2-rodar PIPELINE=rag | agentica | contexto   [CLI=codex]
 Com `acl = "prompt"` no config.toml, o filtro de permissão sai: todos os documentos ficam visíveis e
 o system prompt só PEDE para o modelo respeitar o departamento do usuário.
 
-Salva em labs/lab2/execucoes/ um .json (dados) e um .md (respostas, para o verificador) e imprime a
-linha para a planilha da turma. A pontuação é por expressão regular: confere a forma, não a verdade.
+Salva em labs/lab2/execucoes/ um .json (dados) e um .md (as respostas) e imprime o resumo, a linha de
+resultado e onde ler a P03. A pontuação é por expressão regular: confere a forma, não a verdade.
 """
 import argparse
 import json
@@ -32,7 +32,7 @@ import cli_modelo  # noqa: E402
 
 PERGUNTAS = tomllib.loads((LAB / "perguntas.toml").read_text(encoding="utf-8"))
 PRECOS = tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8")).get("precos", {})
-# Valores do config.toml modelo; o que for diferente disso é "variação" na planilha.
+# Valores do config.toml modelo; o que for diferente disso é "variação" na linha de resultado.
 PADRAO = {"modelo": "padrão", "top_k": 3, "tamanho_pedaco": 500, "acl": "filtro", "max_turnos": 8}
 # 3 perguntas por vez: as 10 terminam em 1 a 3 min e o plano não acusa excesso de requisições (medido em 13/10/2026).
 PARALELO = 3
@@ -154,7 +154,7 @@ def p95(valores):
 
 
 def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
-    """Roda as 10 perguntas, salva .json e .md e devolve (resumo, linha da planilha)."""
+    """Roda as 10 perguntas, salva .json e .md e devolve (resumo, linha de resultado)."""
     docs = corpus.carregar()
     modelo = modelo_efetivo(config, cli)
     perguntas = PERGUNTAS["pergunta"]
@@ -180,7 +180,7 @@ def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
         "tokens_novos_por_pergunta": round(sum(i["tokens_novos"] for i in validos) / len(validos)),
         "tokens_cache_por_pergunta": round(sum(i["tokens_cache"] for i in validos) / len(validos)),
         "tokens_saida_por_pergunta": round(sum(i["tokens_saida"] for i in validos) / len(validos)),
-        # Sem preço na tabela (por exemplo, Codex), o custo fica None e a planilha mostra "?".
+        # Sem preço na tabela (por exemplo, Codex), o custo fica None e a linha de resultado mostra "?".
         "usd_por_mil_perguntas": (None if any(i["custo_usd"] is None for i in validos)
                                   else round(1000 * sum(i["custo_usd"] for i in validos) / len(validos), 2)),
     }
@@ -197,7 +197,7 @@ def virgula(x, casas=1):
 
 
 def linha(r):
-    campos = ["lab2", r["grupo"] or "(grupo?)", r["pipeline"], r["modelo"], r["variacao"], f"{r['acerto']}/10",
+    campos = ["lab2", r["grupo"] or "-", r["pipeline"], r["modelo"], r["variacao"], f"{r['acerto']}/10",
               f"{r['citacao']}/10", r["vazamentos"], r["existencia_confirmada"], virgula(r["latencia_p50_s"]),
               virgula(r["latencia_p95_s"]), r["tokens_novos_por_pergunta"], r["tokens_cache_por_pergunta"],
               r["tokens_saida_por_pergunta"],
@@ -235,8 +235,6 @@ def main():
     if problema := cli_modelo.disponivel(args.cli):
         sys.exit(problema)
     config = ler_config()
-    if not config.get("grupo"):
-        print("Aviso: preencham `grupo` em labs/lab2/config.toml para a linha da planilha sair com o nome do grupo.")
     print(f"Rodando {args.pipeline} · {modelo_efetivo(config, args.cli)} · {variacao(config)} "
           f"({PARALELO} perguntas por vez; leva de 1 a 3 min)...", flush=True)
     resumo, texto, md = rodar(args.pipeline, config, args.cli)
@@ -246,8 +244,8 @@ def main():
     print(f"\nAcerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
           f"existência confirmada {resumo['existencia_confirmada']} · p50 {resumo['latencia_p50_s']} s · "
           f"p95 {resumo['latencia_p95_s']} s · US$ {resumo['usd_por_mil_perguntas']} por mil perguntas (preço de API)")
-    print(f"Respostas para o verificador: {md.relative_to(RAIZ)}")
-    print(f"Linha para a planilha da turma:\n{texto}")
+    print(f"Linha de resultado (vai para a Atividade 2):\n{texto}")
+    print(f"\nAs respostas estão em {md.relative_to(RAIZ)}. Para a pergunta da P03, abram o arquivo e procurem \"## P03\".")
     return 0 if resumo["respondidas"] == 10 else 1
 
 

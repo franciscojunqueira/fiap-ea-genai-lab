@@ -3,7 +3,8 @@
 
 Itens: Python e dependências, Mini-ERP, MCP server, acesso a modelo pela CLI do operador
 e presença de `claude`/`codex`. Cada falha diz o que fazer. Código de saída 1 se houver FAIL;
-AVISO não reprova.
+AVISO não reprova (o devcontainer roda este check ao criar o Codespace, antes de qualquer login). Sem
+login do operador, a última linha diz NÃO PRONTO no lugar de PASS, para ninguém parar no PASS.
 """
 import asyncio
 import json
@@ -32,6 +33,7 @@ TOOLS_MCP_ORIGINAIS = {
 DEPENDENCIAS = ["fastapi", "uvicorn", "sqlalchemy", "pydantic", "httpx", "mcp", "pytest"]
 
 resultados = []
+sem_login = []  # preenchido quando o agente está instalado, mas ninguém fez o login
 
 
 def registrar(estado, item, mensagem=""):
@@ -177,6 +179,7 @@ def checar_modelo():
             return
         registrar("PASS", "Acesso a modelo pelo Codex")
     else:
+        sem_login.append(True)
         registrar("AVISO", "Agente de código instalado, sem login",
                   "Operador: faça o login (`claude`, ou `codex login --device-auth`) e rode `make check` de novo.")
 
@@ -197,9 +200,20 @@ def main():
                     proc.terminate()
                     proc.wait(timeout=5)
     checar_modelo()
-    falhas, avisos = resultados.count("FAIL"), resultados.count("AVISO")
-    print(f"== {'FAIL' if falhas else 'PASS'}: {resultados.count('PASS')} ok, {avisos} aviso(s), {falhas} falha(s) ==")
-    return 1 if falhas else 0
+    print(resumo(resultados, bool(sem_login)))
+    return 1 if resultados.count("FAIL") else 0
+
+
+def resumo(estados, faltou_login):
+    """Última linha do check. Sem login, NÃO PRONTO no lugar de PASS: ninguém para no PASS sem ter feito o login."""
+    falhas, avisos = estados.count("FAIL"), estados.count("AVISO")
+    contagem = f"{estados.count('PASS')} ok, {avisos} aviso(s), {falhas} falha(s)"
+    if falhas:
+        return f"== FAIL: {contagem} =="
+    if faltou_login:
+        return (f"== NÃO PRONTO: {contagem}. Falta o login do operador: digite claude (ou codex login --device-auth), "
+                "faça o login, saia com /exit e rode make check de novo. ==")
+    return f"== PASS: {contagem} =="
 
 
 if __name__ == "__main__":

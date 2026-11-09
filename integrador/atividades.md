@@ -82,9 +82,13 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
    sugerido: como o Bússola acessa o SGC, com os fatos da Atividade 1. Citem os requisitos do
    caso (RC-NN) na tabela de requisitos.
 2. **`pacote/01-design.md`, seção "Decisão de conhecimento"**: o que o Bússola usa para cada tipo de
-   pergunta, com os dados do Lab 2.
-3. **`pacote/01-design.md`, seção "Contrato MCP"**: as ferramentas do Lab 3 mais as de acesso ao SGC.
-4. `make checkpoint-check` até dar PASS, commit e push.
+   pergunta, onde fica a permissão e qual número do Lab 2 sustenta a decisão. Os números são os do
+   grupo, em `labs/lab2/execucoes/` no Codespace do operador; o grupo que ficou sem cota usa os testes do
+   professor (`make lab2-replay`) e diz isso.
+3. **`pacote/01-design.md`, seção "Contrato MCP"**: partam da tabela do Lab 3 resolvido (material de
+   apoio no Portal) e acrescentem pelo menos uma ferramenta `sgc:`, com o que a Atividade 1 mostrou.
+4. `make checkpoint-check` até dar PASS. Depois, `git add -A` (leva também as execuções do Lab 2),
+   commit e push.
 
 **Na Aula 3.** Devolutiva coletiva: o professor comenta os padrões que viu nos checkpoints da
 turma, sem nota.

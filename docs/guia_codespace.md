@@ -27,8 +27,8 @@ compartilhada do operador.
 ## 1. Conta no GitHub (todos do grupo)
 
 1. Crie uma conta gratuita em **https://github.com/signup**, se ainda não tiver.
-2. Mande o seu **nome de usuário** do GitHub para o operador do grupo (a lista de grupos é a planilha
-   de autoformação divulgada no Portal do Aluno). Ele vai adicionar você ao repositório do grupo.
+2. Mande o seu **nome de usuário** do GitHub para o operador do grupo. Ele vai adicionar você ao
+   repositório do grupo.
 3. **Aceite o convite** que chega por e-mail, ou em https://github.com/notifications, em até 7 dias:
    depois disso ele expira e o operador precisa convidar de novo.
 
@@ -42,7 +42,7 @@ tela compartilhada do operador.
    *Open in a codespace*: ele abre o Codespace no repositório do professor, não no do grupo.
 3. Preencha:
    - **Owner:** a sua conta;
-   - **Repository name:** `ea-genai-grupo-N` (N = número do seu grupo na planilha);
+   - **Repository name:** `ea-genai-grupo-N` (N = o número do grupo, combinado na turma);
    - **Choose visibility:** vem marcado **Public**; clique e troque para **Private** (a entrega exige);
    - deixe **Include all branches** desligado, como já vem.
 4. Clique em **Create repository**. Você está agora no repositório do grupo: é nele que o grupo
@@ -67,10 +67,10 @@ tela compartilhada do operador.
 
    ```text
    [AVISO] Agente de código instalado, sem login
-   == PASS: 3 ok, 1 aviso(s), 0 falha(s) ==
+   == NÃO PRONTO: 3 ok, 1 aviso(s), 0 falha(s). Falta o login do operador: ... ==
    ```
 
-   O aviso some no passo 5.
+   O NÃO PRONTO quer dizer só que falta o login. Ele vira PASS no passo 5.
 
 ## 4. Conhecer a tela
 

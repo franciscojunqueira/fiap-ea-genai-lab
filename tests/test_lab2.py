@@ -1,5 +1,4 @@
-"""Regressão do Lab 2: permissão do corpus, busca, pontuação e o make lab2-check (FAIL útil, atalhos, PASS)."""
-import json
+"""Regressão do Lab 2: permissão do corpus, busca, pontuação e o make lab2 (recusa sem login, prepara com login)."""
 import shutil
 import subprocess
 import sys
@@ -16,8 +15,8 @@ from cli_modelo import Resposta  # noqa: E402
 IGNORAR = shutil.ignore_patterns(".git", ".venv", "__pycache__", ".pytest_cache", "resultados", "*.db",
                                  "core-banking-api", "replay", "integrador", "execucoes", "comparacoes")
 prepara_lab = pytest.mark.skipif(
-    (RAIZ / "labs/lab2/decisao.md").exists(),
-    reason="lab 2 já preparado: estes testes conferem o template; o grupo usa make lab2-check",
+    (RAIZ / "labs/lab2/config.toml").exists(),
+    reason="lab 2 já preparado: este teste confere o template",
 )
 
 
@@ -83,57 +82,36 @@ def test_p95_nao_passa_do_maximo():
     assert rodar.p95([7.0, 3.6, 7.7, 12.6, 10.7, 7.0, 7.6, 7.4, 6.8, 7.5]) <= 12.6
 
 
-def execucao(lab, pipeline, variacao="padrão", nome=None):
-    resumo = {"pipeline": pipeline, "modelo": "claude-haiku-5-5", "variacao": variacao, "grupo": "Grupo 9",
+def test_linha_de_resultado_sem_grupo():
+    resumo = {"pipeline": "rag", "modelo": "claude-haiku-5-5", "variacao": "padrão", "grupo": "",
               "respondidas": 10, "acerto": 7, "citacao": 10, "vazamentos": 0, "existencia_confirmada": 0,
-              "latencia_p50_s": 7.5, "latencia_p95_s": 12.9, "tokens_novos_por_pergunta": 1795,
-              "tokens_cache_por_pergunta": 0, "tokens_saida_por_pergunta": 1274, "usd_por_mil_perguntas": 0.82}
-    pasta = lab / "execucoes"
+              "latencia_p50_s": 7.5, "latencia_p95_s": 12.9, "tokens_novos_por_pergunta": 155,
+              "tokens_cache_por_pergunta": 1644, "tokens_saida_por_pergunta": 300, "usd_por_mil_perguntas": 0.62}
+    assert rodar.linha(resumo).split("\t")[:3] == ["lab2", "-", "rag"]
+
+
+def claude_falso(pasta, logado):
+    """Um `claude` que só responde ao `auth status`, para testar o make lab2 sem conta."""
     pasta.mkdir(exist_ok=True)
-    (pasta / f"{nome or pipeline + variacao}.json").write_text(json.dumps({"resumo": resumo, "respostas": []}), encoding="utf-8")
-    return rodar.linha(resumo)
-
-
-def rodar_check(copia):
-    return subprocess.run([sys.executable, "labs/lab2/checar.py"], cwd=copia, capture_output=True, text=True)
+    exe = pasta / "claude"
+    exe.write_text(f"#!/bin/sh\necho '{{\"loggedIn\": {'true' if logado else 'false'}}}'\n", encoding="utf-8")
+    exe.chmod(0o755)
 
 
 @prepara_lab
-def test_lab2_check_falha_no_inicio_e_passa_preenchido(tmp_path):
+def test_lab2_recusa_sem_login_e_prepara_com_login(tmp_path):
     copia = tmp_path / "repo"
     shutil.copytree(RAIZ, copia, ignore=IGNORAR)
-    lab = copia / "labs/lab2"
-    assert "Rode `make lab2` primeiro" in rodar_check(copia).stdout
+    bin_ = tmp_path / "bin"
+    env = {"PATH": f"{bin_}:/usr/bin:/bin", "HOME": str(tmp_path)}
 
-    assert subprocess.run([sys.executable, "labs/lab2/preparar.py"], cwd=copia, capture_output=True).returncode == 0
-    preparado = rodar_check(copia)
-    assert preparado.returncode == 1
-    assert "make lab2-rodar PIPELINE=rag" in preparado.stdout
-    assert "Mudem UM valor" in preparado.stdout
-    assert "sem resposta em: Hipótese" in preparado.stdout
+    claude_falso(bin_, logado=False)
+    sem = subprocess.run([sys.executable, "labs/lab2/preparar.py"], cwd=copia, env=env, capture_output=True, text=True)
+    assert sem.returncode == 1 and "Falta o login do operador" in sem.stdout
+    assert not (copia / "labs/lab2/config.toml").exists()
 
-    linhas = [execucao(lab, "rag"), execucao(lab, "agentica"), execucao(lab, "rag", "top_k=8")]
-    decisao = (lab / "decisao.md").read_text(encoding="utf-8")
-    preenchido = []
-    for l in decisao.splitlines():
-        if l.startswith("<Relator"):
-            preenchido += linhas
-        elif l.startswith("| |"):
-            preenchido += [f"| P0{i} | rag | certo | conferido no runbook | confere |" for i in range(1, 4)]
-            preenchido.append("| P04 | rag | errado | faltou o prazo do P2 | confere |")
-        elif l.startswith("<"):
-            preenchido.append("Texto do grupo.")
-        else:
-            preenchido.append(l)
-    (lab / "decisao.md").write_text("\n".join(preenchido), encoding="utf-8")
-    final = rodar_check(copia)
-    assert final.returncode == 0, final.stdout
-    assert "lab2-check: PASS (5/5 itens)" in final.stdout
-
-    # Atalho 1: editar os números colados
-    (lab / "decisao.md").write_text((lab / "decisao.md").read_text(encoding="utf-8").replace("7/10", "10/10"), encoding="utf-8")
-    assert "iguais às que o script imprimiu" in rodar_check(copia).stdout
-    # Atalho 2: mexer nas perguntas
-    perguntas = lab / "perguntas.toml"
-    perguntas.write_text(perguntas.read_text(encoding="utf-8").replace("'Redis', ", ""), encoding="utf-8")
-    assert "Alterado: labs/lab2/perguntas.toml" in rodar_check(copia).stdout
+    claude_falso(bin_, logado=True)
+    com = subprocess.run([sys.executable, "labs/lab2/preparar.py"], cwd=copia, env=env, capture_output=True, text=True)
+    assert com.returncode == 0, com.stdout
+    assert (copia / "labs/lab2/config.toml").exists()
+    assert "make lab2-rodar PIPELINE=rag" in com.stdout and "make lab2-rodar PIPELINE=agentica" in com.stdout

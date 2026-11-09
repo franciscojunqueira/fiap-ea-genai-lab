@@ -38,7 +38,7 @@ def main():
         print("  criado    .mcp.json com o servidor minierp (contrato do grupo; até ele ser preenchido, vale o boa.toml)")
     if problema := cli_modelo.disponivel("claude"):
         print(f"\nAviso: {problema}")
-    print("\nPróximo passo: `make erp` num segundo terminal e `make lab3-comparar VERSAO=ruim` (passo 2 de labs/lab3/README.md).")
+    print("\nPróximo passo: `make erp` num segundo terminal e `make lab3-comparar VERSAO=ruim` (labs/lab3/README.md).")
 
 
 if __name__ == "__main__":

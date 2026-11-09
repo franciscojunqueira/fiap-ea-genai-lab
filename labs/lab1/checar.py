@@ -181,7 +181,7 @@ def main():
         ok += not problemas
     veredito = "PASS" if ok == len(ITENS) else "FAIL"
     print(f"\nlab1-check: {veredito} ({ok}/{len(ITENS)} itens)")
-    print(f"Linha para a planilha da turma:\tlab1\t{veredito}\t{ok}/{len(ITENS)}")
+    print(f"Linha de resultado:\tlab1\t{veredito}\t{ok}/{len(ITENS)}")
     return 0 if veredito == "PASS" else 1
 
 

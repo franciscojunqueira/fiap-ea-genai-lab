@@ -82,8 +82,9 @@ terminal e para a aba **Ports**.
 ![Terminal pronto e, em amarelo, o painel Chat do Copilot](img/guia_ilustrado/08_terminal_pronto.png)
 
 Clique no terminal, digite `make check` e tecle **Enter**. Nesta primeira vez o esperado é:
-`[AVISO] Agente de código instalado, sem login` e `== PASS: 3 ok, 1 aviso(s), 0 falha(s) ==`. O
-aviso some no passo 5.
+`[AVISO] Agente de código instalado, sem login` e, na última linha, `== NÃO PRONTO: 3 ok, 1 aviso(s),
+0 falha(s). Falta o login do operador ...`. A tela abaixo é de antes desta mudança e mostra PASS no
+lugar de NÃO PRONTO. Os dois querem dizer o mesmo: falta o login, que vira PASS no passo 5.
 
 ![Saída do make check com 3 ok e 1 aviso](img/guia_ilustrado/09_make_check_3ok.png)
 

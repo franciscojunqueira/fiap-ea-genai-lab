@@ -1,5 +1,5 @@
-# Lab 2: parâmetros dos pipelines (do grupo). No passo 3, mudem UM valor e rodem de novo.
-grupo = ""              # nome do grupo como está na planilha da turma, por exemplo "Grupo 3"
+# Lab 2: parâmetros dos pipelines. Na aula, não mudem nada. Em casa, quem quiser experimentar muda UM valor e roda de novo.
+grupo = ""              # opcional: nome do grupo na linha de resultado, por exemplo "Grupo 3"
 
 modelo = "padrão"       # "padrão" = o modelo dos labs em config/modelos.toml; ou "sonnet"
 top_k = 3               # RAG: quantos pedaços vão para o modelo (experimentem 8)

@@ -38,6 +38,26 @@ def disponivel(cli="claude"):
     return "`claude` não está no PATH. O operador abre o Codespace e faz o login (docs/checklist_operador.md)."
 
 
+# `claude auth status` não chama modelo; respondeu em menos de 1 s nos testes. 20 s cobrem um Codespace lento.
+AUTH_TIMEOUT_S = 20
+
+
+def logado():
+    """Vazio se o Claude Code ou o Codex têm login; senão, a mensagem com o passo a passo."""
+    if shutil.which("claude"):
+        try:
+            status = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True, timeout=AUTH_TIMEOUT_S)
+            if json.loads(status.stdout).get("loggedIn"):
+                return ""
+        except (subprocess.TimeoutExpired, json.JSONDecodeError):
+            pass
+    if shutil.which("codex") and (Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "auth.json").is_file():
+        return ""
+    return ("Falta o login do operador. No terminal: digite claude, faça o login, saia com /exit e rode o comando de novo "
+            "(Codex: codex login --device-auth).\n"
+            "Grupo sem nenhum assinante: acompanhem a tela de outro grupo, ou uma pessoa roda make lab2-replay.")
+
+
 def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None, max_turnos=None,
            mcp_config=None, permitidas=None, cli="claude", timeout_s=300):
     """Uma pergunta, uma resposta. Nunca levanta exceção: o erro volta em Resposta.erro."""

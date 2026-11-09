@@ -16,9 +16,12 @@ flowchart LR
 
 ## Decisão de conhecimento
 
-<!-- Contexto longo, RAG, busca agêntica ou ferramentas: o que vocês usam para cada tipo de
-pergunta e departamento, e por quê. Usem os dados do Lab 2 (a linha de métricas do grupo e a
-planilha da turma) e digam como a permissão por documento (RC-02) é aplicada. -->
+<!-- Contexto longo, RAG, busca agêntica ou ferramentas. Completem, com as palavras do grupo:
+1. Para cada tipo de pergunta (busca exata, vários documentos, dado que muda todo dia), o Bússola
+   usa ... porque ...
+2. A permissão por documento (RC-02) fica em ... (no filtro, antes do modelo, ou no prompt?), porque ...
+3. O número do Lab 2 que sustenta a decisão é ... (acerto, custo por mil perguntas ou latência, da
+   linha "Acerto" de labs/lab2/execucoes/; sem cota, os testes do professor, e digam isso). -->
 
 PREENCHER
 

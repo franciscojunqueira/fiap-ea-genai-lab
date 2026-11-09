@@ -59,17 +59,17 @@ def item_preparado():
 
 def item_ruim_boa():
     faltam = [v for v in ("ruim", "boa") if not comparacoes(v)]
-    return [] if not faltam else [f"Falta a comparação de: {', '.join(faltam)}. Rodem `make lab3-comparar VERSAO={faltam[0]}` "
-                                  "(passo 2). Sem cota: `make lab3-replay`."]
+    return [] if not faltam else [f"Falta a comparação de: {', '.join(faltam)}. Rodem `make lab3-comparar VERSAO={faltam[0]}`. "
+                                  "Sem cota: `make lab3-replay`."]
 
 
 def item_grupo():
     texto = (LAB / "descricoes" / "grupo.toml").read_text(encoding="utf-8")
     if "PREENCHER" in texto:
-        return ["labs/lab3/descricoes/grupo.toml ainda tem PREENCHER: os autores escrevem o contrato (passo 3)."]
+        return ["labs/lab3/descricoes/grupo.toml ainda tem PREENCHER: escrevam o contrato do grupo (README, seção Refazer em casa)."]
     feitas = comparacoes("grupo")
     if not feitas:
-        return ["Falta a comparação do contrato do grupo: `make lab3-comparar VERSAO=grupo` (passo 4)."]
+        return ["Falta a comparação do contrato do grupo: `make lab3-comparar VERSAO=grupo`."]
     ultima = feitas[-1]["cenarios"]
     problemas = []
     executou = [c["cenario"] for c in ultima if not c["nao_executou"]]
@@ -86,7 +86,7 @@ def item_grupo():
 def item_aprovacao_ao_vivo():
     if not BANCO.exists():
         return [f"Não achei o banco do ERP ({BANCO.relative_to(RAIZ) if BANCO.is_relative_to(RAIZ) else BANCO}). "
-                "Façam o passo 5 com o `make erp` rodando."]
+                "Façam o passo Ao vivo, com aprovação, do README com o `make erp` rodando."]
     try:
         with sqlite3.connect(BANCO) as con:
             linhas = con.execute("SELECT id, solicitado_por, aprovado_por, status FROM ajuste_estoque").fetchall()
@@ -98,7 +98,7 @@ def item_aprovacao_ao_vivo():
     pendentes = [l[0] for l in linhas if l[3] in ("PENDENTE", "APROVADO")]
     dica = f" Há ajuste(s) {pendentes} esperando aprovação ou execução." if pendentes else ""
     return ["O ERP não tem nenhum ajuste pedido pelo agente, aprovado por uma pessoa na aba Aprovações e executado "
-            f"(passo 5).{dica}"]
+            f"(passo Ao vivo, com aprovação, do README).{dica}"]
 
 
 def item_contrato():

@@ -10,7 +10,7 @@ Exemplo:
 
 Lê o cenário em .agents/skills/<skill>/evals/cenarios.json, copia o repositório para uma pasta
 temporária (sem a skill, se --sem), roda `claude -p` com a pergunta e guarda a resposta e os
-arquivos gerados em resultados/. No fim, imprime uma linha para a planilha. A comparação com o
+arquivos gerados em resultados/. No fim, imprime uma linha de resultado. A comparação com o
 `expected_behavior` é feita por quem testa (o verificador do grupo), lendo a resposta.
 Gasta cota do plano de quem roda: cada execução é uma tarefa completa do agente.
 """
