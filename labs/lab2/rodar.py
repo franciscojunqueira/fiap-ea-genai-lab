@@ -104,10 +104,11 @@ def perguntar(p, pipeline, config, docs, modelo, cli):
         with tempfile.TemporaryDirectory() as pasta:
             for d in acesso:
                 (Path(pasta) / d.arquivo).write_text(d.bruto, encoding="utf-8")
-            return cli_modelo.chamar(pergunta, sistema=GUIA.format(onde="desta pasta (use Grep, Glob e Read)") + extra,
-                                     modelo=modelo, ferramentas="Read,Grep,Glob", permitidas=["Read", "Grep", "Glob"],
-                                     pasta=pasta, esquema=ESQUEMA, max_turnos=config["max_turnos"], cli=cli,
-                                     timeout_s=TIMEOUT_S)
+            r = cli_modelo.chamar(pergunta, sistema=GUIA.format(onde="desta pasta (use Grep, Glob e Read)") + extra,
+                                  modelo=modelo, ferramentas="Read,Grep,Glob", permitidas=["Read", "Grep", "Glob"],
+                                  pasta=pasta, esquema=ESQUEMA, max_turnos=config["max_turnos"], cli=cli,
+                                  timeout_s=TIMEOUT_S, rastrear=True)
+            return r, {"quem": "modelo", "arquivos": r.lidos, "buscas": r.buscas, "rastreado": cli == "claude"}
     if pipeline == "rag":
         trechos = corpus.buscar(p["texto"], corpus.pedacos(acesso, config["tamanho_pedaco"]), config["top_k"])
         por_nome = {d.arquivo: d for d in docs}
@@ -116,11 +117,14 @@ def perguntar(p, pipeline, config, docs, modelo, cli):
                   + (f" · departamentos: {', '.join(por_nome[a].departamentos)}" if por_nome[a].departamentos else "")
                   ) if config["acl"] == "prompt" else (lambda a: "")
         blocos = [f"[{t.arquivo}{rotulo(t.arquivo)}]\n{t.texto}" for t in trechos]
+        leu = {"quem": "código", "pedacos": len(trechos), "arquivos": list(dict.fromkeys(t.arquivo for t in trechos))}
     else:
         blocos = [f"[{d.arquivo}]\n{d.bruto if config['acl'] == 'prompt' else d.texto}" for d in acesso]
+        leu = {"quem": "todos", "arquivos": [d.arquivo for d in acesso]}
     prompt = "Documentos:\n\n" + "\n\n---\n\n".join(blocos or ["(nenhum documento encontrado)"]) + f"\n\n{pergunta}"
-    return cli_modelo.chamar(prompt, sistema=GUIA.format(onde="abaixo") + extra, modelo=modelo, esquema=ESQUEMA,
-                             cli=cli, timeout_s=TIMEOUT_S)
+    r = cli_modelo.chamar(prompt, sistema=GUIA.format(onde="abaixo") + extra, modelo=modelo, esquema=ESQUEMA,
+                          cli=cli, timeout_s=TIMEOUT_S)
+    return r, leu
 
 
 def pontuar(p, r, docs):
@@ -158,15 +162,18 @@ def rodar(pipeline, config, cli="claude", destino=LAB / "execucoes"):
     docs = corpus.carregar()
     modelo = modelo_efetivo(config, cli)
     perguntas = PERGUNTAS["pergunta"]
-    with ThreadPoolExecutor(PARALELO) as pool:
-        respostas = list(pool.map(lambda p: perguntar(p, pipeline, config, docs, modelo, cli), perguntas))
     itens = []
-    for p, r in zip(perguntas, respostas):
-        itens.append({"id": p["id"], "tipo": p["tipo"], "departamento": p["departamento"], "pergunta": p["texto"],
-                      **pontuar(p, r, docs), "erro": r.erro, "duracao_s": r.duracao_s, "turnos": r.turnos,
-                      "tokens_entrada": r.tokens_entrada, "tokens_novos": r.tokens_novos, "tokens_cache": r.tokens_cache,
-                      "tokens_saida": r.tokens_saida, "custo_usd": cli_modelo.custo_api(r.uso_por_modelo, PRECOS),
-                      "modelos": r.modelos})
+    print(f"\n{TITULO[pipeline]}\n", flush=True)
+    with ThreadPoolExecutor(PARALELO) as pool:
+        # map devolve na ordem das perguntas: cada linha aparece assim que a pergunta e as anteriores terminam.
+        for p, (r, leu) in zip(perguntas, pool.map(lambda p: perguntar(p, pipeline, config, docs, modelo, cli), perguntas)):
+            item = {"id": p["id"], "tipo": p["tipo"], "departamento": p["departamento"], "pergunta": p["texto"],
+                    **pontuar(p, r, docs), "erro": r.erro, "duracao_s": r.duracao_s, "turnos": r.turnos, "leu": leu,
+                    "tokens_entrada": r.tokens_entrada, "tokens_novos": r.tokens_novos, "tokens_cache": r.tokens_cache,
+                    "tokens_saida": r.tokens_saida, "custo_usd": cli_modelo.custo_api(r.uso_por_modelo, PRECOS),
+                    "modelos": r.modelos}
+            itens.append(item)
+            print(linha_pergunta(item) + "\n", flush=True)
     latencias = [i["duracao_s"] for i in itens if not i["erro"]]
     validos = [i for i in itens if not i["erro"]] or itens
     resumo = {
@@ -205,6 +212,45 @@ def linha(r):
     return "\t".join(map(str, campos))
 
 
+TITULO = {
+    "rag": "RAG: o código escolhe o que o modelo lê (os pedaços mais parecidos com a pergunta).",
+    "agentica": "Busca agêntica: o modelo escolhe o que lê (procura sozinho na pasta).",
+    "contexto": "Contexto longo: o modelo recebe todos os documentos que o departamento pode ver.",
+}
+
+
+def o_que_leu(i):
+    leu = i["leu"]
+    nomes = ", ".join(leu["arquivos"])
+    if leu["quem"] == "código":
+        return f"o código mandou {leu['pedacos']} pedaço(s) de: {nomes or '(nenhum)'}"
+    if leu["quem"] == "todos":
+        return f"o modelo recebeu os {len(leu['arquivos'])} documentos que o departamento pode ver"
+    if not leu.get("rastreado"):
+        return f"o modelo procurou sozinho, em {i['turnos']} ida(s) e volta(s) (o Codex não informa os arquivos abertos)"
+    buscas = f"{leu.get('buscas', 0)} busca(s) por palavra"
+    if not leu["arquivos"]:
+        return (f"o modelo não abriu nenhum arquivo inteiro: respondeu com os trechos que achou em {buscas}, "
+                f"em {i['turnos']} ida(s) e volta(s)")
+    fez = f"fez {buscas} e " if leu.get("buscas") else ""
+    return f"o modelo {fez}abriu {len(leu['arquivos'])} arquivo(s), em {i['turnos']} ida(s) e volta(s): {nomes}"
+
+
+def veredito(i):
+    """O que o script concluiu, em palavras simples. O script confere palavras, não a verdade."""
+    if i["erro"]:
+        return f"ERRO: {i['erro'][:120]}"
+    partes = ["script: certo" if i["acerto"] else "script: errado",
+              f"VAZAMENTO de {', '.join(i['vazamento'])}" if i["vazamento"] else "sem vazamento"]
+    if i["confirmou_existencia"]:
+        partes.append("admitiu que o documento proibido existe")
+    return " · ".join(partes + [f"{virgula(i['duracao_s'])} s"])
+
+
+def linha_pergunta(i):
+    return f"{i['id']} · {i['departamento']} · {o_que_leu(i)}\n      {veredito(i)}"
+
+
 def relatorio(resumo, itens):
     partes = [f"# Execução: {resumo['pipeline']} · {resumo['modelo']} · {resumo['variacao']} · {resumo['data']}\n",
               f"Acerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
@@ -219,6 +265,8 @@ def relatorio(resumo, itens):
                       f"{' · VAZAMENTO: ' + ', '.join(i['vazamento']) if i['vazamento'] else ''}"
                       f"{' · confirmou que o documento existe' if i['confirmou_existencia'] else ''}\n")
         partes.append(f"**Pergunta:** {i['pergunta']}\n")
+        if "leu" in i:
+            partes.append(f"**O que o modelo leu:** {o_que_leu(i)}\n")
         partes.append(f"**Resposta:** {i['erro'] or i['resposta']}\n")
         partes.append(f"**Fontes citadas:** {', '.join(i['fontes']) or '(nenhuma)'} · {i['duracao_s']} s · "
                       f"{i['turnos']} turno(s) · {i['tokens_novos']} tokens novos e {i['tokens_cache']} do cache\n")
@@ -241,9 +289,10 @@ def main():
     if resumo["respondidas"] < 10:
         erros = {i["erro"] for i in json.loads(md.with_suffix(".json").read_text())["respostas"] if i["erro"]}
         print(f"\n{10 - resumo['respondidas']} pergunta(s) sem resposta: {'; '.join(erros)}")
+    usd = "?" if resumo["usd_por_mil_perguntas"] is None else virgula(resumo["usd_por_mil_perguntas"], 2)
     print(f"\nAcerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
-          f"existência confirmada {resumo['existencia_confirmada']} · p50 {resumo['latencia_p50_s']} s · "
-          f"p95 {resumo['latencia_p95_s']} s · US$ {resumo['usd_por_mil_perguntas']} por mil perguntas (preço de API)")
+          f"existência confirmada {resumo['existencia_confirmada']} · p50 {virgula(resumo['latencia_p50_s'])} s · "
+          f"p95 {virgula(resumo['latencia_p95_s'])} s · US$ {usd} por mil perguntas (preço de API)")
     print(f"Linha de resultado (vai para a Atividade 2):\n{texto}")
     print(f"\nAs respostas estão em {md.relative_to(RAIZ)}. Para a pergunta da P03, abram o arquivo e procurem \"## P03\".")
     return 0 if resumo["respondidas"] == 10 else 1

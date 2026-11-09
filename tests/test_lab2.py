@@ -115,3 +115,30 @@ def test_lab2_recusa_sem_login_e_prepara_com_login(tmp_path):
     assert com.returncode == 0, com.stdout
     assert (copia / "labs/lab2/config.toml").exists()
     assert "make lab2-rodar PIPELINE=rag" in com.stdout and "make lab2-rodar PIPELINE=agentica" in com.stdout
+
+
+def test_stream_json_da_os_arquivos_abertos_e_o_resultado():
+    import json as j
+    import cli_modelo
+    eventos = [
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Grep", "input": {"pattern": "ADR"}}]}},
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Read", "input": {"file_path": "/tmp/x/adr_001_api_gateway.md"}}]}},
+        {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Read", "input": {"file_path": "/tmp/x/adr_001_api_gateway.md"}}]}},
+        {"type": "result", "num_turns": 4, "structured_output": {"resposta": "ok", "fontes": []}},
+    ]
+    final, lidos, buscas = cli_modelo._ultimo_resultado("\n".join(j.dumps(e) for e in eventos) + "\nlixo")
+    assert lidos == ["adr_001_api_gateway.md"] and buscas == 1 and final["num_turns"] == 4
+
+
+def test_linha_por_pergunta_diz_quem_escolheu_o_que_o_modelo_leu():
+    base = {"id": "P03", "departamento": "Arquitetura", "erro": "", "acerto": True, "vazamento": [],
+            "confirmou_existencia": False, "duracao_s": 6.1, "turnos": 1}
+    rag = rodar.linha_pergunta({**base, "leu": {"quem": "código", "pedacos": 3, "arquivos": ["a.md", "b.md"]}})
+    assert "o código mandou 3 pedaço(s) de: a.md, b.md" in rag and "script: certo · sem vazamento · 6,1 s" in rag
+    agente = rodar.linha_pergunta({**base, "turnos": 6, "acerto": False, "vazamento": ["r.md"],
+                                   "leu": {"quem": "modelo", "arquivos": ["a.md"], "buscas": 2, "rastreado": True}})
+    assert "o modelo fez 2 busca(s) por palavra e abriu 1 arquivo(s), em 6 ida(s) e volta(s): a.md" in agente
+    so_busca = rodar.linha_pergunta({**base, "turnos": 5,
+                                     "leu": {"quem": "modelo", "arquivos": [], "buscas": 1, "rastreado": True}})
+    assert "não abriu nenhum arquivo inteiro: respondeu com os trechos que achou em 1 busca(s)" in so_busca
+    assert "script: errado · VAZAMENTO de r.md" in agente

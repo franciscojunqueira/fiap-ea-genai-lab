@@ -26,6 +26,8 @@ class Resposta:
     duracao_s: float = 0.0
     turnos: int = 0
     modelos: list = field(default_factory=list)
+    lidos: list = field(default_factory=list)   # arquivos que o agente abriu inteiros (só com rastrear=True)
+    buscas: int = 0                             # buscas por palavra (Grep) que o agente fez (só com rastrear=True)
     erro: str = ""
 
 
@@ -58,9 +60,31 @@ def logado():
             "Grupo sem nenhum assinante: acompanhem a tela de outro grupo, ou uma pessoa roda make lab2-replay.")
 
 
+def _ultimo_resultado(saida):
+    """Do stream-json do Claude Code: (o evento final 'result', os arquivos abertos com Read, as buscas com Grep)."""
+    final, lidos, buscas = None, [], 0
+    for linha in saida.splitlines():
+        try:
+            evento = json.loads(linha)
+        except json.JSONDecodeError:
+            continue
+        if evento.get("type") == "assistant":
+            for parte in evento.get("message", {}).get("content", []):
+                if parte.get("type") == "tool_use" and parte.get("name") == "Grep":
+                    buscas += 1
+                if parte.get("type") == "tool_use" and parte.get("name") == "Read":
+                    nome = Path(str(parte.get("input", {}).get("file_path", ""))).name
+                    if nome and nome not in lidos:
+                        lidos.append(nome)
+        elif evento.get("type") == "result":
+            final = evento
+    return final, lidos, buscas
+
+
 def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None, max_turnos=None,
-           mcp_config=None, permitidas=None, cli="claude", timeout_s=300):
-    """Uma pergunta, uma resposta. Nunca levanta exceção: o erro volta em Resposta.erro."""
+           mcp_config=None, permitidas=None, cli="claude", timeout_s=300, rastrear=False):
+    """Uma pergunta, uma resposta. Nunca levanta exceção: o erro volta em Resposta.erro.
+    rastrear=True pede o passo a passo (stream-json) para saber quais arquivos o agente abriu."""
     with tempfile.TemporaryDirectory() as vazia:
         cwd = pasta or vazia
         if cli == "codex":
@@ -68,7 +92,8 @@ def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None,
         # --restricted prende as ferramentas de arquivo à pasta de trabalho: sem ele, a busca agêntica lê
         # qualquer caminho do disco (medido em 14/10/2026: leu um documento Regulado fora da pasta).
         cmd = ["claude", "-p", prompt, "--model", modelo, "--system-prompt", sistema, "--tools", ferramentas,
-               "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", "--restricted"]
+               "--output-format", "stream-json" if rastrear else "json", "--no-session-persistence",
+               "--strict-mcp-config", "--restricted"] + (["--verbose"] if rastrear else [])
         if mcp_config:
             cmd += ["--mcp-config", str(mcp_config)]
         if permitidas:
@@ -84,8 +109,14 @@ def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None,
         except subprocess.TimeoutExpired:
             return Resposta(erro=f"sem resposta em {timeout_s} s", duracao_s=timeout_s)
         duracao = time.monotonic() - inicio
+    lidos, buscas = [], 0
     try:
-        dados = json.loads(proc.stdout)
+        if rastrear:
+            dados, lidos, buscas = _ultimo_resultado(proc.stdout)
+            if dados is None:
+                raise json.JSONDecodeError("sem evento result", proc.stdout, 0)
+        else:
+            dados = json.loads(proc.stdout)
     except json.JSONDecodeError:
         texto = (proc.stderr or proc.stdout).strip()[-300:]
         dica = " Limite do plano atingido: troque de operador ou use o replay." if "limit" in texto.lower() else ""
@@ -103,6 +134,8 @@ def chamar(prompt, *, sistema, modelo, ferramentas="", pasta=None, esquema=None,
         duracao_s=round(duracao, 1),
         turnos=dados.get("num_turns") or 0,
         modelos=sorted((dados.get("modelUsage") or {}).keys()),
+        lidos=lidos,
+        buscas=buscas,
         erro="" if not dados.get("is_error") else str(dados.get("result") or dados.get("subtype"))[:300],
     )
 
