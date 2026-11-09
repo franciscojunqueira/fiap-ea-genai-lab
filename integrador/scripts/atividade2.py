@@ -35,7 +35,7 @@ troquem só os dois [PREENCHER: ...], com o que a engenharia reversa do grupo (A
 
 | Servidor:ferramenta | Lê ou escreve | Entrada | Saída | Aprovação humana | Idempotente | Departamentos |
 |---|---|---|---|---|---|---|
-| minierp:solicitar_ajuste_estoque | Escreve um pedido, não o estoque | produto_id, quantidade (variação com sinal), motivo | número do ajuste, status PENDENTE | Não para pedir; o ajuste só vale depois de aprovado na tela | Não: duas chamadas criam dois pedidos; a aprovação barra o segundo | TI Operacional |
+| minierp:solicitar_ajuste_estoque | Escreve um pedido, não o estoque | produto_id, quantidade (variação com sinal), motivo | número do ajuste, status PENDENTE | Não precisa para pedir. O ajuste só vale depois que uma pessoa aprova | Não: duas chamadas criam dois pedidos; a aprovação barra o segundo | TI Operacional |
 | minierp:executar_ajuste_estoque | Escreve no estoque | ajuste_id | status EXECUTADO, estoque antes e depois | Sim: o ERP recusa o que não foi aprovado | Sim: a segunda chamada devolve o mesmo resultado | TI Operacional |
 | sgc:pedir_reprocessamento_retorno | Escreve um pedido, não reprocessa | nome do arquivo de retorno, motivo | número do pedido, status PENDENTE | [PREENCHER: quem aprova?] | [PREENCHER: reprocessar duas vezes dá o mesmo resultado? Se não, como protegem?] | TI Operacional |"""
 
