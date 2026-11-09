@@ -38,7 +38,9 @@ Depois do momento 2:
 **Antes da aula, fora da tela.** No Codespace do professor: `make check` com PASS e `make lab3`. Num
 **segundo terminal** (botão **+** do terminal), `make erp`, que fica rodando até o fim. Se o momento 2
 já foi ensaiado, o estoque do produto 3 já está em 50: pare o `make erp` (Ctrl+C), rode
-`rm mini-erp/data/mini_erp.db` e `make erp` de novo, e o estoque volta a 30.
+`rm mini-erp/data/mini_erp.db` e `make erp` de novo, e o estoque volta a 30. Rode também
+`rm -f .claude/settings.local.json`: se no ensaio alguém respondeu "don't ask again", a liberação da tool
+ficou gravada ali, e o Claude Code deixa de perguntar.
 
 **Momento 1: contrato ruim × bom (cerca de 15 min).**
 
@@ -76,7 +78,8 @@ MCP é código que roda com as permissões de quem o abre (tema da Aula 4). Pedi
 O inventário de hoje contou 50 unidades do produto 3. Corrija o estoque no sistema.
 ```
 
-1. O Claude Code pergunta se pode chamar a tool: aceitar (aprovação **no cliente**).
+1. O Claude Code pergunta se pode chamar a tool: aceitar com **Yes**, só desta vez (aprovação **no
+   cliente**). "Don't ask again" grava a liberação e a pergunta some nas próximas vezes.
 2. O agente pede o ajuste, que nasce PENDENTE, e diz que falta a aprovação.
 3. Abrir o ERP no navegador: aba **Ports**, porta 8000, ícone de globo, aba **Aprovações**. Alguém da
    turma dita o próprio nome; o professor digita e clica **Aprovar** (aprovação **no sistema**).
