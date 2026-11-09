@@ -26,3 +26,16 @@ def test_atualizar_traz_os_arquivos_do_professor_e_preserva_os_do_grupo():
 def test_removidos_nao_existem_mais_no_template():
     for caminho in atualizar.REMOVIDOS:
         assert not (RAIZ / caminho).exists(), caminho
+
+
+def test_aviso_do_agents_so_quando_falta_linha(tmp_path, monkeypatch, capsys):
+    template = "# AGENTS.md\n\n- regra A\n- regra B\n"
+    monkeypatch.setattr(atualizar, "RAIZ", tmp_path)
+    monkeypatch.setattr(atualizar, "git", lambda *args, **kw: template)
+    (tmp_path / "AGENTS.md").write_text(template + "\n## Mini-ERP\n- regra do grupo\n", encoding="utf-8")
+    atualizar.avisar_agents()
+    assert capsys.readouterr().out == ""
+    (tmp_path / "AGENTS.md").write_text("# AGENTS.md\n\n- regra A\n", encoding="utf-8")
+    atualizar.avisar_agents()
+    saida = capsys.readouterr().out
+    assert "1 linha(s)" in saida and "- regra B" in saida

@@ -48,6 +48,18 @@ def casa(caminho, padroes):
     return any(fnmatch.fnmatch(caminho, p) for p in padroes)
 
 
+def avisar_agents():
+    """O AGENTS.md é do grupo e sempre difere do template (o grupo escreve nele no Lab 1). Só avisa quando o
+    template tem linhas que o do grupo não tem, e mostra quais: o resto da diferença é trabalho do grupo."""
+    do_grupo = set((RAIZ / "AGENTS.md").read_text(encoding="utf-8").splitlines())
+    faltam = [l for l in git("show", f"{REF}:AGENTS.md").splitlines() if l.strip() and l not in do_grupo]
+    if faltam:
+        print(f"\n  O AGENTS.md é do grupo e não é trocado, mas o do template tem {len(faltam)} linha(s) que o de vocês "
+              "não tem. Copiem para a mesma seção do AGENTS.md de vocês:")
+        for l in faltam:
+            print(f"    {l}")
+
+
 def main():
     simular = "--sim" in sys.argv
     # O próprio script pode ter acabado de vir do template (linha de primeira vez): não conta como alteração.
@@ -78,8 +90,7 @@ def main():
     for c in mantidos:
         print(f"  manter      {c} (do grupo; para ver a versão do template: git diff HEAD {REF} -- {c})")
     if "AGENTS.md" in mantidos:
-        print("\n  O AGENTS.md do template mudou. Ele é do grupo e não é trocado: vejam a diferença com o comando acima e "
-              "copiem as linhas novas da seção 'Estrutura que não é óbvia'.")
+        avisar_agents()
     if not trazidos and not remover:
         print("\nNada a trazer: o repositório já está com os arquivos do professor em dia.")
         return
