@@ -85,8 +85,16 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
    pergunta, onde fica a permissão e qual número do Lab 2 sustenta a decisão. Os números são os do
    grupo, em `labs/lab2/execucoes/` no Codespace do operador; o grupo que ficou sem cota usa os testes do
    professor (`make lab2-replay`) e diz isso.
-3. **`pacote/01-design.md`, seção "Contrato MCP"**: partam da tabela do Lab 3 resolvido (material de
-   apoio no Portal) e acrescentem pelo menos uma ferramenta `sgc:`, com o que a Atividade 1 mostrou.
+3. **`pacote/01-design.md`, seção "Contrato MCP"**: copiem as três linhas da tabela abaixo e completem
+   só as duas células com **?**, na linha `sgc:`: quem aprova o pedido de reprocessamento e se
+   reprocessar duas vezes dá o mesmo resultado (se não der, como o grupo protege). A resposta está na
+   engenharia reversa do grupo (Atividade 1).
+
+   | Servidor:ferramenta | Lê ou escreve | Entrada | Saída | Aprovação humana | Idempotente | Departamentos |
+   |---|---|---|---|---|---|---|
+   | minierp:solicitar_ajuste_estoque | Escreve um pedido, não o estoque | produto_id, quantidade (variação com sinal), motivo | número do ajuste, status PENDENTE | Não para pedir; o ajuste só vale depois de aprovado na tela | Não: duas chamadas criam dois pedidos; a aprovação barra o segundo | TI Operacional |
+   | minierp:executar_ajuste_estoque | Escreve no estoque | ajuste_id | status EXECUTADO, estoque antes e depois | Sim: o ERP recusa o que não foi aprovado | Sim: a segunda chamada devolve o mesmo resultado | TI Operacional |
+   | sgc:pedir_reprocessamento_retorno | Escreve um pedido, não reprocessa | nome do arquivo de retorno, motivo | número do pedido, status PENDENTE | ? Quem aprova? | ? Reprocessar duas vezes dá o mesmo resultado? Se não, como protegem? | TI Operacional |
 4. `make checkpoint-check` até dar PASS. Depois, `git add -A` (leva também as execuções do Lab 2),
    commit e push.
 
