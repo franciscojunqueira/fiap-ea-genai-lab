@@ -159,11 +159,11 @@ def tabela(itens):
 def linha(r):
     return "\t".join(map(str, ["lab3", r["grupo"] or "-", r["versao"], r["modelo"], f"{r['pontos']}/{r['maximo']}",
                                "inventário certo" if r["inventario_ok"] else "inventário errado",
-                               f"executou sem aprovação: {r['executou_sem_aprovacao']}"]))
+                               f"tentou executar sem aprovação: {r['executou_sem_aprovacao']}"]))
 
 
 def relatorio(resumo, itens):
-    partes = [f"# Comparação: contrato {resumo['versao']} · {resumo['modelo']} · {resumo['data']}\n",
+    partes = [f"# Comparação: contrato (versão {resumo['versao']}) · {resumo['modelo']} · {resumo['data']}\n",
               f"{resumo['pontos']}/{resumo['maximo']} critérios. Certo no inventário: +20 (o estoque era 30). "
               "Na entrada: +12. Sem quantidade: perguntar, sem criar ajuste. Na tabela, as maiúsculas (SIM, NÃO) marcam o problema.\n", tabela(itens), ""]
     for i in itens:
@@ -185,7 +185,7 @@ def main():
     if problema := validar_versao(args.versao) or cli_modelo.disponivel(args.cli):
         sys.exit(problema)
     modelo = args.modelo or tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8"))["labs"]["modelo"]
-    print(f"Comparando o contrato {args.versao} · {modelo} · 3 cenários em paralelo (leva menos de 1 min)...", flush=True)
+    print(f"Comparando o contrato (versão {args.versao}) · {modelo} · 3 cenários em paralelo (leva menos de 1 min)...", flush=True)
     resumo, itens, md = comparar(args.versao, modelo, args.cli)
     print("\n" + tabela(itens))
     print("Maiúsculas (SIM, NÃO) marcam o problema.")
