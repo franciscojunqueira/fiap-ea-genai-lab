@@ -53,7 +53,8 @@ make lab2
 
 1. Qual acertou mais: o RAG ou a busca agêntica?
 2. Qual custa mais por mil perguntas? É o valor em US$ no fim da linha **Acerto**.
-3. Na P03, a resposta do RAG disse qual ADR definiu o gateway? E a conferência automática marcou "certo" ou "errado"?
+3. Na P03, o documento do ADR do gateway (`adr_001_api_gateway.md`) chegou ao modelo no RAG? E na busca
+   agêntica? Vejam a linha "o que o modelo leu" da P03 nas duas telas.
 
 Na volta à sala principal, o relator escreve as 3 respostas no chat.
 
