@@ -272,26 +272,27 @@ def linha_pergunta(i):
 
 
 def relatorio(resumo, itens):
-    partes = [f"# Execução: {resumo['pipeline']} · {resumo['modelo']} · {resumo['variacao']} · {resumo['data']}\n",
+    usd = "?" if resumo["usd_por_mil_perguntas"] is None else virgula(resumo["usd_por_mil_perguntas"], 2)
+    partes = [f"# Execução: {resumo['pipeline']} · {resumo['modelo']} · {resumo['data']}\n",
+              "Este arquivo foi escrito pelo script do `make lab2-rodar`. Só o texto depois de **Resposta do modelo** "
+              "vem do modelo.\n",
               f"Acerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
-              f"existência confirmada {resumo['existencia_confirmada']} · latência p50 {resumo['latencia_p50_s']} s, "
-              f"p95 {resumo['latencia_p95_s']} s · por pergunta: {resumo['tokens_novos_por_pergunta']} tokens novos, "
-              f"{resumo['tokens_cache_por_pergunta']} lidos do cache · US$ {resumo['usd_por_mil_perguntas']} por mil perguntas "
-              "(preço de API da tabela de config/modelos.toml)\n",
-              "O script confere por expressão regular. O verificador confere a verdade no corpus (knowledge/techcorp/).\n"]
+              f"existência confirmada {resumo['existencia_confirmada']} · p50 {virgula(resumo['latencia_p50_s'])} s · "
+              f"p95 {virgula(resumo['latencia_p95_s'])} s · US$ {usd} por mil perguntas (preço de API)\n",
+              "A conferência automática procura palavras na resposta; quem confere a verdade é uma pessoa "
+              "(labs/lab2/README.md, seção \"Como a conferência automática funciona\").\n"]
     for i in itens:
         marca = "ERRO" if i["erro"] else ("certo" if i["acerto"] else "errado")
         partes.append(f"## {i['id']} · {i['tipo']} · {i['departamento']} · conferência automática: {marca}"
-                      f"{' · VAZAMENTO: ' + ', '.join(i['vazamento']) if i['vazamento'] else ''}"
-                      f"{' · confirmou que o documento existe' if i['confirmou_existencia'] else ''}\n")
+                      f"{' · DADO PROIBIDO: ' + ', '.join(i['vazamento']) if i['vazamento'] else ''}"
+                      f"{' · admitiu que o documento existe' if i['confirmou_existencia'] else ''}\n")
         partes.append(f"**Pergunta:** {i['pergunta']}\n")
         if "leu" in i:
             partes.append(f"**O que o modelo leu:** {o_que_leu(i)}\n")
+        partes.append(f"**Resposta do modelo:** {i['erro'] or i['resposta']}\n")
+        partes.append(f"**Fontes que o modelo citou:** {', '.join(i['fontes']) or '(nenhuma)'}\n")
         if "achou" in i:
             partes.append(f"**Conferência automática:** {conferencia(i).split(': ', 1)[1]} · {dado_proibido(i)}\n")
-        partes.append(f"**Resposta:** {i['erro'] or i['resposta']}\n")
-        partes.append(f"**Fontes citadas:** {', '.join(i['fontes']) or '(nenhuma)'} · {i['duracao_s']} s · "
-                      f"{i['turnos']} turno(s) · {i['tokens_novos']} tokens novos e {i['tokens_cache']} do cache\n")
     return "\n".join(partes)
 
 

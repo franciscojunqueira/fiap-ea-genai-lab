@@ -14,7 +14,7 @@ outros acompanham, leem e respondem. O **relator** escreve as respostas no chat 
 
 | Passo, na sala do grupo | Comando (operador) | O conceito |
 |---|---|---|
-| 1. Responder com RAG | `make lab2-rodar PIPELINE=rag` | **o código** escolhe o que o modelo lê: só os pedaços mais parecidos com a pergunta |
+| 1. Responder com RAG | `make lab2-rodar PIPELINE=rag` | **o código** escolhe o que o modelo lê: só os 3 pedaços, de cerca de 500 caracteres, mais parecidos com a pergunta. O resto do documento não chega ao modelo, e às vezes o pedaço corta no meio |
 | 2. Responder com busca agêntica | `make lab2-rodar PIPELINE=agentica` | **o modelo** escolhe o que lê: procura sozinho na pasta, em várias idas e voltas |
 | 3. Abrir a P03 | abrir `labs/lab2/execucoes/`, o arquivo que termina em `-rag.md`, e procurar `## P03` | o script confere palavras, não a verdade |
 
