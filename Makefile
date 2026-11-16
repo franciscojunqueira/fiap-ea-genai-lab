@@ -1,6 +1,6 @@
 # Comandos dos labs. `make` sem alvo lista os comandos.
 .DEFAULT_GOAL := help
-.PHONY: help check test erp mcp skill-check \
+.PHONY: help check test erp erp-reset mcp skill-check \
         lab1 lab1-demo lab1-demo-replay lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
@@ -20,6 +20,9 @@ test: ## Testes de fumaça do ERP e do MCP server
 
 erp: ## Sobe o Mini-ERP em http://localhost:8000 (Ctrl+C para parar)
 	@$(RUN) uvicorn app.main:app --app-dir mini-erp --host 0.0.0.0 --port 8000 --reload
+
+erp-reset: ## Professor: guarda o banco do ERP com a data no nome e recria o banco no estado inicial (pare o `make erp` antes)
+	@$(RUN) python scripts/erp_reset.py
 
 comma := ,
 # No Codespace, o navegador acessa o Inspector pela URL encaminhada; o Inspector v2 só aceita origens listadas.

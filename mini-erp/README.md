@@ -7,7 +7,7 @@ make erp      # http://localhost:8000 (interface) e http://localhost:8000/docs (
 ```
 
 O banco (`data/mini_erp.db`) é criado no primeiro uso com 5 produtos, um deles inativo. Para
-recomeçar do zero, pare o ERP e apague o arquivo. `ERP_DB_PATH` troca o caminho do banco.
+recomeçar do zero, pare o ERP e rode `make erp-reset` (guarda o banco antigo com a data no nome). `ERP_DB_PATH` troca o caminho do banco.
 
 | Método | Rota | O que faz |
 |---|---|---|

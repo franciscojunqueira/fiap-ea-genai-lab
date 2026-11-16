@@ -15,8 +15,8 @@ ou pare todos com `pkill -f uvicorn`.
 **FAIL em "MCP server".** Rode `uv run python mcp-server/server.py` para ver o erro. Se você editou
 o `server.py`, confira se as 10 tools originais continuam lá.
 
-**O banco do ERP ficou bagunçado.** Pare o ERP, apague `mini-erp/data/mini_erp.db` e rode
-`make erp`: o banco é recriado com os dados iniciais.
+**O banco do ERP ficou bagunçado.** Pare o ERP e rode `make erp-reset`: o banco atual
+fica guardado com a data no nome e um novo é criado com os dados iniciais. Depois, `make erp`.
 
 ## Login e cota
 

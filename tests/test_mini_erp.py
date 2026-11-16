@@ -29,3 +29,27 @@ def test_regras_de_negocio(erp_url):
     assert inativo.status_code == 400 and "inativo" in inativo.json()["detail"]
     sem_estoque = httpx.post(f"{erp_url}/pedidos", json={"nome_cliente": "X", "itens": [{"produto_id": 1, "quantidade": 999}]})
     assert sem_estoque.status_code == 400 and "Estoque insuficiente" in sem_estoque.json()["detail"]
+
+
+def test_erp_reset_guarda_o_banco_antigo_e_recria_no_estado_inicial(tmp_path):
+    """make erp-reset: renomeia com a data (não apaga) e volta o estoque do produto 3 a 30, sem ajustes."""
+    import os
+    import sqlite3
+    import subprocess
+    import sys
+    from pathlib import Path
+    raiz = Path(__file__).resolve().parent.parent
+    banco = tmp_path / "mini_erp.db"
+    env = {**os.environ, "ERP_DB_PATH": str(banco)}
+    comando = [sys.executable, str(raiz / "scripts" / "erp_reset.py")]
+    subprocess.run(comando, env=env, check=True, capture_output=True)
+    with sqlite3.connect(banco) as c:
+        c.execute("update estoque set quantidade = 50 where produto_id = 3")
+    saida = subprocess.run(comando, env=env, check=True, capture_output=True, text=True).stdout
+    guardados = list(tmp_path.glob("mini_erp-*.db"))
+    assert len(guardados) == 1 and guardados[0].name in saida and "estoque do produto 3 = 30" in saida
+    with sqlite3.connect(guardados[0]) as c:
+        assert c.execute("select quantidade from estoque where produto_id = 3").fetchone()[0] == 50
+    with sqlite3.connect(banco) as c:
+        assert c.execute("select quantidade from estoque where produto_id = 3").fetchone()[0] == 30
+        assert c.execute("select count(*) from ajuste_estoque").fetchone()[0] == 0

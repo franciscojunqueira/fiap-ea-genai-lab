@@ -42,10 +42,12 @@ Depois do momento 2:
 
 ## Roteiro do professor
 
-**Antes da aula, fora da tela.** No Codespace do professor: `make check` com PASS e `make lab3`. Num
-**segundo terminal** (botão **+** do terminal), `make erp`, que fica rodando até o fim. Se o momento 2
-já foi ensaiado, o estoque do produto 3 já está em 50: pare o `make erp` (Ctrl+C), rode
-`rm mini-erp/data/mini_erp.db` e `make erp` de novo, e o estoque volta a 30. Rode também
+**Antes da aula, fora da tela.** No Codespace do professor: `make check` com PASS e `make lab3`. Depois,
+**sempre**, `make erp-reset`: ele guarda o banco atual com a data no nome (não apaga) e recria o banco no
+estado inicial, com o estoque do produto 3 em 30 e nenhum ajuste. Sem isso, um ensaio anterior deixa o
+ajuste de +20 já executado, e a Demonstração 2 da Aula 2 não mostra o pedido pendente. Se o ERP estiver
+no ar, o comando recusa e diz para pará-lo antes (Ctrl+C no terminal dele). Só então, num **segundo
+terminal** (botão **+** do terminal), `make erp`, que fica rodando até o fim. Rode também
 `rm -f .claude/settings.local.json`: se no ensaio alguém respondeu "don't ask again", a liberação da tool
 ficou gravada ali, e o Claude Code deixa de perguntar.
 
