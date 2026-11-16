@@ -51,3 +51,11 @@ limiar = 0.7
 # No APIM: backend pool com prioridade e circuit breaker.
 [reserva]
 apelido = "bussola-reserva"
+
+# Filtro de conteúdo (Aula 4, simulação injecao): recusa o pedido se a pergunta ou o documento anexado tiver uma destas
+# frases. SIMPLIFICADO: é uma lista (sem acento, sem maiúscula). No APIM é a política llm-content-safety (GA), que
+# chama o Azure AI Content Safety, e o Prompt Shields usa um modelo, não uma lista. O Prompt Shields não existe em
+# Brazil South (Radar, 16/11/2026): rodar o filtro em outra região é processamento no exterior (Res. CMN 4.893, art. 16).
+[filtro_injecao]
+frases = ["ignore as instruções anteriores", "ignore todas as instruções", "desconsidere as instruções anteriores",
+          "ignore previous instructions", "ignore as instruções acima", "esqueça as instruções anteriores"]

@@ -134,7 +134,7 @@ def test_gateway_cota_mostra_modelo_nao_chamado(tmp_path, monkeypatch, capsys):
     assert "cota" in gateway.SEM_MODELO   # a cota roda sem login
 
 
-def test_gateway_replay_tem_as_sete_secoes_e_a_cota_nova():
+def test_gateway_replay_tem_as_oito_secoes_e_a_cota_nova():
     cabecalho, secoes = gateway.secoes_do_replay(gateway.REPLAY.read_text(encoding="utf-8"))
     assert "16/11/2026" in cabecalho
     assert list(secoes) == list(gateway.SIMULACOES)
