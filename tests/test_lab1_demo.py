@@ -97,3 +97,20 @@ def test_resultado_final_soma_os_eventos_result_quando_ha_tarefa_em_segundo_plan
     assert final["result"] == "Pronto: cancelamento feito." and final["num_turns"] == 39
     assert final["usage"] == {"input_tokens": 110, "output_tokens": 55}
     assert demo.resultado_final("sem eventos") is None
+
+
+def test_a_copia_da_demo_parte_do_original_mesmo_com_o_cancelamento_ja_pronto(tmp_path, monkeypatch):
+    """Piloto de 16/11/2026: sobra de um piloto antigo (cancelamento pronto na rota) quebrava make lab1-demo."""
+    import shutil
+    import gravar
+    repo = tmp_path / "repo"
+    shutil.copytree(demo.RAIZ, repo, symlinks=True, ignore=gravar.IGNORAR)
+    rota = repo / "mini-erp/app/routes/pedidos.py"
+    rota.write_text(rota.read_text(encoding="utf-8") + "\n@router.post('/{id}/cancelar')\ndef cancelar(id: int):\n    return 'pronto'\n",
+                    encoding="utf-8")
+    monkeypatch.setattr(demo, "RAIZ", repo)
+    copia = tmp_path / "copia"
+    demo.preparar_copia(copia, "ticket")
+    texto = (copia / "mini-erp/app/routes/pedidos.py").read_text(encoding="utf-8")
+    assert "RASCUNHO do colega" in texto and "return 'pronto'" not in texto
+    assert "return 'pronto'" in rota.read_text(encoding="utf-8")   # o repositório do professor não muda

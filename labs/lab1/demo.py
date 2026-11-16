@@ -231,10 +231,16 @@ def preparar_copia(copia, etapa):
     # Se o professor já rodou o make lab1 no repositório dele, o ticket não pode herdar spec nem sensor ligado.
     for arquivo in ("spec.md", "verificacao.md", "sensores.toml", "testes/test_grupo.py"):
         (lab / arquivo).unlink(missing_ok=True)
+    # Piloto de 16/11/2026: um repositório já mexido (cancelamento pronto) quebrava a demo. Os arquivos do Lab 1
+    # partem sempre do original guardado em labs/lab1/modelos/originais/, não do estado do repositório.
+    originais = lab / "modelos" / "originais"
+    shutil.copy(originais / "routes_pedidos.py", copia / "mini-erp/app/routes/pedidos.py")
+    shutil.copy(originais / "services_pedidos.py", copia / "mini-erp/app/services/pedidos.py")
     gravar.rodar(copia, sys.executable, "labs/lab1/preparar.py")
     if "RASCUNHO do colega" not in (copia / "mini-erp/app/routes/pedidos.py").read_text(encoding="utf-8"):
         sys.exit("A cópia não ficou com o rascunho do colega na rota (mini-erp/app/routes/pedidos.py). "
-                 "Use um repositório sem o cancelamento pronto: git status deve estar limpo.")
+                 "O original em labs/lab1/modelos/originais/routes_pedidos.py não tem o rascunho esperado: "
+                 "rode `make atualizar` para trazer a versão do template e tente de novo.")
     if etapa == "harness":
         gravar.harness_do_grupo(copia, so_guia_e_sensor=True)
         with (copia / "AGENTS.md").open("a", encoding="utf-8") as f:
