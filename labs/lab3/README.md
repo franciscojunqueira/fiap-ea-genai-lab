@@ -1,5 +1,10 @@
 # Lab 3: Mini-ERP agêntico: tool de escrita com aprovação humana
 
+> **Aviso (16/11/2026).** A partir das próximas turmas, o Lab 3 é uma **demonstração do professor**: os
+> grupos não rodam nada em aula. O professor roda `make lab3-comparar VERSAO=ruim` e
+> `make lab3-comparar VERSAO=boa`, e, sem cota, `make lab3-replay`. Quem quiser fazer o lab em casa
+> pode seguir este README.
+
 **Em resumo.** O Bússola vai poder **agir**, além de responder: por exemplo, ajustar o estoque de um
 produto no Gestão PJ (o Mini-ERP) quando o inventário encontra diferença. O caso exige aprovação
 humana registrada em toda escrita (RC-04). **Na aula, este lab é uma demonstração do professor.** Os
