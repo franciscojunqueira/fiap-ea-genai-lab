@@ -3,6 +3,7 @@
 .PHONY: help check test erp erp-reset mcp skill-check \
         lab1 lab1-demo lab1-demo-replay lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
+        lab6-ataque lab6-replay lab6-acl-prompt lab6-pedacos \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
         legado er-check checkpoint-check pacote-check atividade1 atividade1-entregar atividade2 atividade2-adr atividade2-entregar atividade3 atividade3-entregar
 
@@ -77,14 +78,22 @@ lab4-juiz: ## Aula 3, demonstração 3: o juiz confere uma pergunta do Lab 2 (PE
 	@$(RUN) python labs/lab4/juiz.py $(or $(PERGUNTA),P03)
 lab4-replay: ## Aula 3, demonstração 3: a eval gravada pelo professor
 	@cat replay/lab4/eval/eval_k3.txt
-lab5-gateway: ## Aula 3, demonstração 4: o gateway simulado (SIMULACAO=residencia | complexidade | cota | cache | reserva | apelido | registro | todas)
+lab5-gateway: ## Aula 3, demonstração 4: o gateway simulado (SIMULACAO=residencia | complexidade | cota | cache | reserva | apelido | registro | injecao | todas)
 	@$(RUN) python labs/lab5/gateway.py $(or $(SIMULACAO),todas)
 lab5-gateway-replay: ## Aula 3, demonstração 4: as simulações gravadas pelo professor (SIMULACAO=<nome> mostra uma só)
 	@$(RUN) python labs/lab5/gateway.py --replay $(or $(SIMULACAO),todas)
 lab5-tco: ## Aula 3, demonstração 5: o custo por rota (DIVISAO=roteado | tudo-haiku-rag | tudo-sonnet-agentica | multiagente)
 	@$(RUN) python labs/lab5/tco.py --divisao $(or $(DIVISAO),roteado)
-lab6: ## Lab 6 (Aula 4)
-	@echo "lab6: em construção, disponível antes da Aula 4."
+lab6: ## Aula 4: demonstrações do professor (veja labs/lab6/README.md)
+	@echo "lab6: na Aula 4, as demonstrações são do professor. Comandos em labs/lab6/README.md (make help)."
+lab6-ataque: ## Aula 4, demonstração 1: o ataque e a mitigação (MODELO=<id> MITIGACAO=nenhuma | sem-saida | aprovacao N=5)
+	@$(RUN) python labs/lab6/ataque.py $(if $(MODELO),--modelo $(MODELO)) $(if $(MITIGACAO),--mitigacao $(MITIGACAO)) $(if $(N),-n $(N))
+lab6-replay: ## Aula 4, demonstração 1: as quatro execuções gravadas pelo professor (sem chamar modelo)
+	@$(RUN) python labs/lab6/ataque.py --replay
+lab6-acl-prompt: ## Aula 4, demonstração 2: o filtro antes da busca × o pedido no prompt (gravação do Lab 2, sem modelo)
+	@$(RUN) python labs/lab6/acl_prompt.py
+lab6-pedacos: ## Aula 4, demonstração 4: o ranking dos pedaços (PERGUNTA=P03 TAMANHO=500 TOPK=3, sem modelo)
+	@$(RUN) python labs/lab6/pedacos.py $(if $(PERGUNTA),--pergunta $(PERGUNTA)) $(if $(TAMANHO),--tamanho $(TAMANHO)) $(if $(TOPK),--topk $(TOPK))
 
 # Um check que ainda não existe não pode dar PASS: imprime e sai com erro.
 lab4-check lab5-check lab6-check: ## PASS/FAIL de cada lab
@@ -116,7 +125,7 @@ atividade2-adr: ## Atividade 2: o agente escreve o 1º ADR do grupo (DECISAO="um
 
 atividade2-entregar: ## Atividade 2: confere, faz commit e push e mostra o link e o SHA para o Portal
 	@$(RUN) python integrador/scripts/atividade2.py entregar
-atividade3: ## Trabalho final: preenche os resultados da Aula 3 em 02-qualidade.md e 03-economia.md
+atividade3: ## Trabalho final: preenche os resultados das Aulas 3 e 4 em 02-qualidade.md, 03-economia.md e 04-seguranca.md
 	@$(RUN) python integrador/scripts/atividade3.py preparar
 
 atividade3-entregar: ## Trabalho final: confere, faz commit e push e mostra o link e o SHA para o Portal
