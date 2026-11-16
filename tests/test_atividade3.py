@@ -17,7 +17,10 @@ def repo(tmp_path):
 
 def test_modelos_do_pacote_iguais_aos_do_script():
     for nome in atividade3.SECAO:
-        assert (RAIZ / "integrador/pacote" / nome).read_text() == (RAIZ / "integrador/scripts/modelos_atividade3" / nome).read_text()
+        pacote = (RAIZ / "integrador/pacote" / nome).read_text()
+        if "<!-- Prontos: testes do professor" in pacote:
+            continue   # repositório de grupo depois do make atividade3: o arquivo já é do grupo (piloto de 16/11/2026)
+        assert pacote == (RAIZ / "integrador/scripts/modelos_atividade3" / nome).read_text()
 
 
 def test_preparar_preenche_os_resultados(tmp_path):
