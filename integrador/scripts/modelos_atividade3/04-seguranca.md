@@ -11,7 +11,9 @@ PREENCHER
 ## Modelo de ameaças
 
 <!-- Pelo menos 5 ameaças ao Bússola. Na coluna "Perna da trifecta": dados privados,
-conteúdo não confiável ou canal de saída. -->
+conteúdo não confiável ou canal de saída. Lista de partida (escolham e adaptem): o documento envenenado
+(a Demonstração 1); o dado pessoal gravado no registro; o dado pessoal enviado a um provedor fora do Brasil;
+um servidor MCP ou uma skill de terceiro; a escrita no SGC sem aprovação; o custo que dispara por abuso. -->
 
 | Ameaça | Vetor | Perna da trifecta | Mitigação | Sensor que confirma |
 |---|---|---|---|---|

@@ -220,11 +220,13 @@ def test_atividade3_troca_o_04_antigo_intocado_e_nao_repete(tmp_path):
     assert (raiz / "integrador/pacote/04-seguranca.md").read_text() == t
 
 
-def test_o_modelo_do_04_no_pacote_e_no_script_sao_iguais_e_o_check_exige_a_secao_nova():
+def test_o_modelo_do_04_no_pacote_e_no_script_sao_iguais_e_a_secao_nova_so_avisa():
     pacote = (RAIZ / "integrador/pacote/04-seguranca.md").read_text()
     if "<!-- Prontos: testes do professor" not in pacote:   # repositório de grupo depois do make atividade3: o arquivo já é do grupo
         assert pacote == (RAIZ / "integrador/scripts/modelos_atividade3/04-seguranca.md").read_text()
-    assert '"Resultados das demonstrações", "Modelo de ameaças"' in (RAIZ / "integrador/scripts/checar_entrega.py").read_text()
+    fonte = (RAIZ / "integrador/scripts/checar_entrega.py").read_text()
+    # a seção nova é só aviso: não reprova o 04 escrito no modelo anterior (turma em curso)
+    assert "falta a seção '## Resultados das demonstrações'" in fonte and "self.avisos.append" in fonte
 
 
 def test_demonstracao_2_a_gravacao_tem_as_duas_respostas_que_admitiram_o_documento(capsys):

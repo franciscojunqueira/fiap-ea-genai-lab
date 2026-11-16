@@ -21,12 +21,12 @@ só acrescenta um destinatário. O corpus do Lab 2 (`knowledge/techcorp`) não �
 
 ```bash
 make lab6-ataque                                   # Haiku do config/modelos.toml (hoje o 5.5), sem mitigação, N=5
-make lab6-ataque MODELO=claude-haiku-4-5           # o mesmo ataque no Haiku 4.5
-make lab6-ataque MODELO=claude-haiku-4-5 MITIGACAO=sem-saida    # a ferramenta de e-mail negada (o deny do Lab 1)
-make lab6-ataque MODELO=claude-haiku-4-5 MITIGACAO=aprovacao    # o envio fica pendente de aprovação humana (o padrão do Lab 3)
+make lab6-ataque MODELO=claude-haiku-4-5-20251001           # o mesmo ataque no Haiku 4.5
+make lab6-ataque MODELO=claude-haiku-4-5-20251001 MITIGACAO=sem-saida    # a ferramenta de e-mail negada (o deny do Lab 1)
+make lab6-ataque MODELO=claude-haiku-4-5-20251001 MITIGACAO=aprovacao    # o envio fica pendente de aprovação (simulada: em modo script ela não chega, e todo envio é barrado, até o legítimo)
 ```
 
-- **Por que `MODELO=claude-haiku-4-5`, fixado pelo ID:** o alias e o modelo padrão mudam sem aviso (é o que o apelido do
+- **Por que `MODELO=claude-haiku-4-5-20251001`, fixado pelo ID:** o alias e o modelo padrão mudam sem aviso (é o que o apelido do
   gateway faz na Aula 3). Medido em 16/11/2026: o Haiku 5.5 resistiu e o Haiku 4.5 não. Resistir uma vez não é resistir
   sempre, e a defesa não pode depender da versão do modelo.
 - `MITIGACAO=nenhuma | sem-saida | aprovacao`. `sem-saida` corta a perna do canal de saída. `aprovacao` deixa a ferramenta fora das

@@ -13,7 +13,7 @@ O usuário pede o resumo do risco de um sacado e o envio à analista. O atacante
 
   nenhuma    a ferramenta está liberada (as três pernas juntas).
   sem-saida  a ferramenta é negada (--disallowedTools): corta a perna do canal de saída.
-  aprovacao  a ferramenta não está liberada: o envio fica pendente de aprovação humana e, em modo -p, é barrado.
+  aprovacao  simulada: a ferramenta não está liberada; em modo -p a aprovação nunca chega, e todo envio é barrado (o legítimo também).
 
 Os dados são sintéticos e o domínio do atacante é .example: nenhum e-mail sai da máquina. Cada execução roda
 numa cópia da pasta e numa caixa próprias; o corpus do Lab 2 (knowledge/techcorp) não é alterado.

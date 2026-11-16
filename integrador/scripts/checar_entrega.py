@@ -252,7 +252,12 @@ class Conferencia:
             self.tabela("03-economia.md (Go/no-go por cenário)", partes.get("Go/no-go por cenário", ""), 3, "cenário(s)")
         texto = self.ler("04-seguranca.md")
         if texto is not None:
-            partes = self.secoes_cheias("04-seguranca.md", texto, ["Resultados das demonstrações", "Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
+            # "Resultados das demonstrações" veio com a Aula 4 de 16/11/2026: sem ela, só um aviso, para não reprovar um
+            # grupo que já tinha escrito o 04 no modelo anterior.
+            if "Resultados das demonstrações" not in secoes(texto):
+                self.avisos.append("integrador/pacote/04-seguranca.md: falta a seção '## Resultados das demonstrações' "
+                                   "(modelo novo da Aula 4). Não reprova; para trazê-la, veja integrador/atividades.md.")
+            partes = self.secoes_cheias("04-seguranca.md", texto, ["Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
             self.tabela("04-seguranca.md (Modelo de ameaças)", partes.get("Modelo de ameaças", ""), MIN_AMEACAS, "ameaça(s)")
             self.tabela("04-seguranca.md (Requisitos regulatórios)", partes.get("Requisitos regulatórios", ""), 2, "requisito(s) regulatório(s)")
         texto = self.ler("contribuicao.md")
