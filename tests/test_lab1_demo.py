@@ -86,3 +86,14 @@ def test_o_trecho_do_resumo_mostra_a_frase_do_padrao_do_projeto():
 def test_o_modelo_pode_ser_escolhido_por_variavel(monkeypatch):
     monkeypatch.setenv("MODELO", "claude-haiku-4-5")
     assert demo.modelo_da_demo() == "claude-haiku-4-5"
+
+
+def test_resultado_final_soma_os_eventos_result_quando_ha_tarefa_em_segundo_plano():
+    import json
+    ev = "\n".join(json.dumps(e) for e in [
+        {"type": "result", "result": "Pronto: cancelamento feito.", "num_turns": 38, "usage": {"input_tokens": 100, "output_tokens": 50}},
+        {"type": "result", "result": "O servidor foi encerrado.", "num_turns": 1, "usage": {"input_tokens": 10, "output_tokens": 5}}])
+    final = demo.resultado_final(ev)
+    assert final["result"] == "Pronto: cancelamento feito." and final["num_turns"] == 39
+    assert final["usage"] == {"input_tokens": 110, "output_tokens": 55}
+    assert demo.resultado_final("sem eventos") is None

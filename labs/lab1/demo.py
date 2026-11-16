@@ -262,6 +262,29 @@ def resultados_da_copia(copia, etapa, modelo, final, duracao, execucoes=()):
             "execucoes_do_sensor": execucoes, "diff": gravar.rodar(copia, "git", "diff", "--cached").stdout}
 
 
+def resultado_final(eventos):
+    """O resultado da execução a partir do stream-json. Se o agente deixou algo rodando em segundo plano (o servidor do
+    ERP), o Claude Code emite mais de um evento `result`: o primeiro tem o resumo do trabalho, os outros são avisos curtos.
+    Tokens e turnos somam todos; o resumo é o do primeiro."""
+    achados = []
+    for l in eventos.splitlines():
+        if l.startswith("{"):
+            try:
+                e = json.loads(l)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(e, dict) and e.get("type") == "result":
+                achados.append(e)
+    if not achados:
+        return None
+    final = {**achados[0], "usage": {}, "num_turns": sum(e.get("num_turns", 0) for e in achados)}
+    for e in achados:
+        for k, v in (e.get("usage") or {}).items():
+            if isinstance(v, (int, float)):
+                final["usage"][k] = final["usage"].get(k, 0) + v
+    return final
+
+
 def ao_vivo(etapa):
     problema = cli_modelo.disponivel() or cli_modelo.logado()
     if problema:
@@ -286,8 +309,7 @@ def ao_vivo(etapa):
             print(f"O agente não terminou em {TIMEOUT_S} s. Plano B: make lab1-demo-replay")
             return 1
         duracao = time.monotonic() - inicio
-        final = next((json.loads(l) for l in reversed(proc.stdout.splitlines())
-                      if l.startswith("{") and json.loads(l).get("type") == "result"), None)
+        final = resultado_final(proc.stdout)
         if final is None or final.get("is_error"):
             texto = str((final or {}).get("result") or proc.stderr or proc.stdout).strip()[-300:]
             dica = " Limite do plano atingido: use make lab1-demo-replay." if "limit" in texto.lower() else ""
