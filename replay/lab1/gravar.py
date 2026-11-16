@@ -40,11 +40,13 @@ PROMPTS = {
 }
 
 
-def harness_do_grupo(copia):
-    """Os arquivos do grupo, com os exemplos da referência, sem o código da referência."""
+def harness_do_grupo(copia, so_guia_e_sensor=False):
+    """Os arquivos do grupo, com os exemplos da referência, sem o código da referência.
+    so_guia_e_sensor=True (make lab1-demo): só a seção do AGENTS.md e a fitness ligada, sem spec nem teste do grupo."""
     lab = copia / "labs" / "lab1"
-    shutil.copy(REF / "exemplo_spec.md", lab / "spec.md")
-    shutil.copy(REF / "exemplo_test_grupo.py", lab / "testes" / "test_grupo.py")
+    if not so_guia_e_sensor:
+        shutil.copy(REF / "exemplo_spec.md", lab / "spec.md")
+        shutil.copy(REF / "exemplo_test_grupo.py", lab / "testes" / "test_grupo.py")
     sensores = lab / "sensores.toml"
     sensores.write_text(re.sub(r"^ligado = false", "ligado = true", sensores.read_text(encoding="utf-8"), flags=re.M),
                         encoding="utf-8")
