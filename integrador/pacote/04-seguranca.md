@@ -31,7 +31,7 @@ um servidor MCP ou uma skill de terceiro; a escrita no SGC sem aprovação; o cu
 ferramentas, auditoria (RC-05), limites de custo, evals contínuas. Uma plataforma de mercado
 ou componentes próprios, e o custo de sair. -->
 
-[PREENCHER: com que identidade o agente busca e age (a do usuário ou uma própria), onde fica cada controle (gateway, aplicação ou ferramenta) e se o grupo usa uma plataforma de mercado ou componentes próprios, com o custo de sair]
+[PREENCHER: as três decisões do control plane. Que dado vai para que região e que modelo (RC-03). Com que identidade o agente busca e age (a do usuário ou uma própria). Que modelos, skills e servidores MCP a empresa aprova para o Bússola, e quem é o dono de cada um. Depois, onde fica cada controle (gateway, aplicação ou ferramenta) e se o grupo usa uma plataforma de mercado ou componentes próprios, com o custo de sair]
 
 ## Requisitos regulatórios
 
