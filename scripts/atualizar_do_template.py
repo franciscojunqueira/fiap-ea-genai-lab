@@ -27,6 +27,8 @@ DO_PROFESSOR = [
     "mini-erp/app/routes/ajustes.py", "mini-erp/app/static/*",
     "integrador/caso.md", "integrador/rubrica.md", "integrador/atividades.md", "integrador/README.md",
     "integrador/scripts/*", "integrador/legado/*",
+    # 16/11/2026: a saída gravada do agente da Atividade 1 (make atividade1)
+    "integrador/atividade1/*",
     "labs/*/README.md", "labs/*/codex.md", "labs/*/ticket.md", "labs/*/*.py", "labs/*/modelos/*",
     "labs/*/aceite/*", "labs/*/referencia/*", "labs/*/exemplos/*", "labs/*/perguntas.toml",
     "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",

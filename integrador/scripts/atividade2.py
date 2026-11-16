@@ -4,6 +4,9 @@
     make atividade2            prepara as seções "Decisão de conhecimento" e "Contrato MCP" do
                                integrador/pacote/01-design.md com o texto pronto e os espaços
                                [PREENCHER: ...], e mostra os números do Lab 2 do grupo.
+    make atividade2-adr DECISAO="..."
+                               roda o agente (Sonnet, skill escrevendo-adrs, só escreve em docs/adr/)
+                               para registrar o 1º ADR do grupo e roda o validador no fim.
     make atividade2-entregar   roda o make checkpoint-check; com PASS, faz git add, commit e push e
                                mostra o link e o SHA para o Portal. Com FAIL, não envia nada.
 
@@ -11,9 +14,12 @@ O 01-design.md é do grupo: o preparar só troca uma seção que ainda está vaz
 apaga o que o grupo já escreveu.
 """
 import json
+import os
 import re
 import subprocess
 import sys
+import time
+import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -105,15 +111,19 @@ def preparar(raiz=RAIZ):
         print(f"  preparada  seção \"{nome}\" do {DESIGN}")
     for nome in mantidas:
         print(f"  mantida    seção \"{nome}\" (o grupo já escreveu nela; nada foi apagado)")
-    print("\nOs números do Lab 2 de vocês (linha Acerto):")
+    print("\nOs números do Lab 2 (linha Acerto):")
     nomes = {"rag": "RAG", "agentica": "busca agêntica"}
     achados = numeros_lab2(raiz)
+    if not achados and (raiz / "labs/lab2/usar_replay.py").is_file():
+        # Desde 16/11/2026 o Lab 2 é uma demonstração do professor: sem execução do grupo, vêm as gravadas.
+        subprocess.run([sys.executable, str(raiz / "labs/lab2/usar_replay.py")], cwd=raiz, capture_output=True)
+        achados = numeros_lab2(raiz)
     for pipeline, rotulo in nomes.items():
         n = achados.get(pipeline)
         if n is None:
-            print(f"  {rotulo}: sem execução em labs/lab2/execucoes/. Rodem make lab2-replay e digam no texto que são os testes do professor.")
+            print(f"  {rotulo}: sem execução em labs/lab2/execucoes/. Rodem make lab2-replay e digam no texto que são os números da demonstração do professor.")
         else:
-            origem = " (testes do professor: digam isso no texto)" if n["replay"] else ""
+            origem = " (números da demonstração do professor: digam isso no texto)" if n["replay"] else ""
             print(f"  {rotulo}: acertou {n['acerto']} de 10{origem}")
     partes = secoes(arquivo.read_text(encoding="utf-8"))
     restantes = sum(sem_comentarios(partes.get(nome, "")).count("PREENCHER") for nome in MODELOS)
@@ -122,6 +132,88 @@ def preparar(raiz=RAIZ):
           "são do pacote final.")
     print("Depois: make atividade2-entregar")
     return 0
+
+
+VALIDADOR_ADR = Path(".agents/skills/escrevendo-adrs/scripts/validar_adr.py")
+# O agente só escreve em docs/adr/ e só roda o validador. Desde a v2.1.302 o `claude -p` começa em modo Manual:
+# o que não está nesta lista é negado, sem perguntar.
+# A skill manda rodar o validador por .claude/skills/ (um link para .agents/skills/): as duas grafias entram.
+FERRAMENTAS_ADR = ("Read,Glob,Grep,Skill,Write(docs/adr/**),Edit(docs/adr/**),"
+                   f"Bash(python3 {VALIDADOR_ADR}:*),Bash(python3 {Path('.claude') / VALIDADOR_ADR.relative_to('.agents')}:*)")
+TIMEOUT_ADR_S = 600
+PEDIDO_ADR = ("Use a skill escrevendo-adrs para registrar um ADR sobre como o Bússola acessa o SGC. A decisão do grupo é: {decisao}. "
+              "Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. "
+              "Não invente decisores nem requisitos: marque como \"a confirmar\" o que não estiver nos arquivos. "
+              "Escreva só em docs/adr/ e rode o validador no fim.")
+
+
+def modelo_adr(raiz):
+    config = tomllib.loads((raiz / "config" / "modelos.toml").read_text(encoding="utf-8"))
+    return config.get("atividades", {}).get("modelo_adr", "sonnet")
+
+
+def chamar_agente(prompt, raiz, modelo):
+    """Roda o claude -p na raiz do repositório. Devolve o evento final (dict) ou {"erro": mensagem}."""
+    inicio = time.monotonic()
+    try:
+        proc = subprocess.run(
+            ["claude", "-p", prompt, "--model", modelo, "--output-format", "json", "--no-session-persistence",
+             "--max-turns", "40", "--allowedTools", FERRAMENTAS_ADR],
+            cwd=raiz, capture_output=True, text=True, timeout=TIMEOUT_ADR_S, stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        return {"erro": f"o agente não terminou em {TIMEOUT_ADR_S} s"}
+    try:
+        dados = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        texto = (proc.stderr or proc.stdout).strip()[-300:]
+        dica = " Limite do plano atingido: o segundo assinante do grupo roda o comando." if "limit" in texto.lower() else ""
+        return {"erro": f"resposta inesperada do Claude Code: {texto}{dica}"}
+    dados["duracao_s"] = round(time.monotonic() - inicio)
+    return dados
+
+
+def adr(decisao, raiz=RAIZ, chamar=None):
+    """1º ADR do grupo por `claude -p`, com a skill escrevendo-adrs. Devolve 0 se o validador deu PASS."""
+    decisao = (decisao or "").strip()
+    if not decisao:
+        print('Faltou a decisão do grupo. Escrevam uma frase e rodem de novo, por exemplo:\n'
+              '  make atividade2-adr DECISAO="O Bússola lê uma cópia diária do banco do SGC, só para leitura"')
+        return 2
+    chamar = chamar or chamar_agente
+    if chamar is chamar_agente:
+        sys.path.insert(0, str(raiz / "scripts"))
+        import cli_modelo
+        problema = cli_modelo.disponivel() or cli_modelo.logado()
+        if problema:
+            print(problema)
+            return 1
+    pasta = raiz / "docs" / "adr"
+    antes = {a: a.stat().st_mtime_ns for a in pasta.glob("ADR-*.md")}
+    print(f"O agente está escrevendo o ADR (leva de 1 a 3 minutos)...", flush=True)
+    resposta = chamar(PEDIDO_ADR.format(decisao=decisao), raiz, modelo_adr(raiz))
+    if resposta.get("erro") or resposta.get("is_error"):
+        print(f"O agente não terminou: {resposta.get('erro') or str(resposta.get('result'))[:300]}")
+        return 1
+    novos = sorted(a for a in pasta.glob("ADR-*.md") if antes.get(a) != a.stat().st_mtime_ns)
+    if not novos:
+        print("O agente não escreveu nenhum ADR em docs/adr/. O que ele respondeu:\n  "
+              + str(resposta.get("result", ""))[:600].replace("\n", "\n  ")
+              + "\nRodem o comando de novo; se repetir, chamem o professor.")
+        return 1
+    saida = subprocess.run([sys.executable, str(raiz / VALIDADOR_ADR), *map(str, novos)], cwd=raiz, capture_output=True, text=True)
+    ok = saida.returncode == 0
+    print("\nValidador do ADR:")
+    print("  " + (saida.stdout.strip() or saida.stderr.strip()).replace("\n", "\n  "))
+    for a in novos:
+        print(f"\nADR escrito: {a.relative_to(raiz)}")
+    print(f"Resultado do validador: {'PASS' if ok else 'FAIL'}"
+          f" ({resposta.get('duracao_s', '?')} s, {resposta.get('num_turns', '?')} turnos)")
+    if ok:
+        print("O PASS confere só a forma. O verificador abre o ADR e responde sim ou não: cada fato do SGC cita o arquivo "
+              "de onde veio? Algum decisor, prazo ou requisito foi inventado? As alternativas existem no caso?")
+    else:
+        print("Rodem o comando de novo ou corrijam à mão o que o validador aponta acima.")
+    return 0 if ok else 1
 
 
 def link_web(remoto):
@@ -163,9 +255,11 @@ def entregar(raiz=RAIZ, conferir=None, etapa="checkpoint", comando="make ativida
 
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("preparar", "entregar"):
+    if len(argv) < 2 or argv[1] not in ("preparar", "entregar", "adr"):
         print(__doc__)
         return 2
+    if argv[1] == "adr":
+        return adr(os.environ.get("DECISAO", ""))   # o make passa DECISAO="..." como variável de ambiente
     return preparar() if argv[1] == "preparar" else entregar()
 
 

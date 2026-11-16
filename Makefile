@@ -1,10 +1,10 @@
 # Comandos dos labs. `make` sem alvo lista os comandos.
 .DEFAULT_GOAL := help
 .PHONY: help check test erp mcp skill-check \
-        lab1 lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
+        lab1 lab1-demo lab1-demo-replay lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
-        legado er-check checkpoint-check pacote-check atividade2 atividade2-entregar atividade3 atividade3-entregar
+        legado er-check checkpoint-check pacote-check atividade1 atividade1-entregar atividade2 atividade2-adr atividade2-entregar atividade3 atividade3-entregar
 
 RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
@@ -32,6 +32,10 @@ skill-check: ## Valida as skills do repositório (boas práticas de skills da An
 
 lab1: ## Lab 1 (Aula 1): prepara a spec, os sensores e o rascunho do colega
 	@$(RUN) python labs/lab1/preparar.py
+lab1-demo: ## Aula 1, demonstração 2 (professor): o agente no ticket (ETAPA=ticket) e com o sensor de camadas (ETAPA=harness)
+	@$(RUN) python labs/lab1/demo.py $(ETAPA)
+lab1-demo-replay: ## Aula 1, demonstração 2: as duas etapas gravadas pelo professor (ETAPA=ticket ou harness mostra uma só)
+	@$(RUN) python labs/lab1/demo.py --replay $(ETAPA)
 lab1-check: ## Lab 1: PASS/FAIL dos 7 itens
 	@$(RUN) python labs/lab1/checar.py
 lab1-referencia: ## Lab 1, plano B: aplica o código de referência (cota esgotada)
@@ -89,6 +93,12 @@ atualizar: ## Traz do repositório-template os labs novos e as correções, sem 
 legado: ## Roda um ciclo do SGC, o legado do projeto integrador (não usa modelo)
 	@$(RUN) python integrador/scripts/demo_legado.py
 
+atividade1: ## Atividade 1: copia a saída gravada de um agente sobre o SGC para o grupo conferir (não usa modelo)
+	@$(RUN) python integrador/scripts/atividade1.py preparar
+
+atividade1-entregar: ## Atividade 1: confere, faz commit e push e mostra o link e o SHA para o Portal
+	@$(RUN) python integrador/scripts/atividade1.py entregar
+
 er-check: ## Confere a engenharia reversa (Atividade 1 do integrador)
 	@$(RUN) python integrador/scripts/checar_entrega.py er
 
@@ -97,6 +107,9 @@ checkpoint-check: ## Confere o checkpoint (Atividade 2 do integrador)
 
 atividade2: ## Atividade 2: prepara o 01-design.md para preencher e mostra os números do Lab 2
 	@$(RUN) python integrador/scripts/atividade2.py preparar
+
+atividade2-adr: ## Atividade 2: o agente escreve o 1º ADR do grupo (DECISAO="uma frase com a decisão")
+	@$(RUN) python integrador/scripts/atividade2.py adr
 
 atividade2-entregar: ## Atividade 2: confere, faz commit e push e mostra o link e o SHA para o Portal
 	@$(RUN) python integrador/scripts/atividade2.py entregar

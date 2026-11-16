@@ -31,3 +31,7 @@ entrada = 2.00
 gravacao_cache = 2.50
 leitura_cache = 0.10
 saida = 10.00
+
+[atividades]
+# Modelo do `make atividade2-adr` (1º ADR do grupo, com a skill escrevendo-adrs). Fixado pelo ID, como o dos labs.
+modelo_adr = "claude-sonnet-5-5"

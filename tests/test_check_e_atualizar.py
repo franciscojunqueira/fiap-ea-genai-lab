@@ -19,6 +19,9 @@ def test_atualizar_traz_os_arquivos_do_professor_e_preserva_os_do_grupo():
     professor = lambda c: atualizar.casa(c, atualizar.DO_PROFESSOR) and not atualizar.casa(c, atualizar.DO_GRUPO)
     assert professor("labs/lab3/descricoes/boa.toml")
     assert professor("labs/lab2/README.md") and professor("labs/lab2/preparar.py")
+    assert professor("integrador/atividade1/saida_agente/invencoes.md") and professor("integrador/scripts/atividade1.py")
+    assert professor("labs/lab1/demo.py")
+    assert not professor("integrador/pacote/engenharia-reversa/regras.md")
     assert not professor("labs/lab3/descricoes/grupo.toml")
     assert not professor("labs/lab2/execucoes/20261109-010333-rag.md")
 

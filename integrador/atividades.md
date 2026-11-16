@@ -15,8 +15,8 @@ uma correção, tragam-na com:
 
 | # | Quando | Atividade | Conferência | Usada em |
 |---|---|---|---|---|
-| 1 | Aula 1 → Aula 2 | Engenharia reversa do SGC | `make er-check` | aquecimento da Aula 2 e ADRs |
-| 2 | Aula 2 → Aula 3 | Checkpoint: 1º ADR, decisão de conhecimento e contrato MCP | `make checkpoint-check` | devolutiva coletiva na Aula 3 |
+| 1 | Aula 1 → Aula 2 | Engenharia reversa do SGC: conferir a saída de um agente | `make er-check` | bloco elástico da Aula 2 e 1º ADR |
+| 2 | Aula 2 → Aula 3 | Checkpoint: 1º ADR, decisão de conhecimento e contrato MCP | `make checkpoint-check` | trabalho final (ADR e Design) |
 | 3 | Aula 3 → depois da Aula 4 (`<DATA>`) | Trabalho final (o pacote) | `make pacote-check` | nota final |
 
 ---
@@ -26,49 +26,42 @@ uma correção, tragam-na com:
 **Objetivo.** Saber o que o SGC faz de fato antes de decidir como o Bússola vai acessá-lo. A
 documentação do SGC é de 2019 e está incompleta. Parte do que ela diz não é verdade.
 
-**Papéis.** Operador (conduz o agente), autores do harness (prompt e instruções), verificador
-(confere as afirmações do agente) e relator (escreve os arquivos de entrega).
+**O que o grupo recebe.** Um agente já fez a engenharia reversa do SGC e escreveu o C4, as
+dependências e as regras. O comando `make atividade1` copia essa saída para o pacote do grupo. O
+agente errou em alguma coisa, como errará o agente de vocês no projeto. O trabalho do grupo é
+conferir o que ele afirmou, não escrever tudo de novo.
 
-**Passos.**
+**Papéis.** Operador (digita os comandos), verificador (confere as afirmações do agente), autores
+(escrevem as implicações e o que mudariam no harness) e relator (cola o link e o SHA no Portal).
 
-1. **Rodar o legado (5 min).** `make legado`. Leiam a saída: ela já mostra comportamentos que a
-   documentação não explica.
-2. **Montar o harness (10 min).** Os autores reaproveitam o que funcionou no Lab 1. No mínimo:
-   - o agente cita `arquivo:linha` para cada afirmação, relativo a `integrador/legado/`;
-   - separa o que leu no código do que está inferindo;
-   - quando a documentação citar algo que não existe no repositório, escreve "não encontrado" em
-     vez de descrever;
-   - não altera o código do SGC.
-3. **Rodar o agente (20 min).** Abram o Claude Code na raiz do repositório (Codex: `codex` no
-   mesmo lugar, com o mesmo prompt). Um ponto de partida, que os autores devem melhorar:
+**Passos.** Um comando por vez, no Codespace do operador, na ordem. Esta atividade leva cerca de 1 hora
+e não chama modelo, então não gasta a cota de ninguém.
 
-   > Faça a engenharia reversa do sistema em `integrador/legado/` (o SGC). Leia todo o código,
-   > os scripts em `ops/`, o layout em `layouts/` e os dados de exemplo. Preencha `c4.md`,
-   > `dependencias.md` e `regras.md` em `integrador/pacote/engenharia-reversa/`, seguindo os
-   > comentários de cada um. Para cada afirmação, cite arquivo:linha. Separe fato de inferência.
-   > Não altere o SGC. Não preencha `invencoes.md`.
+| # | Quem | O que fazer | O que aparece |
+|---|---|---|---|
+| 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
+| 2 | Operador | `make legado` | a saída de um ciclo do SGC. Os outros acompanham: ela mostra comportamentos que a documentação não explica |
+| 3 | Operador | `make atividade1` | "preparado" nos 4 arquivos de `integrador/pacote/engenharia-reversa/` |
+| 4 | Todos | abrir `c4.md`, `dependencias.md` e `regras.md` no painel de arquivos, à esquerda, e ler. É a saída de um agente, gerada em 08/11/2026, e pode conter erros | — |
+| 5 | Verificador | abrir `invencoes.md`. São 5 afirmações do agente. Para cada uma, seguir a dica da coluna "Onde conferir", ler o código ou olhar a saída do `make legado`, e trocar os dois `[PREENCHER: ...]` da linha: como conferiram e o veredito. O veredito é uma destas palavras: correto, inventado, impreciso ou não verificável | — |
+| 6 | Autores | abrir o fim de `regras.md` e trocar os 3 `[PREENCHER: ...]` das "Implicações para o Bússola". Depois, no fim de `invencoes.md`, trocar os 2 `[PREENCHER: ...]` de "O que mudaríamos no harness" | — |
+| 7 | Operador | `make atividade1-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
+| 8 | Relator | colar no Portal o link e o SHA da caixa | — |
 
-   **O `invencoes.md` é do verificador, não do agente.** Num teste com o prompt acima sem a última
-   frase, o agente preencheu o próprio registro e deu "correto" para as 10 afirmações. Duas delas
-   estavam erradas, e uma era a mais perigosa para o Bússola.
+**Como conferir uma afirmação.** O verificador lê a linha que o agente citou e olha se o código
+diz o que o agente disse. Quando a afirmação é negativa, como "não existe" ou "não entra", ele também
+procura no código e nos dados de exemplo. Depois, compara com o que o `make legado` mostrou.
 
-4. **Verificar (15 min).** O verificador escolhe pelo menos 5 afirmações do agente, incluindo as
-   mais surpreendentes, e confere no código ou rodando o legado. Registra em `invencoes.md`, com
-   o veredito.
-5. **Conferir e entregar (10 min).** `make er-check` até dar PASS, commit e push. O PASS confere a
-   forma (arquivos, tabelas, citações que existem). Uma citação que existe pode sustentar uma
-   afirmação falsa: isso só o verificador pega.
+**O que o `make atividade1-entregar` confere.** O PASS confere a forma: os arquivos, as tabelas, os
+espaços `[PREENCHER: ...]` trocados e as citações que existem. Uma citação que existe pode sustentar
+uma afirmação falsa, e isso só o verificador pega. Se o grupo tiver tempo, deve conferir mais afirmações
+do que as 5 do `invencoes.md`.
 
-**Entregáveis** em `integrador/pacote/engenharia-reversa/`: `c4.md` (contexto e containers),
-`dependencias.md`, `regras.md` (mínimo 8 regras e as implicações para o Bússola) e `invencoes.md`
-(mínimo 5 afirmações conferidas).
+**Entregáveis** em `integrador/pacote/engenharia-reversa/`: `c4.md`, `dependencias.md` e `regras.md`
+(com as implicações para o Bússola) e `invencoes.md` (as 5 afirmações conferidas e o que mudariam no
+harness). Para executar o SGC, usem só o `make legado`, que roda numa pasta isolada.
 
-**Cota.** Num teste de 12/10/2026, o agente levou de 3 a 5 minutos para preencher os arquivos; o
-consumo num plano Pro ainda vai ser medido no piloto. Se a cota acabar, o segundo assinante do
-grupo continua do ponto em que parou: o trabalho está nos arquivos, não na conversa. Para executar
-o SGC, usem só o `make legado`, que roda numa pasta isolada.
-
-**Na Aula 2.** Dois grupos mostram o C4 (5 min cada) e a turma compara o que cada agente inventou.
+**Na Aula 2.** O que os grupos acharam de errado entra no bloco elástico da aula.
 
 ---
 
@@ -81,27 +74,24 @@ o SGC, usem só o `make legado`, que roda numa pasta isolada.
 | # | Quem | O que fazer | O que aparece |
 |---|---|---|---|
 | 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
-| 2 | Operador | `make atividade2` | "preparada" nas duas seções e os números do Lab 2 do grupo: anotem |
-| 3 | Operador | Antes, o grupo combina a decisão em uma frase: como o Bússola acessa o SGC. `claude`, colar o pedido abaixo, com a frase do grupo no lugar dos colchetes, e esperar. Se o Claude Code perguntar se pode criar o arquivo, responder Yes. Sair com `/exit` | o agente diz o nome do arquivo novo em `docs/adr/` |
+| 2 | Operador | `make atividade2` | "preparada" nas duas seções e os números do Lab 2 (os da demonstração do professor, se o grupo não rodou o lab): anotem |
+| 3 | Operador | Antes, o grupo combina a decisão em uma frase: como o Bússola acessa o SGC. Depois, `make atividade2-adr DECISAO="a frase do grupo"`, com as aspas, e esperar de 1 a 3 minutos | o nome do arquivo novo em `docs/adr/` e a linha `Resultado do validador: PASS`. Com FAIL, rodar de novo |
 | 4 | Verificador | abrir o ADR no painel de arquivos, à esquerda, e responder sim ou não: cada fato do SGC cita o arquivo de onde veio? Algum decisor, prazo ou requisito foi inventado? As alternativas do ADR existem no caso? Corrigir o que o agente inventou | — |
 | 5 | Autores | abrir `integrador/pacote/01-design.md` no painel de arquivos; os autores dizem as respostas e o operador troca cada `[PREENCHER: ...]`, com os colchetes (são 10, nas seções "Decisão de conhecimento" e "Contrato MCP"; os PREENCHER das outras seções ficam para o pacote final) | — |
 | 6 | Operador | `make atividade2-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
 | 7 | Relator | colar no Portal o link e o SHA da caixa | — |
 
-O pedido do ADR (passo 3), para colar:
-
-```text
-Registre um ADR sobre como o Bússola acessa o SGC. A decisão do grupo é: [troquem por uma frase com a decisão do grupo]. Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. Não invente decisores nem requisitos: marque como "a confirmar" o que não estiver nos arquivos.
-```
+O `make atividade2-adr` roda um agente (Claude Sonnet) com a skill `escrevendo-adrs`. Ele lê os fatos da
+engenharia reversa do grupo (Atividade 1) e os requisitos do caso, e escreve o ADR em `docs/adr/`. Ele não
+mexe em mais nenhum arquivo. No fim, o comando roda o validador do ADR e mostra o resultado e o caminho do
+arquivo. O PASS confere só a forma: o passo 4 é o que confere se o ADR é verdadeiro.
 
 No Contrato MCP, as duas primeiras linhas são as tools da demonstração do Lab 3, e a linha
 `sgc:pedir_reprocessamento_retorno` pede só duas respostas: quem aprova e se reprocessar duas vezes dá o
 mesmo resultado (se não der, como o grupo protege). A resposta está na engenharia reversa do grupo
-(Atividade 1). Os números do Lab 2 são os do grupo; o grupo que ficou sem cota usa os testes do
-professor (`make lab2-replay`) e diz isso.
-
-**Na Aula 3.** Devolutiva coletiva: o professor comenta os padrões que viu nos checkpoints da
-turma, sem nota.
+(Atividade 1). Os números do Lab 2 são os da demonstração do professor, e o `make atividade2` já os
+traz. O texto do grupo deve dizer que são os números da demonstração do professor. O grupo que rodou o Lab 2
+em casa usa os números dele.
 
 ---
 
