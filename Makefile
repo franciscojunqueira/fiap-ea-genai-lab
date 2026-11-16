@@ -32,7 +32,7 @@ skill-check: ## Valida as skills do repositório (boas práticas de skills da An
 
 lab1: ## Lab 1 (Aula 1): prepara a spec, os sensores e o rascunho do colega
 	@$(RUN) python labs/lab1/preparar.py
-lab1-demo: ## Aula 1, demonstração 2 (professor): o agente no ticket (ETAPA=ticket) e com o sensor de camadas (ETAPA=harness)
+lab1-demo: ## Aula 1, demonstração 2 (professor): o agente no ticket (ETAPA=ticket) e com o sensor de camadas (ETAPA=harness); MODELO=<id> troca o modelo
 	@$(RUN) python labs/lab1/demo.py $(ETAPA)
 lab1-demo-replay: ## Aula 1, demonstração 2: as duas etapas gravadas pelo professor (ETAPA=ticket ou harness mostra uma só)
 	@$(RUN) python labs/lab1/demo.py --replay $(ETAPA)

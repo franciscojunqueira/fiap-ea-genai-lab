@@ -15,10 +15,11 @@ def test_replay_do_ticket_mostra_as_quatro_linhas_da_fitness_com_o_teste_passand
     assert "2. Teste do ticket: PASS" in saida
     assert "3. Fitness function (camadas): FAIL, 4 linha(s)" in saida
     assert saida.count("chama db.") == 3 and "importa Estoque, Pedido" in saida
-    assert "4. O que o agente disse no resumo (trecho)" in saida
-    assert "5. Tokens e tempo: 470.680 de entrada, 3.975 de saída · 66 s · 16 turnos" in saida
+    assert "5. O que o agente disse no resumo (trecho)" in saida
+    assert "6. Tokens e tempo: 470.680 de entrada, 3.975 de saída · 66 s · 16 turnos" in saida
     assert "gravação de 13/10/2026, Haiku 4.5" in saida
-    assert "Só o sensor de arquitetura viu o erro" in saida
+    assert "Só o sensor de arquitetura viu o erro" not in saida and "Pergunta para a turma" in saida
+    assert "padrão do projeto (similar a faturas.py)" in saida
 
 
 def test_replay_sem_etapa_mostra_as_duas_na_ordem(capsys):
@@ -40,7 +41,8 @@ def test_tela_de_uma_execucao_ao_vivo_tem_o_mesmo_formato():
     assert "1. Arquivos que o agente mudou: nenhum" in tela
     assert "2. Teste do ticket: FAIL (2 failed, 2 passed)" in tela
     assert "1.234.567 de entrada, 89 de saída · 12 s · 3 turnos" in tela
-    assert "Leitura: A fitness function passou, mas o teste do ticket reprovou" in tela
+    assert "Pergunta para a turma:" in tela and "Leitura:" not in tela
+    assert "não rodou o sensor" in tela
 
 
 def test_etapa_invalida_ou_ausente_nao_chama_modelo(capsys):
@@ -49,5 +51,38 @@ def test_etapa_invalida_ou_ausente_nao_chama_modelo(capsys):
     assert demo.main(["demo.py", "--replay", "nada"]) == 2
 
 
-def test_o_modelo_da_demo_vem_da_configuracao():
+def test_o_modelo_da_demo_vem_da_configuracao(monkeypatch):
+    monkeypatch.delenv("MODELO", raising=False)
     assert demo.modelo_da_demo() == "claude-haiku-5-5"
+
+
+def test_o_loop_do_agente_vem_do_stream_json_no_replay_do_harness(capsys):
+    assert demo.main(["demo.py", "--replay", "harness"]) == 0
+    saida = capsys.readouterr().out
+    assert "O agente rodou o sensor 2 vezes" in saida
+    assert "1ª: camadas FAIL em 4 linha(s), teste do ticket FAIL → 2ª: camadas PASS, teste do ticket PASS" in saida
+
+
+def test_execucoes_do_sensor_le_make_e_fitness_direta():
+    import json
+    def uso(i, cmd):
+        return json.dumps({"type": "assistant", "message": {"content": [{"type": "tool_use", "id": i, "name": "Bash", "input": {"command": cmd}}]}})
+    def res(i, texto):
+        return json.dumps({"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": i, "content": texto}]}})
+    ev = "\n".join([
+        uso("a", "make lab1-check 2>&1 | head -100"),
+        res("a", "[OK] 3. x\n[FALHA] 4. Fitness function 'camadas'\n        camadas: a.py:5 importa\n        camadas: a.py:9 chama db\n[OK] 6. Testes"),
+        uso("b", "python labs/lab1/fitness_camadas.py"), res("b", "camadas: PASS"),
+        "{\"type\": \"result\"}", "linha que não é json"])
+    assert demo.execucoes_do_sensor(ev) == [{"camadas": "FAIL", "linhas": 2, "aceite": "PASS"}, {"camadas": "PASS", "linhas": 0, "aceite": None}]
+    assert "O agente não rodou o sensor" in "\n".join(demo.linhas_do_loop([]))
+
+
+def test_o_trecho_do_resumo_mostra_a_frase_do_padrao_do_projeto():
+    texto = "\n".join(f"linha {i}" for i in range(30)) + "\nA implementação segue o padrão do projeto (similar a `faturas.py`)."
+    assert any("padrão do projeto (similar a faturas.py)" in l for l in demo._trecho(texto))
+
+
+def test_o_modelo_pode_ser_escolhido_por_variavel(monkeypatch):
+    monkeypatch.setenv("MODELO", "claude-haiku-4-5")
+    assert demo.modelo_da_demo() == "claude-haiku-4-5"

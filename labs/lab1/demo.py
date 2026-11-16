@@ -45,6 +45,8 @@ EXPLICA_ARQUIVO = {"routes": "a rota, a porta de entrada da API", "services": "o
 
 
 def modelo_da_demo():
+    if os.environ.get("MODELO"):
+        return os.environ["MODELO"]
     config = tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8"))
     return config["labs"]["modelo"]
 
@@ -55,29 +57,119 @@ def _milhar(n):
     return f"{int(n):,}".replace(",", ".")
 
 
+PERGUNTA_DA_TELA = "O que vocês concluem do teste do ticket e da fitness function juntos?"
+
+
 def _trecho(texto, limite=700, linhas=9):
-    """Os primeiros parágrafos do resumo do agente, sem enfeite de markdown, num tamanho que cabe na tela."""
-    limpas = [re.sub(r"[#*`]", "", l).strip() for l in texto.splitlines()]
+    """Um trecho do resumo do agente, sem enfeite de markdown, num tamanho que cabe na tela.
+    Se alguma linha fala do padrão do projeto, o trecho começa nela: é a frase que o professor quer mostrar."""
+    limpas = [l for l in (re.sub(r"[#*`✅]", "", l).strip() for l in texto.splitlines()) if l]
+    inicio = next((i for i, l in enumerate(limpas) if "padrão" in l.lower()), 0)
     escolhidas, total = [], 0
-    for l in (l for l in limpas if l):
+    for l in limpas[inicio:]:
         if total + len(l) > limite or len(escolhidas) >= linhas:
             break
         escolhidas.append(l)
         total += len(l)
-    cortou = len(escolhidas) < len([l for l in limpas if l])
-    return escolhidas + (["[...] (o resumo completo está no arquivo resposta.md)"] if cortou else [])
+    antes = inicio > 0
+    depois = inicio + len(escolhidas) < len(limpas)
+    return (["[...]"] if antes else []) + escolhidas + (["[...] (o resumo completo está no arquivo resposta.md)"] if depois else [])
 
 
-def _leitura(m):
-    teste_ok, fitness_ok = m["aceite"] == "PASS", not m["fitness"]
-    if teste_ok and not fitness_ok:
-        return ("O teste do ticket passou e a fitness function reprovou: a API funciona, mas a regra está no lugar errado. "
-                "Só o sensor de arquitetura viu o erro.")
-    if teste_ok and fitness_ok:
-        return "O teste do ticket e a fitness function passaram: a API funciona e a regra está no service."
-    if not teste_ok and fitness_ok:
-        return "A fitness function passou, mas o teste do ticket reprovou: a arquitetura está certa e a API ainda não faz o que o ticket pede."
-    return "O teste do ticket e a fitness function reprovaram."
+# ----- o loop: as vezes em que o próprio agente rodou o sensor ----------------------------------------------------
+
+def _texto_do_resultado(c):
+    t = c.get("content", "")
+    return t if isinstance(t, str) else "\n".join(b.get("text", "") for b in t if isinstance(b, dict))
+
+
+def _item(saida, numero):
+    """Do texto do `make lab1-check`: ('PASS'|'FAIL'|None, linhas apontadas, texto da falha) do item `numero`."""
+    linhas = saida.splitlines()
+    for i, l in enumerate(linhas):
+        if l.startswith(("[OK] %d." % numero, "[FALHA] %d." % numero)):
+            if l.startswith("[OK]"):
+                return "PASS", 0, ""
+            corpo = []
+            for x in linhas[i + 1:]:
+                if not x.startswith(" " * 4):
+                    break
+                corpo.append(x.strip())
+            return "FAIL", sum(1 for x in corpo if x.startswith("camadas:")), " ".join(corpo)
+    return None, 0, ""
+
+
+def execucoes_do_sensor(eventos):
+    """Lê o stream-json (texto) e devolve, em ordem, cada vez que o agente rodou o sensor:
+    [{'camadas': 'PASS'|'FAIL'|'desligada'|None, 'linhas': n, 'aceite': 'PASS'|'FAIL'|None}]."""
+    comandos, achados = {}, []
+    for l in eventos.splitlines():
+        if not l.startswith("{"):
+            continue
+        try:
+            e = json.loads(l)
+        except json.JSONDecodeError:
+            continue
+        mensagem = e.get("message") if isinstance(e, dict) else None
+        conteudo = mensagem.get("content") if isinstance(mensagem, dict) else None
+        if not isinstance(conteudo, list):
+            continue
+        for c in conteudo:
+            if not isinstance(c, dict):
+                continue
+            if e.get("type") == "assistant" and c.get("type") == "tool_use" and c.get("name") == "Bash":
+                cmd = c.get("input", {}).get("command", "")
+                if "lab1-check" in cmd or "fitness_camadas" in cmd:
+                    comandos[c["id"]] = "check" if "lab1-check" in cmd else "fitness"
+            elif e.get("type") == "user" and c.get("type") == "tool_result" and c.get("tool_use_id") in comandos:
+                texto = _texto_do_resultado(c)
+                if comandos[c["tool_use_id"]] == "check":
+                    camadas, linhas, falha = _item(texto, 4)
+                    aceite, _, _ = _item(texto, 6)
+                    if camadas is None and aceite is None:
+                        continue
+                    if camadas == "FAIL" and not linhas and "desligada" in falha:
+                        camadas = "desligada"
+                    achados.append({"camadas": camadas, "linhas": linhas, "aceite": aceite})
+                else:
+                    if "camadas: PASS" in texto:
+                        achados.append({"camadas": "PASS", "linhas": 0, "aceite": None})
+                    elif "camadas: FAIL" in texto:
+                        achados.append({"camadas": "FAIL", "linhas": sum(1 for x in texto.splitlines() if x.startswith("camadas: ") and ".py:" in x), "aceite": None})
+    return achados
+
+
+def _descreve_execucao(x):
+    partes = []
+    if x["camadas"] == "FAIL":
+        partes.append(f"camadas FAIL em {x['linhas']} linha(s)" if x["linhas"] else "camadas FAIL")
+    elif x["camadas"] == "desligada":
+        partes.append("camadas desligada")
+    elif x["camadas"]:
+        partes.append(f"camadas {x['camadas']}")
+    if x["aceite"]:
+        partes.append(f"teste do ticket {x['aceite']}")
+    return ", ".join(partes)
+
+
+def _ordinal(n):
+    return f"{n}ª"
+
+
+def linhas_do_loop(execucoes):
+    """As linhas da tela para o loop do agente."""
+    if not execucoes:
+        return ["   O agente não rodou o sensor (make lab1-check ou a fitness function) durante o trabalho."]
+    n = len(execucoes)
+    sai = [f"   O agente rodou o sensor {n} {'vez' if n == 1 else 'vezes'} durante o trabalho:"]
+    sai += [f"   - {_ordinal(i)}: {_descreve_execucao(x)}" for i, x in enumerate(execucoes, 1)]
+    sai.append("   Em uma linha: " + " → ".join(f"{_ordinal(i)}: {_descreve_execucao(x)}" for i, x in enumerate(execucoes, 1)))
+    reprovou = [i for i, x in enumerate(execucoes) if x["camadas"] == "FAIL" or x["aceite"] == "FAIL"]
+    if reprovou and reprovou[-1] < n - 1:
+        sai.append("   Houve reprovação seguida de nova execução: o agente reagiu ao sensor.")
+    elif reprovou:
+        sai.append("   A última execução do sensor ainda reprovou.")
+    return sai
 
 
 def tela(m):
@@ -99,9 +191,10 @@ def tela(m):
         sai.append("   O que isto diz: a rota fala com o banco direto; a regra deveria estar no service.")
     else:
         sai += ["", "3. Fitness function (camadas): PASS", "   O que isto diz: nenhuma rota fala com o banco; a regra está no service."]
-    sai += ["", "4. O que o agente disse no resumo (trecho)"] + [f"   | {l}" for l in _trecho(m["resumo"])]
-    sai += ["", f"5. Tokens e tempo: {_milhar(m['tokens_entrada'])} de entrada, {_milhar(m['tokens_saida'])} de saída · "
-                f"{m['duracao_s']} s · {m['turnos']} turnos", "", f"Leitura: {_leitura(m)}"]
+    sai += ["", "4. O loop: as vezes em que o próprio agente rodou o sensor"] + linhas_do_loop(m.get("execucoes_do_sensor") or [])
+    sai += ["", "5. O que o agente disse no resumo (trecho)"] + [f"   | {l}" for l in _trecho(m["resumo"])]
+    sai += ["", f"6. Tokens e tempo: {_milhar(m['tokens_entrada'])} de entrada, {_milhar(m['tokens_saida'])} de saída · "
+                f"{m['duracao_s']} s · {m['turnos']} turnos", "", f"Pergunta para a turma: {PERGUNTA_DA_TELA}"]
     if m.get("nota"):
         sai.append(f"Nota: {m['nota']}")
     return "\n".join(sai)
@@ -118,6 +211,7 @@ def resultados_da_gravacao(pasta, etapa):
             "aceite": "PASS" if "[OK] 6." in check else "FAIL", "fitness": fitness,
             "resumo": (pasta / "resposta.md").read_text(encoding="utf-8"),
             "tokens_entrada": metricas["tokens_entrada"], "tokens_saida": metricas["tokens_saida"],
+            "execucoes_do_sensor": execucoes_do_sensor((pasta / "eventos.jsonl").read_text(encoding="utf-8")),
             "duracao_s": metricas["duracao_s"], "turnos": metricas["turnos"], "negacoes": len(metricas.get("negacoes_de_permissao") or []),
             "nota": NOTA_DO_REPLAY_HARNESS if etapa == "harness" else ""}
 
@@ -150,7 +244,7 @@ def preparar_copia(copia, etapa):
     gravar.rodar(copia, "git", "-c", "user.name=demo", "-c", "user.email=demo@example.com", "commit", "-qm", "base")
 
 
-def resultados_da_copia(copia, etapa, modelo, final, duracao):
+def resultados_da_copia(copia, etapa, modelo, final, duracao, execucoes=()):
     gravar.rodar(copia, "git", "add", "-A")
     alterados = [l for l in gravar.rodar(copia, "git", "diff", "--cached", "--name-only").stdout.splitlines() if l]
     aceite = gravar.rodar(copia, sys.executable, "-m", "pytest", "labs/lab1/aceite", "-q", "--tb=no", "-p", "no:cacheprovider")
@@ -165,7 +259,7 @@ def resultados_da_copia(copia, etapa, modelo, final, duracao):
             "tokens_entrada": uso.get("input_tokens", 0) + uso.get("cache_read_input_tokens", 0) + uso.get("cache_creation_input_tokens", 0),
             "tokens_saida": uso.get("output_tokens", 0), "duracao_s": round(duracao), "turnos": final.get("num_turns", 0),
             "negacoes": len(final.get("permission_denials") or []),
-            "diff": gravar.rodar(copia, "git", "diff", "--cached").stdout}
+            "execucoes_do_sensor": execucoes, "diff": gravar.rodar(copia, "git", "diff", "--cached").stdout}
 
 
 def ao_vivo(etapa):
@@ -199,7 +293,7 @@ def ao_vivo(etapa):
             dica = " Limite do plano atingido: use make lab1-demo-replay." if "limit" in texto.lower() else ""
             print(f"O Claude Code não devolveu uma resposta: {texto}{dica}")
             return 1
-        m = resultados_da_copia(copia, etapa, modelo, final, duracao)
+        m = resultados_da_copia(copia, etapa, modelo, final, duracao, execucoes_do_sensor(proc.stdout))
         saida = RAIZ / "resultados" / "lab1-demo" / f"{etapa}-{time.strftime('%Y%m%d-%H%M%S')}"
         saida.mkdir(parents=True)
         (saida / "eventos.jsonl").write_text(proc.stdout.replace(str(Path.home()), "~"), encoding="utf-8")
