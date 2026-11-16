@@ -11,9 +11,9 @@ timeout_s = 60
 
 [labs]
 # Modelo das chamadas por script dos Labs 2 e 3 (`modelo = "padrão"` no config.toml do lab).
-# Fixado pelo ID, não pelo alias: o Haiku 4.5 é legado, com aposentadoria "não antes de 15/10/2026"
-# (platform.claude.com/docs/en/about-claude/models/overview, conferido em 13/10/2026), e o alias `haiku`
-# ainda apontava para ele numa conta Max nesse dia. Os replays dos Labs 2 e 3 foram gravados neste modelo.
+# Fixado pelo ID, não pelo alias: o alias `haiku` apontava para o Haiku 4.5 numa conta Max em 12/10/2026, e o
+# alias muda sem aviso. O Haiku 4.5 continua ativo em 16/11/2026, sem aposentadoria anunciada
+# (platform.claude.com/docs/en/about-claude/model-deprecations). Os replays dos Labs 2 e 3 foram gravados neste modelo.
 modelo = "claude-haiku-5-5"
 
 # Preço de API em US$ por milhão de tokens, para o "US$ por mil perguntas" do Lab 2. Não é o custo do
