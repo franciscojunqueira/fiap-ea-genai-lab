@@ -23,6 +23,11 @@ uma correção, tragam-na com:
 
 ## Atividade 1: engenharia reversa do SGC
 
+> **Turma de outubro de 2026:** esta versão vale a partir das próximas turmas. Vocês já entregaram a Atividade 1 no
+> formato anterior, e ela continua valendo: nada precisa ser refeito, e o `make er-check` continua aceitando a
+> entrega de vocês. Na Atividade 2, o `make atividade2-adr` é opcional para a turma de outubro.
+
+
 **Objetivo.** Saber o que o SGC faz de fato antes de decidir como o Bússola vai acessá-lo. A
 documentação do SGC é de 2019 e está incompleta. Parte do que ela diz não é verdade.
 
