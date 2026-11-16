@@ -14,6 +14,11 @@ import atividade1  # noqa: E402
 
 ER = Path("integrador/pacote/engenharia-reversa")
 SAIDA = RAIZ / "integrador" / "atividade1" / "saida_agente"
+# Os testes que partem dos modelos do pacote conferem o template. Depois do `make atividade1` (repositório de grupo),
+# os arquivos já têm a saída do agente: pular em vez de falhar, para o `make test` do grupo não acusar erro que não é dele.
+so_no_template = pytest.mark.skipif(
+    not all(atividade1.no_estado_do_modelo((RAIZ / ER / n).read_text(encoding="utf-8")) for n in atividade1.ARQUIVOS),
+    reason="Atividade 1 já preparada: estes testes conferem os modelos do template")
 
 
 @pytest.fixture
@@ -43,12 +48,14 @@ def preencher(raiz):
         arquivo.write_text(re.sub(r"\[PREENCHER:[^\]]*\]", "resposta do grupo", arquivo.read_text(encoding="utf-8")), encoding="utf-8")
 
 
+@so_no_template
 def test_modelo_do_template_e_reconhecido_e_a_saida_do_agente_nao():
     for nome in atividade1.ARQUIVOS:
         assert atividade1.no_estado_do_modelo((RAIZ / ER / nome).read_text(encoding="utf-8")), nome
         assert not atividade1.no_estado_do_modelo((SAIDA / nome).read_text(encoding="utf-8")), nome
 
 
+@so_no_template
 def test_preparar_copia_a_saida_gravada_e_deixa_os_preencher(repo, capsys):
     assert atividade1.preparar(repo) == 0
     for nome in atividade1.ARQUIVOS:
@@ -62,6 +69,7 @@ def test_preparar_copia_a_saida_gravada_e_deixa_os_preencher(repo, capsys):
     assert "pode conter erros" in (repo / ER / "c4.md").read_text(encoding="utf-8").splitlines()[0]
 
 
+@so_no_template
 def test_preparar_nunca_sobrescreve_o_que_o_grupo_escreveu(repo, capsys):
     atividade1.preparar(repo)
     regras = repo / ER / "regras.md"
@@ -77,6 +85,7 @@ def test_preparar_nunca_sobrescreve_o_que_o_grupo_escreveu(repo, capsys):
     assert (repo / ER / "c4.md").read_text(encoding="utf-8") == "# C4\n\nO nosso diagrama.\n"
 
 
+@so_no_template
 def test_er_check_reprova_com_preencher_e_passa_preenchido(repo):
     atividade1.preparar(repo)
     codigo, saida = er_check(repo)
@@ -89,6 +98,7 @@ def test_er_check_reprova_com_preencher_e_passa_preenchido(repo):
     assert "PASS (engenharia reversa)" in saida
 
 
+@so_no_template
 def test_er_check_reprova_se_sobrar_um_preencher_so(repo):
     atividade1.preparar(repo)
     preencher(repo)
@@ -149,6 +159,7 @@ def test_entregar_nao_envia_com_fail_e_envia_com_pass(tmp_path, capsys):
     assert "Atividade 1" in subprocess.run(["git", "log", "-1", "--format=%s"], cwd=remoto, capture_output=True, text=True).stdout
 
 
+@so_no_template
 def test_entregar_com_o_er_check_de_verdade_reprova_o_modelo_vazio(repo, capsys):
     """Sem conferir injetado: o entregar chama o er-check do repositório."""
     (repo / "integrador/scripts").mkdir(parents=True)

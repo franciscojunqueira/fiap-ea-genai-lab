@@ -5,14 +5,20 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / "integrador" / "scripts"))
 import atividade2  # noqa: E402
 import checar_entrega  # noqa: E402
 
 DESIGN = RAIZ / "integrador" / "pacote" / "01-design.md"
+# Depois do `make atividade2` (repositório de grupo), o 01-design.md já está preparado: estes testes conferem o template.
+so_no_template = pytest.mark.skipif("sgc:pedir_reprocessamento_retorno" in DESIGN.read_text(encoding="utf-8"),
+                                    reason="Atividade 2 já preparada: estes testes conferem o modelo do template")
 
 
+@so_no_template
 def test_preparar_troca_so_as_secoes_vazias_e_e_idempotente():
     original = DESIGN.read_text(encoding="utf-8")
     novo, preparadas, mantidas = atividade2.preparar_design(original)
@@ -30,6 +36,7 @@ def test_preparar_troca_so_as_secoes_vazias_e_e_idempotente():
     assert de_novo == novo and preparadas2 == [] and len(mantidas2) == 2
 
 
+@so_no_template
 def test_preparar_nunca_apaga_o_texto_do_grupo():
     original = DESIGN.read_text(encoding="utf-8")
     do_grupo = original.replace("PREENCHER\n\n## Contrato MCP", "O Bússola usa RAG para busca exata.\n\n## Contrato MCP", 1)
@@ -96,6 +103,7 @@ def test_cada_espaco_para_preencher_fica_numa_linha_so():
             assert len(re.findall(r"\[PREENCHER[^\]]*\]", linha)) == linha.count("[PREENCHER"), linha
 
 
+@so_no_template
 def test_numeros_do_replay_dizem_demonstracao_do_professor(tmp_path, capsys):
     pasta = tmp_path / "labs/lab2/execucoes"
     pasta.mkdir(parents=True)
