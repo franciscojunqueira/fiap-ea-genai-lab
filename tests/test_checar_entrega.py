@@ -47,7 +47,7 @@ def preencher(raiz):
             # replica a linha de exemplo de cada tabela até o mínimo exigido
             linhas = texto.splitlines(True)
             for i, linha in enumerate(linhas):
-                if linha.startswith("| conteúdo do grupo"):
+                if linha.startswith(("| conteúdo do grupo", "| [conteúdo do grupo")):
                     linhas[i] = linha * 5
             texto = "".join(linhas)
         texto = texto.replace("- [ ] Todos", "- [x] Todos").replace("**Link do vídeo:** conteúdo do grupo", "**Link do vídeo:** https://example.com/v")

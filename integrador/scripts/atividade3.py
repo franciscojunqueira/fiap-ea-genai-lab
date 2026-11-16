@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Trabalho final (Atividade 3) em dois comandos: preparar as seções da Aula 3 e entregar. Executar.
 
-    make atividade3            preenche, em integrador/pacote/02-qualidade.md e 03-economia.md, a seção de
-                               resultados com os números das demonstrações do professor (replays da Aula 3)
-                               e deixa [PREENCHER: ...] só nas decisões do grupo.
+    make atividade3            preenche, em integrador/pacote/02-qualidade.md, 03-economia.md e 04-seguranca.md, a
+                               seção de resultados com os números das demonstrações do professor (replays das
+                               Aulas 3 e 4) e deixa [PREENCHER: ...] só nas decisões do grupo.
     make atividade3-entregar   roda o make pacote-check; com PASS, faz git add, commit e push e mostra o
                                link e o SHA para o Portal. Com FAIL, não envia nada.
 
@@ -11,6 +11,7 @@ Os arquivos do pacote são do grupo: o preparar só troca uma seção de resulta
 só troca um arquivo inteiro se ele ainda for o modelo antigo, sem nada escrito pelo grupo.
 """
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -24,7 +25,8 @@ from checar_entrega import secoes, sem_comentarios  # noqa: E402
 
 PACOTE = Path("integrador/pacote")
 REPLAY = RAIZ / "replay"
-SECAO = {"02-qualidade.md": "Resultados das demonstrações", "03-economia.md": "Resultados da demonstração"}
+SECAO = {"02-qualidade.md": "Resultados das demonstrações", "03-economia.md": "Resultados da demonstração",
+         "04-seguranca.md": "Resultados das demonstrações"}
 NOMES = {"haiku-rag": "Haiku com RAG", "haiku-agentica": "Haiku com busca agêntica", "sonnet-rag": "Sonnet com RAG",
          "sonnet-agentica": "Sonnet com busca agêntica"}
 
@@ -95,6 +97,36 @@ def resultados_economia(raiz=RAIZ):
     return "\n".join(linhas)
 
 
+def resultados_seguranca(raiz=RAIZ):
+    """Demonstração 1 da Aula 4: as quatro execuções gravadas em replay/lab6/ataque/ (ataque e mitigação)."""
+    sys.path.insert(0, str(RAIZ / "labs" / "lab6"))
+    import ataque
+    gravacoes = {}
+    for nome in ataque.ORDEM:
+        arq = raiz / "replay/lab6/ataque" / f"{nome}.json"
+        if arq.exists():
+            gravacoes[nome] = json.loads(arq.read_text(encoding="utf-8"))
+    if not gravacoes:
+        return "(sem gravação da Demonstração 1 em replay/lab6/ataque/)"
+    rotulo = {"nenhuma": "nenhuma (a ferramenta de e-mail liberada)", "sem-saida": "corta o canal de saída (ferramenta negada)",
+              "aprovacao": "aprovação humana (envio pendente)"}
+    linhas = ["**Demonstração 1, o ataque e a mitigação** (testes do professor, conta de testes, Claude Code "
+              f"{next(iter(gravacoes.values()))['claude_code']}; busca agêntica do Lab 2 com o acesso do Risco, um cadastro de "
+              "sacados com um \"procedimento operacional\" falso e uma ferramenta de e-mail de mentira):", "",
+              "| Modelo | Mitigação | E-mail saiu para o atacante | Envio ao atacante tentado e barrado | Tempo por execução |",
+              "|---|---|---|---|---|"]
+    for g in gravacoes.values():
+        ex = g["execucoes"]
+        barrados = sum(any(ataque.para_atacante(m) for m in e["negadas"]) for e in ex)
+        tempo = sum(e["dur_s"] for e in ex) / len(ex)
+        linhas.append(f"| {g['modelo']} | {rotulo[g['mitigacao']]} | {ataque.contar(ex)} de {g['n']} | "
+                      f"{str(barrados) + ' de ' + str(g['n']) if g['mitigacao'] == 'aprovacao' else '—'} | {br(tempo, 0)} s |")
+    linhas += ["", "O ataque depende do modelo: o Haiku 5.5 resistiu e o Haiku 4.5, não. A mitigação de arquitetura "
+               "funcionou nos dois casos testados, porque corta uma perna da trifecta sem depender do que o modelo decide. "
+               "Cinco execuções por linha: é uma demonstração, não uma taxa estatística."]
+    return "\n".join(linhas)
+
+
 def modelo_novo(nome, raiz=RAIZ):
     return (raiz / PACOTE / nome).read_text(encoding="utf-8") if (raiz / PACOTE / nome).exists() else None
 
@@ -102,7 +134,9 @@ def modelo_novo(nome, raiz=RAIZ):
 def intocado(texto):
     """O arquivo ainda não tem nada escrito pelo grupo: todas as seções são PREENCHER ou linhas de PREENCHER."""
     for corpo in secoes(texto).values():
-        limpo = sem_comentarios(corpo).replace("|", " ").replace("-", " ")
+        # a linha de cabeçalho de uma tabela é do modelo (é a que vem antes do |---|), não do grupo
+        sem_cabecalho = re.sub(r"^\|[^\n]*\|\n(?=\|[\s:|-]+\|$)", "", sem_comentarios(corpo), flags=re.M)
+        limpo = sem_cabecalho.replace("|", " ").replace("-", " ")
         if limpo.strip() and any(p not in ("PREENCHER",) for p in limpo.split() if p):
             return False
     return True
@@ -132,14 +166,15 @@ def preparar(raiz=RAIZ):
     modelos = {n: (AQUI / "modelos_atividade3" / n).read_text(encoding="utf-8") for n in SECAO}
     print(preparar_arquivo(raiz, "02-qualidade.md", resultados_qualidade, modelos))
     print(preparar_arquivo(raiz, "03-economia.md", resultados_economia, modelos))
+    print(preparar_arquivo(raiz, "04-seguranca.md", resultados_seguranca, modelos))
     faltam = 0
-    for n in SECAO:
+    for n in ("02-qualidade.md", "03-economia.md"):   # o 04 usa o que a Aula 4 ensina: fica para depois dela
         a = raiz / PACOTE / n
         if a.exists():
             faltam += sem_comentarios(a.read_text(encoding="utf-8")).count("PREENCHER")
     print(f"\nPróximo passo: abram {PACOTE}/02-qualidade.md e 03-economia.md e troquem cada [PREENCHER: ...] pela "
-          f"decisão do grupo (faltam {faltam}). Os resultados já vêm prontos.")
-    print("Depois da Aula 4: 04-seguranca.md, os ADRs, contribuicao.md e uso-de-ia.md. Por fim: make atividade3-entregar")
+          f"decisão do grupo (faltam {faltam}). Os resultados já vêm prontos, inclusive os do 04-seguranca.md.")
+    print("Depois da Aula 4: as decisões do 04-seguranca.md, os ADRs, contribuicao.md e uso-de-ia.md. Por fim: make atividade3-entregar")
     return 0
 
 

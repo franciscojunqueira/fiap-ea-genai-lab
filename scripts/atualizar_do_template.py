@@ -34,6 +34,8 @@ DO_PROFESSOR = [
     "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",
     # Aula 3 (16/11/2026): os dados das demonstrações do professor.
     "labs/lab4/casos.toml", "labs/lab4/casos_turma.toml", "labs/lab4/orquestracao/adrs/*", "labs/lab5/rotas.toml", "labs/lab5/premissas.toml",
+    # Aula 4 (16/11/2026): o cadastro de sacados com o procedimento falso da Demonstração 1 (o corpus do Lab 2 não muda).
+    "labs/lab6/dados/*",
 ]
 # Do grupo: nunca sobrescrever, mesmo que case com um padrão acima.
 DO_GRUPO = ["docs/adr/*", "labs/*/testes/*", "labs/*/execucoes/*", "labs/*/comparacoes/*", "labs/*/descricoes/grupo.toml"]

@@ -110,7 +110,7 @@ em casa usa os números dele.
 inclui o `04-seguranca.md`, que usa o que a Aula 4 ensina. Não há pitch.
 
 **O que vem pronto.** Os números das demonstrações do professor, gravados antes da aula: a eval, a
-orquestração e o custo por rota da Aula 3; o ataque e a mitigação da Aula 4. O grupo escreve só as
+orquestração e o custo por rota da Aula 3; o ataque e a mitigação da Aula 4 (Demonstração 1). O grupo escreve só as
 decisões.
 
 **Passos.** Um comando por vez, no Codespace do operador, na ordem.
@@ -118,12 +118,12 @@ decisões.
 | # | Quem | O que fazer | O que aparece |
 |---|---|---|---|
 | 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
-| 2 | Operador | `make atividade3` | "preparado" em `02-qualidade.md` e `03-economia.md`, com os resultados das demonstrações |
+| 2 | Operador | `make atividade3` | "preparado" em `02-qualidade.md`, `03-economia.md` e `04-seguranca.md`, com os resultados das demonstrações |
 | 3 | Autores | abrir `integrador/pacote/02-qualidade.md` no painel de arquivos; os autores dizem as respostas e o operador troca cada `[PREENCHER: ...]`, com os colchetes: o critério de aceite, o caso de recusa do grupo, o modelo de cada rota, o que dispara uma nova eval, agente único ou subagentes em cada capacidade e os limites | — |
 | 4 | Autores | o mesmo em `integrador/pacote/03-economia.md`: o critério e o go/no-go de cada cenário, o que inverteria cada decisão, as alavancas e onde ficam, o custo de cumprir a RC-03 e a premissa que mais muda a decisão | — |
 | 5 | Operador | `claude`, colar o pedido do 2º ADR (abaixo), sobre o modelo do Bússola, com a decisão do grupo no lugar dos colchetes, e esperar. Sair com `/exit` | o agente diz o nome do arquivo novo em `docs/adr/` |
 | 6 | Verificador | conferir o ADR novo como na Atividade 2: cada fato cita a origem? Algum decisor, prazo ou requisito foi inventado? | — |
-| 7 | Relator e autores | depois da Aula 4: completar `01-design.md` (diagrama) e `04-seguranca.md`. Se o grupo fizer o 3º ADR, o tema é o roteamento por sensibilidade ou a identidade do Bússola | — |
+| 7 | Relator e autores | depois da Aula 4: completar `01-design.md` (diagrama) e as decisões do `04-seguranca.md` (o resultado do ataque e da mitigação já vem pronto; faltam a perna cortada em cada capacidade, a identidade do agente, onde fica cada controle e os requisitos regulatórios: LGPD e Res. CMN 4.893, arts. 15 e 16). Se o grupo fizer o 3º ADR, o tema é o roteamento por sensibilidade ou a identidade do Bússola | — |
 | 8 | Todos | preencher `contribuicao.md` e `uso-de-ia.md`; todos os integrantes revisam | — |
 | 9 | Operador | `make atividade3-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
 | 10 | Relator | colar no Portal o link e o SHA da caixa | — |

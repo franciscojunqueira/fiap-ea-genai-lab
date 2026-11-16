@@ -252,7 +252,7 @@ class Conferencia:
             self.tabela("03-economia.md (Go/no-go por cenário)", partes.get("Go/no-go por cenário", ""), 3, "cenário(s)")
         texto = self.ler("04-seguranca.md")
         if texto is not None:
-            partes = self.secoes_cheias("04-seguranca.md", texto, ["Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
+            partes = self.secoes_cheias("04-seguranca.md", texto, ["Resultados das demonstrações", "Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
             self.tabela("04-seguranca.md (Modelo de ameaças)", partes.get("Modelo de ameaças", ""), MIN_AMEACAS, "ameaça(s)")
             self.tabela("04-seguranca.md (Requisitos regulatórios)", partes.get("Requisitos regulatórios", ""), 2, "requisito(s) regulatório(s)")
         texto = self.ler("contribuicao.md")

@@ -15,7 +15,7 @@ estilo de texto, só por afirmação que o grupo não verificou.
 | Design | 20 | `pacote/01-design.md` + `pacote/engenharia-reversa/` | Atividade 1 (C4 do SGC), Lab 2 (decisão de conhecimento), Lab 3 (contrato MCP) | `make er-check`, `make checkpoint-check` |
 | Qualidade | 15 | `pacote/02-qualidade.md` | Aula 3 (demonstrações 1 e 3: orquestração e eval); a decisão é do grupo | `make pacote-check` |
 | Economia | 15 | `pacote/03-economia.md` | Aula 3 (demonstração 5: custo por rota); a decisão é do grupo | `make pacote-check` |
-| Segurança e governança técnica | 20 | `pacote/04-seguranca.md` | Demonstração 3 (ataque e mitigação) e Aula 4 | `make pacote-check` |
+| Segurança e governança técnica | 20 | `pacote/04-seguranca.md` | Demonstração 1 (ataque e mitigação) e Aula 4 | `make pacote-check` |
 
 Os checks conferem só a forma: arquivos, seções, tabelas, citações que existem, ADR no padrão.
 **Regra provisória: pacote com FAIL no `make pacote-check` tem o critério afetado limitado ao nível Parcial.** Vale
