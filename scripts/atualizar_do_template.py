@@ -11,6 +11,7 @@ Primeira vez num repositório criado antes deste script existir (uma linha, da r
     git remote add template https://github.com/franciscojunqueira/fiap-ea-genai-lab.git; git fetch template && git checkout template/main -- scripts/atualizar_do_template.py && python3 scripts/atualizar_do_template.py
 """
 import fnmatch
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -64,6 +65,23 @@ def avisar_agents():
             print(f"    {l}")
 
 
+def atualizar_a_si_mesmo():
+    """Piloto de 16/11/2026: o grupo rodava a versão antiga deste script, que não conhecia os arquivos novos e os
+    deixava de fora. Se o template tem outra versão, troca o script e roda de novo, na mesma execução."""
+    if os.environ.get("ATUALIZAR_REEXECUTADO"):
+        return
+    proprio = Path(__file__).resolve()
+    if proprio.parent.parent != RAIZ:
+        return   # rodando de fora do repositório do grupo (testes)
+    novo = git("show", f"{REF}:scripts/{proprio.name}", check=False)
+    if not novo or novo == proprio.read_text(encoding="utf-8"):
+        return
+    proprio.write_text(novo, encoding="utf-8")
+    print("  o próprio script veio do template; rodando a versão nova...")
+    os.execve(sys.executable, [sys.executable, str(proprio), *sys.argv[1:]],
+              {**os.environ, "ATUALIZAR_REEXECUTADO": "1"})
+
+
 def main():
     simular = "--sim" in sys.argv
     # Caminhos com alteração sem commit (inclusive arquivos novos). O próprio script pode ter acabado de vir do
@@ -75,16 +93,26 @@ def main():
         print(f"  remoto 'template' adicionado ({URL})")
     print("  buscando o template...")
     git("fetch", "--quiet", "template")
+    atualizar_a_si_mesmo()
     # Compara o template com os arquivos como estão no disco, não com o último commit: um arquivo já trazido
     # por uma rodada anterior e ainda sem commit está em dia e não pode bloquear a próxima rodada.
     mudados = [l for l in git("diff", "--name-only", REF).splitlines() if l]
     no_template = set(git("ls-tree", "-r", "--name-only", REF).splitlines())
-    trazidos, mantidos = [], []
+    trazidos, mantidos, novos = [], [], set()
     for caminho in mudados:
         if caminho not in no_template:
             continue   # existe só no grupo: é do grupo
-        if casa(caminho, DO_PROFESSOR) and not casa(caminho, DO_GRUPO):
+        ausente = not (RAIZ / caminho).exists()
+        if casa(caminho, DO_GRUPO):
+            if not ausente:
+                mantidos.append(caminho)
+        elif casa(caminho, DO_PROFESSOR):
             trazidos.append(caminho)
+        elif ausente:
+            # Piloto de 16/11/2026: um arquivo que o grupo nem tem não é trabalho do grupo. Sem esta regra, os
+            # modelos novos do pacote (02, 03 e 04) nunca chegavam a quem criou o repositório antes deles.
+            trazidos.append(caminho)
+            novos.add(caminho)
         else:
             mantidos.append(caminho)
     remover = [c for c in REMOVIDOS if (RAIZ / c).exists() and c not in no_template]
@@ -96,7 +124,7 @@ def main():
                  "Façam commit antes (git add -A && git commit -m 'Antes de atualizar') e rodem de novo: assim, "
                  "a versão de vocês pode ser recuperada com o git.")
     for c in trazidos:
-        print(f"  trazer      {c}")
+        print(f"  trazer      {c}" + (" (novo no template)" if c in novos else ""))
     for c in remover:
         print(f"  remover     {c} (saiu do template)")
     for c in mantidos:

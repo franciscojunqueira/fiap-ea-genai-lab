@@ -73,3 +73,38 @@ def test_atualizar_duas_vezes_sem_commit_nao_bloqueia(tmp_path, monkeypatch, cap
     import pytest
     with pytest.raises(SystemExit, match="alterações sem commit"):
         atualizar.main()
+
+
+def test_atualizar_traz_arquivo_novo_mesmo_fora_da_lista_do_professor(tmp_path, monkeypatch, capsys):
+    """Piloto de 16/11/2026: os modelos novos do pacote não chegavam a quem criou o repositório antes deles."""
+    import subprocess
+
+    def g(pasta, *args):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=pasta, check=True,
+                       capture_output=True)
+
+    template, grupo = tmp_path / "template", tmp_path / "grupo"
+    (template / "integrador/pacote").mkdir(parents=True)
+    (template / "integrador/pacote/01-design.md").write_text("modelo\n", encoding="utf-8")
+    g(tmp_path, "init", "-q", "-b", "main", str(template))
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v1")
+    g(tmp_path, "clone", "-q", str(template), str(grupo))
+    g(grupo, "remote", "add", "template", str(template))
+    (grupo / "integrador/pacote/01-design.md").write_text("do grupo\n", encoding="utf-8")
+    g(grupo, "commit", "-q", "-am", "grupo")
+    (template / "integrador/pacote/02-qualidade.md").write_text("modelo novo\n", encoding="utf-8")
+    (template / "docs/adr").mkdir(parents=True)
+    (template / "docs/adr/exemplo.md").write_text("exemplo\n", encoding="utf-8")
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v2")
+
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    saida = capsys.readouterr().out
+    assert (grupo / "integrador/pacote/02-qualidade.md").read_text(encoding="utf-8") == "modelo novo\n"
+    assert "(novo no template)" in saida
+    assert (grupo / "integrador/pacote/01-design.md").read_text(encoding="utf-8") == "do grupo\n"
+    assert not (grupo / "docs/adr/exemplo.md").exists()   # padrão do grupo: nunca trazido
