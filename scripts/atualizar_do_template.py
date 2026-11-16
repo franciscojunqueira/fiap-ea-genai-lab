@@ -82,6 +82,18 @@ def atualizar_a_si_mesmo():
               {**os.environ, "ATUALIZAR_REEXECUTADO": "1"})
 
 
+def intocado(caminho):
+    """O arquivo do grupo é igual a alguma versão antiga do template: o grupo não escreveu nele. Piloto de
+    16/11/2026: os modelos antigos do pacote ficavam, e o make atividade3 os recusava como "já escritos"."""
+    atual = git("hash-object", "--", caminho, check=False).strip()
+    if not atual:
+        return False
+    for commit in git("log", "--format=%H", REF, "--", caminho, check=False).split():
+        if git("rev-parse", "--verify", "--quiet", f"{commit}:{caminho}", check=False).strip() == atual:
+            return True
+    return False
+
+
 def main():
     simular = "--sim" in sys.argv
     # Caminhos com alteração sem commit (inclusive arquivos novos). O próprio script pode ter acabado de vir do
@@ -98,7 +110,7 @@ def main():
     # por uma rodada anterior e ainda sem commit está em dia e não pode bloquear a próxima rodada.
     mudados = [l for l in git("diff", "--name-only", REF).splitlines() if l]
     no_template = set(git("ls-tree", "-r", "--name-only", REF).splitlines())
-    trazidos, mantidos, novos = [], [], set()
+    trazidos, mantidos, novos, antigos = [], [], set(), set()
     for caminho in mudados:
         if caminho not in no_template:
             continue   # existe só no grupo: é do grupo
@@ -108,11 +120,14 @@ def main():
                 mantidos.append(caminho)
         elif casa(caminho, DO_PROFESSOR):
             trazidos.append(caminho)
-        elif ausente:
+        elif ausente or intocado(caminho):
             # Piloto de 16/11/2026: um arquivo que o grupo nem tem não é trabalho do grupo. Sem esta regra, os
             # modelos novos do pacote (02, 03 e 04) nunca chegavam a quem criou o repositório antes deles.
             trazidos.append(caminho)
-            novos.add(caminho)
+            if ausente:
+                novos.add(caminho)
+            else:
+                antigos.add(caminho)
         else:
             mantidos.append(caminho)
     remover = [c for c in REMOVIDOS if (RAIZ / c).exists() and c not in no_template]
@@ -124,7 +139,8 @@ def main():
                  "Façam commit antes (git add -A && git commit -m 'Antes de atualizar') e rodem de novo: assim, "
                  "a versão de vocês pode ser recuperada com o git.")
     for c in trazidos:
-        print(f"  trazer      {c}" + (" (novo no template)" if c in novos else ""))
+        print(f"  trazer      {c}" + (" (novo no template)" if c in novos else
+                                         " (modelo antigo, sem edição do grupo)" if c in antigos else ""))
     for c in remover:
         print(f"  remover     {c} (saiu do template)")
     for c in mantidos:

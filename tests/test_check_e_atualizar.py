@@ -108,3 +108,35 @@ def test_atualizar_traz_arquivo_novo_mesmo_fora_da_lista_do_professor(tmp_path, 
     assert "(novo no template)" in saida
     assert (grupo / "integrador/pacote/01-design.md").read_text(encoding="utf-8") == "do grupo\n"
     assert not (grupo / "docs/adr/exemplo.md").exists()   # padrão do grupo: nunca trazido
+
+
+def test_atualizar_troca_modelo_antigo_que_o_grupo_nao_editou(tmp_path, monkeypatch, capsys):
+    """Piloto de 16/11/2026: o 02-qualidade.md antigo, intocado, ficava, e o make atividade3 o recusava."""
+    import subprocess
+
+    def g(pasta, *args):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=pasta, check=True,
+                       capture_output=True)
+
+    template, grupo = tmp_path / "template", tmp_path / "grupo"
+    (template / "integrador/pacote").mkdir(parents=True)
+    (template / "integrador/pacote/02-qualidade.md").write_text("modelo v1\n", encoding="utf-8")
+    (template / "integrador/pacote/03-economia.md").write_text("modelo v1\n", encoding="utf-8")
+    g(tmp_path, "init", "-q", "-b", "main", str(template))
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v1")
+    g(tmp_path, "clone", "-q", str(template), str(grupo))
+    g(grupo, "remote", "add", "template", str(template))
+    (grupo / "integrador/pacote/03-economia.md").write_text("o grupo escreveu\n", encoding="utf-8")
+    g(grupo, "commit", "-q", "-am", "grupo")
+    for nome in ("02-qualidade.md", "03-economia.md"):
+        (template / "integrador/pacote" / nome).write_text("modelo v2\n", encoding="utf-8")
+    g(template, "commit", "-q", "-am", "v2")
+
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    assert "(modelo antigo, sem edição do grupo)" in capsys.readouterr().out
+    assert (grupo / "integrador/pacote/02-qualidade.md").read_text(encoding="utf-8") == "modelo v2\n"
+    assert (grupo / "integrador/pacote/03-economia.md").read_text(encoding="utf-8") == "o grupo escreveu\n"
