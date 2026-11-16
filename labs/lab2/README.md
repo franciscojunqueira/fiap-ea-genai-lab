@@ -47,8 +47,8 @@ make lab2
 ```
 
 - O `make atualizar` traz este lab para o repositório do grupo. Ele mostra a lista do que vai trazer e
-  pede confirmação: digite `s`. Depois, salve para o grupo todo: `git add -A`, depois
-  `git commit -m "Atualiza do template"`, depois `git push`. Se o `make atualizar` não existir, veja
+  pede confirmação: digite `s`. Ele já faz o commit do que trouxe. Para o grupo todo receber, falta só
+  o `git push`. Se o `make atualizar` não existir, veja
   "Atualizar do template", no fim.
 - O `make check` precisa terminar com **PASS**. Se terminar com **NÃO PRONTO**, falta o login: digite
   `claude`, faça o login, saia com `/exit` e rode `make check` de novo.

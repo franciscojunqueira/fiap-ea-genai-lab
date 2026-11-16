@@ -207,3 +207,21 @@ def test_atualizar_sem_mudancas_nao_faz_commit_vazio(tmp_path, monkeypatch, caps
     atualizar.main()
     assert "Nada a trazer" in capsys.readouterr().out
     assert g(grupo, "rev-parse", "HEAD").strip() == antes
+
+
+def test_atualizar_commita_sobras_de_rodada_antiga_sem_levar_edicao_do_grupo(tmp_path, monkeypatch, capsys):
+    """Grupo que rodou a versão antiga do script: os arquivos já trazidos ficaram sem commit e a rodada nova não os
+    via. O commit os leva (estão iguais ao template); o arquivo editado pelo grupo continua de fora."""
+    template, grupo, g = _par_template_grupo(tmp_path, monkeypatch)
+    (template / "labs/lab3/README.md").write_text("v2\n", encoding="utf-8")
+    g(template, "commit", "-q", "-am", "v2")
+    g(grupo, "fetch", "-q", "template")
+    g(grupo, "checkout", "template/main", "--", "labs/lab3/README.md")   # o que a versão antiga fazia
+    (grupo / "integrador/pacote/01-design.md").write_text("do grupo\n", encoding="utf-8")
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    assert "Nada a trazer" in capsys.readouterr().out
+    assert g(grupo, "show", "--name-only", "--format=", "HEAD").split() == ["labs/lab3/README.md"]
+    assert g(grupo, "status", "--porcelain").strip() == "M integrador/pacote/01-design.md"

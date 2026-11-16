@@ -78,7 +78,7 @@ Para executá-lo, use `make legado`.
 **`make lab2` não existe (ou o lab novo não apareceu).** O repositório do grupo nasceu do template antes
 de o lab existir. Rode `make atualizar`: ele traz só os arquivos do professor e lista o que mudou; os
 do grupo (AGENTS.md, specs, decisões, ADRs, pacote) ficam. Se nem o `make atualizar` existir, rode a
-linha do fim de `labs/lab2/README.md` (no repositório-template). Depois: commit e push.
+linha do fim de `labs/lab2/README.md` (no repositório-template). O `make atualizar` já faz o commit; depois falta só o `git push`.
 
 **O professor avisou uma correção no caso ou na rubrica. Como trago?** Siga o passo "Versão que
 vale" em `integrador/atividades.md` (`git fetch template` e `git checkout template/main -- …`).
