@@ -96,6 +96,37 @@ def intocado(caminho):
     return False
 
 
+def sobras_de_rodada_anterior():
+    """Caminhos que uma rodada anterior trouxe ou removeu e ficaram sem commit (a versão antiga deste script não
+    commitava). Só entram os que estão iguais ao template (ou apagados e listados em REMOVIDOS): o que o grupo
+    editou difere do template e fica de fora."""
+    sobras = []
+    for caminho in git("diff", "--name-only", "HEAD").splitlines():
+        if not caminho or casa(caminho, DO_GRUPO):
+            continue
+        if not (RAIZ / caminho).exists():
+            if caminho in REMOVIDOS:
+                sobras.append(caminho)
+        elif git("hash-object", "--", caminho, check=False).strip() == git("rev-parse", "--verify", "--quiet",
+                                                                           f"{REF}:{caminho}", check=False).strip():
+            sobras.append(caminho)
+    return sobras
+
+
+def commitar(trazidos, remover):
+    """O commit leva só o que esta rodada trouxe ou removeu, as sobras de uma rodada anterior sem commit e o próprio
+    script se ele mudou (veio do template na rodada). Outras alterações do grupo ficam fora. Sem push."""
+    proprio = f"scripts/{Path(__file__).name}"
+    caminhos = list(dict.fromkeys(trazidos + remover + sobras_de_rodada_anterior()))
+    if git("status", "--porcelain", "--", proprio).strip() and proprio not in caminhos:
+        git("add", "--", proprio)
+        caminhos.append(proprio)
+    if not caminhos:
+        return None
+    return subprocess.run(["git", "commit", "-q", "-m", "Atualiza do template: labs novos e correções do professor",
+                           "--", *caminhos], cwd=RAIZ, capture_output=True, text=True)
+
+
 def main():
     simular = "--sim" in sys.argv
     # Caminhos com alteração sem commit (inclusive arquivos novos). O próprio script pode ter acabado de vir do
@@ -151,6 +182,10 @@ def main():
         avisar_agents()
     if not trazidos and not remover:
         print("\nNada a trazer: o repositório já está com os arquivos do professor em dia.")
+        if not simular and (commit := commitar([], [])) is not None:
+            print("  O que uma rodada anterior trouxe e ficou sem commit foi commitado agora. Falta só enviar para o grupo: git push."
+                  if commit.returncode == 0 else f"  O commit NÃO foi feito ({commit.stderr.strip() or commit.stdout.strip()}). "
+                  "Faça: git add -A && git commit -m 'Atualiza do template' && git push")
         return
     if simular:
         print(f"\n{len(trazidos)} arquivo(s) seriam trazidos e {len(remover)} removidos (--sim: nada foi alterado).")
@@ -165,22 +200,15 @@ def main():
     if any(c in ("pyproject.toml", "uv.lock") for c in trazidos):
         subprocess.run(["uv", "sync", "--frozen", "--quiet"], cwd=RAIZ)
         print("  dependências sincronizadas (uv sync)")
-    # O commit leva só o que esta rodada trouxe ou removeu, mais o próprio script se ele mudou (veio do template
-    # na rodada): sem isso sobrava `M scripts/atualizar_do_template.py` sem commit. Outras alterações do grupo ficam fora.
-    proprio = f"scripts/{Path(__file__).name}"
-    caminhos = list(dict.fromkeys(trazidos + remover))
-    if git("status", "--porcelain", "--", proprio).strip() and proprio not in caminhos:
-        git("add", "--", proprio)
-        caminhos.append(proprio)
-    commit = subprocess.run(["git", "commit", "-q", "-m", "Atualiza do template: labs novos e correções do professor",
-                             "--", *caminhos], cwd=RAIZ, capture_output=True, text=True)
-    if commit.returncode == 0:
+    commit = commitar(trazidos, remover)
+    if commit is not None and commit.returncode == 0:
         print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s), e o commit já foi feito "
               "(\"Atualiza do template\"). Falta só enviar para o grupo: git push. Rodem antes `make test`. "
               "Para desfazer: git revert HEAD")
     else:
         print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s), mas o commit NÃO foi feito "
               f"({commit.stderr.strip() or commit.stdout.strip()}). Faça: git add -A && git commit -m 'Atualiza do template' && git push")
+
 
 if __name__ == "__main__":
     main()

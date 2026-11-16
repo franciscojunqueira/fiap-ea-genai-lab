@@ -143,3 +143,67 @@ def test_atualizar_troca_modelo_antigo_que_o_grupo_nao_editou(tmp_path, monkeypa
     assert "(modelo antigo, sem edição do grupo)" in capsys.readouterr().out
     assert (grupo / "integrador/pacote/02-qualidade.md").read_text(encoding="utf-8") == "modelo v2\n"
     assert (grupo / "integrador/pacote/03-economia.md").read_text(encoding="utf-8") == "o grupo escreveu\n"
+
+
+def _par_template_grupo(tmp_path, monkeypatch):
+    """Template com 3 arquivos e um clone (grupo) com o remoto 'template'; devolve (template, grupo, g)."""
+    import subprocess
+    for chave in ("NAME", "EMAIL"):   # o commit do script usa o git puro: dá identidade pelo ambiente
+        monkeypatch.setenv(f"GIT_AUTHOR_{chave}", "t")
+        monkeypatch.setenv(f"GIT_COMMITTER_{chave}", "t@t" if chave == "EMAIL" else "t")
+
+    def g(pasta, *args):
+        return subprocess.run(["git", *args], cwd=pasta, check=True, capture_output=True, text=True).stdout
+
+    template, grupo = tmp_path / "template", tmp_path / "grupo"
+    (template / "labs/lab3").mkdir(parents=True)
+    (template / "integrador/pacote").mkdir(parents=True)
+    (template / "labs/lab2").mkdir(parents=True)
+    (template / "labs/lab3/README.md").write_text("v1\n", encoding="utf-8")
+    (template / "labs/lab2/checar.py").write_text("v1\n", encoding="utf-8")
+    (template / "integrador/pacote/01-design.md").write_text("modelo\n", encoding="utf-8")
+    g(tmp_path, "init", "-q", "-b", "main", str(template))
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v1")
+    g(tmp_path, "clone", "-q", str(template), str(grupo))
+    g(grupo, "remote", "add", "template", str(template))
+    return template, grupo, g
+
+
+def test_atualizar_commita_so_a_rodada_e_deixa_o_trabalho_do_grupo_fora(tmp_path, monkeypatch, capsys):
+    """16/11/2026: o commit automático leva os arquivos trazidos e removidos e nada além; sem push."""
+    template, grupo, g = _par_template_grupo(tmp_path, monkeypatch)
+    (template / "labs/lab3/README.md").write_text("v2\n", encoding="utf-8")
+    (template / "labs/lab2/checar.py").unlink()   # saiu do template: o script o remove do grupo
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v2")
+    # Trabalho do grupo, sem commit, em arquivo que o template não mexeu (e um arquivo novo qualquer).
+    (grupo / "integrador/pacote/01-design.md").write_text("do grupo\n", encoding="utf-8")
+    (grupo / "anotacao.txt").write_text("rascunho\n", encoding="utf-8")
+    antes = g(grupo, "rev-parse", "HEAD").strip()
+
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    saida = capsys.readouterr().out
+
+    assert g(grupo, "rev-list", "--count", f"{antes}..HEAD").strip() == "1"
+    levados = set(g(grupo, "show", "--name-only", "--format=", "HEAD").split())
+    assert levados == {"labs/lab3/README.md", "labs/lab2/checar.py"}
+    assert (grupo / "integrador/pacote/01-design.md").read_text(encoding="utf-8") == "do grupo\n"   # intacto
+    assert (grupo / "anotacao.txt").exists()
+    restante = set(l[3:] for l in g(grupo, "status", "--porcelain", "--untracked-files=all").splitlines())
+    assert restante == {"integrador/pacote/01-design.md", "anotacao.txt"}   # ainda sem commit
+    assert "o commit já foi feito" in saida and "git push" in saida
+
+
+def test_atualizar_sem_mudancas_nao_faz_commit_vazio(tmp_path, monkeypatch, capsys):
+    template, grupo, g = _par_template_grupo(tmp_path, monkeypatch)
+    antes = g(grupo, "rev-parse", "HEAD").strip()
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    atualizar.main()
+    assert "Nada a trazer" in capsys.readouterr().out
+    assert g(grupo, "rev-parse", "HEAD").strip() == antes
