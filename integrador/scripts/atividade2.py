@@ -149,6 +149,7 @@ PEDIDO_ADR = ("Use a skill escrevendo-adrs para registrar um ADR sobre como o B�
               "Os requisitos vêm de integrador/caso.md. "
               "Não invente decisores nem requisitos: marque como \"a confirmar\" o que não estiver nos arquivos. "
               "Escreva só em docs/adr/ e rode o validador no fim.")
+PEDIDO_ADR_DIRETO = ("Escreva agora o arquivo do ADR em docs/adr/; não descreva, escreva. " + PEDIDO_ADR)
 
 
 def modelo_adr(raiz):
@@ -194,11 +195,22 @@ def adr(decisao, raiz=RAIZ, chamar=None):
     pasta = raiz / "docs" / "adr"
     antes = {a: a.stat().st_mtime_ns for a in pasta.glob("ADR-*.md")}
     print(f"O agente está escrevendo o ADR (leva de 1 a 3 minutos)...", flush=True)
+    def novos_adrs():
+        return sorted(a for a in pasta.glob("ADR-*.md") if antes.get(a) != a.stat().st_mtime_ns)
+
     resposta = chamar(PEDIDO_ADR.format(decisao=decisao), raiz, modelo_adr(raiz))
     if resposta.get("erro") or resposta.get("is_error"):
         print(f"O agente não terminou: {resposta.get('erro') or str(resposta.get('result'))[:300]}")
         return 1
-    novos = sorted(a for a in pasta.glob("ADR-*.md") if antes.get(a) != a.stat().st_mtime_ns)
+    if not novos_adrs():
+        # Aconteceu em 1 de 3 testes (16/11/2026): o agente descreveu o ADR e não escreveu. Uma nova tentativa, direta.
+        print("O agente descreveu o ADR sem escrever o arquivo. Tentando de novo, com um pedido mais direto...", flush=True)
+        resposta2 = chamar(PEDIDO_ADR_DIRETO.format(decisao=decisao), raiz, modelo_adr(raiz))
+        if resposta2.get("erro") or resposta2.get("is_error"):
+            print(f"O agente não terminou: {resposta2.get('erro') or str(resposta2.get('result'))[:300]}")
+            return 1
+        resposta = resposta2
+    novos = novos_adrs()
     if not novos:
         print("O agente não escreveu nenhum ADR em docs/adr/. O que ele respondeu:\n  "
               + str(resposta.get("result", ""))[:600].replace("\n", "\n  ")

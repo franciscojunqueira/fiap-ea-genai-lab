@@ -173,3 +173,24 @@ def test_o_pedido_do_adr_manda_ler_o_invencoes_e_nao_usar_o_que_foi_marcado_erra
     assert "integrador/pacote/engenharia-reversa/invencoes.md" in pedido
     assert "nunca use como fato" in pedido and "errada ou imprecisa" in pedido
     assert pedido.index("invencoes.md") < pedido.index("nunca use como fato")
+
+
+def test_adr_tenta_de_novo_uma_vez_com_pedido_direto_se_o_agente_nao_escreveu(tmp_path, capsys):
+    raiz = _repo_do_adr(tmp_path)
+    exemplo = RAIZ / ".agents/skills/escrevendo-adrs/reference/ADR-003-armazenamento-de-alertas.md"
+    pedidos = []
+
+    def agente(prompt, r, modelo):
+        pedidos.append(prompt)
+        if len(pedidos) == 2:
+            shutil.copy(exemplo, r / "docs/adr/ADR-003-acesso-ao-sgc.md")
+        return {"result": "descrevi"}
+
+    assert atividade2.adr("uma decisão", raiz, chamar=agente) == 0
+    assert len(pedidos) == 2 and pedidos[1].startswith("Escreva agora o arquivo do ADR em docs/adr/; não descreva, escreva.")
+    assert "Tentando de novo" in capsys.readouterr().out
+    # sem escrever nas duas vezes: só duas chamadas, e o grupo é mandado rodar de novo
+    outro = _repo_do_adr(tmp_path / "x")
+    pedidos.clear()
+    assert atividade2.adr("uma decisão", outro, chamar=lambda p, *a: pedidos.append(p) or {"result": "não"}) == 1
+    assert len(pedidos) == 2 and "Rodem o comando de novo" in capsys.readouterr().out

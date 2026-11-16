@@ -23,10 +23,17 @@ def rodar(copia, *args):
     return subprocess.run([sys.executable, *args], cwd=copia, capture_output=True, text=True)
 
 
+# Estes testes partem do AGENTS.md do template. No repositório do grupo, o Lab 1 já escreveu a seção do Mini-ERP: pular
+# em vez de falhar, para o `make test` do grupo não acusar erro que não é dele.
+so_no_template = pytest.mark.skipif("## Mini-ERP" in (RAIZ / "AGENTS.md").read_text(encoding="utf-8"),
+                                    reason="AGENTS.md do grupo já tem a seção do Mini-ERP: estes testes conferem o template")
+
+
 def trocar(arquivo, velho, novo):
     arquivo.write_text(arquivo.read_text(encoding="utf-8").replace(velho, novo), encoding="utf-8")
 
 
+@so_no_template
 def test_lab1_check_falha_no_inicio_e_passa_na_referencia(tmp_path):
     copia = tmp_path / "repo"
     shutil.copytree(RAIZ, copia, ignore=IGNORAR)
@@ -59,6 +66,7 @@ def test_lab1_check_falha_no_inicio_e_passa_na_referencia(tmp_path):
     assert "lab1-check: PASS (7/7 itens)" in final.stdout
 
 
+@so_no_template
 def test_lab1_check_nao_aceita_atalhos(tmp_path):
     copia = tmp_path / "repo"
     shutil.copytree(RAIZ, copia, ignore=IGNORAR)

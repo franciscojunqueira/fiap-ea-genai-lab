@@ -58,6 +58,12 @@ def preencher(raiz):
         (raiz / "docs" / "adr" / f"ADR-00{n}-exemplo.md").write_text(texto, encoding="utf-8")
 
 
+# Depois do `make atividade1` (repositório de grupo), o pacote já não é o modelo do template: pular em vez de falhar.
+so_no_template = pytest.mark.skipif("PREENCHER" not in (RAIZ / "integrador/pacote/engenharia-reversa/c4.md").read_text(encoding="utf-8"),
+                                    reason="Pacote já preenchido: este teste confere os modelos do template")
+
+
+@so_no_template
 def test_modelos_dao_fail_com_mensagem(repo):
     for etapa in ("er", "checkpoint", "final"):
         codigo, saida = rodar(etapa, repo)
