@@ -27,11 +27,16 @@ um servidor MCP ou uma skill de terceiro; a escrita no SGC sem aprovação; o cu
 
 ## Posição no control plane
 
-<!-- Gateway e roteamento por sensibilidade (os 3 departamentos), identidade do agente e das
-ferramentas, auditoria (RC-05), limites de custo, evals contínuas. Uma plataforma de mercado
-ou componentes próprios, e o custo de sair. -->
+<!-- O control plane são as decisões que valem para todos os agentes da empresa. A Aula 4 ensina três.
+Depois das três, digam onde cada controle é aplicado: no gateway, no índice ou na aplicação. -->
 
-[PREENCHER: as três decisões do control plane. Que dado vai para que região e que modelo (RC-03). Com que identidade o agente busca e age (a do usuário ou uma própria). Que modelos, skills e servidores MCP a empresa aprova para o Bússola, e quem é o dono de cada um. Depois, onde fica cada controle (gateway, aplicação ou ferramenta) e se o grupo usa uma plataforma de mercado ou componentes próprios, com o custo de sair]
+[PREENCHER: sensibilidade e residência. Que dado vai para que região e para que modelo (RC-03)?]
+
+[PREENCHER: identidade. Com que identidade o Bússola busca e age: a do usuário ou uma própria?]
+
+[PREENCHER: catálogo. Que modelos, skills e servidores MCP a empresa aprova para o Bússola, e quem é o dono de cada um?]
+
+[PREENCHER: onde fica cada controle (gateway, índice ou aplicação). O grupo usa uma plataforma de mercado ou componentes próprios, e qual é o custo de sair?]
 
 ## Requisitos regulatórios
 
