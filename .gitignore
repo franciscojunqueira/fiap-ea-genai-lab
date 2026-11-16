@@ -14,3 +14,8 @@ integrador/legado/dados/sgc.db
 integrador/legado/dados/remessa/
 integrador/legado/dados/retorno/
 integrador/legado/saida/
+
+# Estado do gateway simulado da Aula 3 (cota, cache, registro): gerado a cada demonstração
+labs/lab5/estado/
+labs/lab4/execucoes/
+labs/lab4/orquestracao/execucoes/

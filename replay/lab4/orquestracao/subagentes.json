@@ -1,0 +1,11 @@
+{
+  "modo": "subagentes",
+  "modelo": "claude-sonnet-5-5",
+  "data": "2026-11-16 02:06",
+  "duracao_s": 16.2,
+  "subagentes": 3,
+  "tokens": 89379,
+  "custo_usd": 0.1020867,
+  "texto": "| ADR | Problema mais grave |\n|---|---|\n| ADR-101 (modelo do Bússola) | Usa o Haiku 5.5 para todas as perguntas, o que viola o RC-12 e o RC-01. O próprio ADR admite que perguntas que juntam dois documentos podem errar. O Lab 2 teve 7 acertos em 10, e o gatilho de reversão é 80%, que o teste já não atingiu. Isso pesa mais para o Risco. |\n| ADR-102 (acesso ao SGC) | Se baseia no \"RC-13\", que não existe, porque o caso vai só até o RC-12. A exigência de saldo em tempo real é inventada. A leitura direta do banco durante o dia pode degradar o SGC e afetar o lote (RC-09). O gatilho de reversão de 20% de carga é arbitrário. |\n| ADR-103 (AI Gateway) | Não garante o RC-05. O registro do gateway não tem usuário nem fontes, e não diz onde fica retido nem por quanto tempo. A trilha de 5 anos depende de cada aplicação. Também não demonstra o RC-03 nem o RC-08 (limite de R$ 35 mil). A reversão \"sem custo\" é falsa, porque cota, cache e registro ficam no APIM. |\n\nO ADR-101 também tem lacunas secundárias no RC-03, no RC-06 (30 s para o Risco) e no RC-08.",
+  "erro": false
+}

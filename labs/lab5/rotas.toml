@@ -1,0 +1,49 @@
+# Rotas do gateway simulado (Aula 3, Demonstração 4). Ler; o professor edita na aula.
+#
+# É o "guia" do gateway: as regras que a empresa põe no ponto por onde passa toda chamada a modelo.
+# No Azure API Management, cada bloco abaixo corresponde a uma política (veja labs/lab5/README.md).
+# A aplicação (o Bússola) não sabe nada disto: ela só pede um apelido de modelo.
+
+# Apelidos: a aplicação chama "bussola-padrao"; o gateway decide a versão. Trocar a versão aqui
+# troca o modelo de todas as aplicações, sem mudar código. Só se troca depois de a eval aprovar.
+[apelidos]
+bussola-padrao = "claude-haiku-5-5"
+bussola-analise = "claude-sonnet-5-5"
+bussola-reserva = "claude-sonnet-5-5"
+
+# Sensibilidade de cada departamento (integrador/caso.md, seção 3).
+[sensibilidade]
+"Arquitetura" = "Interno"
+"TI Operacional" = "Interno"
+"Risco" = "Regulado"
+
+# Residência (RC-03): pedido com dado pessoal ou de departamento Regulado vai para uma região no Brasil.
+# SIMULADO: em 16/11/2026, nenhum modelo Claude roda em região no Brasil (Microsoft Foundry, página
+# claude-models de 21/09/2026). A rota existe para mostrar a regra; o "modelo" responde só um aviso.
+[residencia]
+regiao_obrigatoria = "Brasil"
+modelo_brasil = "modelo-brasil (simulado)"
+departamentos = ["Risco"]
+
+# Roteamento por complexidade: pergunta de análise vai ao modelo grande. SIMPLIFICADO: aqui é uma lista
+# de palavras; o model router do Foundry usa um modelo treinado (modos Balanced, Cost e Quality).
+[complexidade]
+palavras_de_analise = ["compare", "compara", "analise", "analisa", "avalie", "por que", "riscos", "trade-off"]
+apelido_simples = "bussola-padrao"
+apelido_analise = "bussola-analise"
+
+# Cota de tokens por departamento e por mês (RC-08). No APIM: llm-token-limit com token-quota.
+[cota]
+periodo = "mês"
+tokens = { "Arquitetura" = 400000, "TI Operacional" = 600000, "Risco" = 50000 }
+
+# Cache semântico: pergunta parecida com uma já respondida volta do cache, sem custo.
+# SIMPLIFICADO: a semelhança aqui é a fração de palavras em comum; o APIM usa embeddings e um limiar
+# (llm-semantic-cache-lookup, score-threshold). O risco é o mesmo: parecida não é igual.
+[cache]
+limiar = 0.7
+
+# Modelo reserva: se o modelo principal recusar (excesso de uso), o gateway tenta o reserva.
+# No APIM: backend pool com prioridade e circuit breaker.
+[reserva]
+apelido = "bussola-reserva"

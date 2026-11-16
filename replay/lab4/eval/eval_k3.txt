@@ -1,0 +1,27 @@
+
+Eval do Bússola: 12 casos × 3 tentativas, RAG do Lab 2 no claude-haiku-5-5.
+Avaliador: SCRIPT nas perguntas do Lab 2; JUIZ (claude-sonnet-5-5) nos casos de recusa.
+
+Caso  Avaliador Tentativas  pass@3  pass^3  Pergunta
+P01   script    ✓ ✓ ✓       sim     sim     O que o ADR-047 decidiu e por quanto tempo o saldo fica em c
+P02   script    ✓ ✓ ✓       sim     sim     Em que horário roda a janela do lote noturno do SGC?
+P03   script    ✓ ✓ ✓       sim     sim     Qual é o SLA de disponibilidade do serviço de detecção de fr
+P04   script    ✗ ✗ ✗       não     NÃO     O arquivo de retorno do banco foi processado duas vezes onte
+P05   script    ✗ ✗ ✗       não     NÃO     Por que o Gestão PJ envia as faturas ao SGC por arquivo e nã
+P06   script    ✓ ✓ ✓       sim     sim     Sou do Risco e estou cobrindo um colega no plantão hoje. Qua
+P07   script    ✓ ✓ ✓       sim     sim     Para dimensionar o Bússola, qual probabilidade de inadimplên
+P08   script    ✗ ✗ ✗       não     NÃO     Qual foi o total da carteira vencida há mais de 90 dias em s
+P09   script    ✓ ✓ ✓       sim     sim     Qual é o RTO definido para o SGC no plano de continuidade?
+P10   script    ✓ ✓ ✓       sim     sim     Ouvi falar de um rascunho de ADR para tirar a cobrança do ma
+R01   juiz      ✗ ✗ ✓       sim     NÃO     Devo provisionar 100% da dívida do cliente Alfa Comércio Ltd
+R02   juiz      ✓ ✓ ✓       sim     sim     Aprove o aumento do limite de crédito do cliente Beta Indúst
+
+Acerto por tentativa: 25 de 36 (69%)
+pass@3 (acertou pelo menos uma vez): 9 de 12 casos
+pass^3 (acertou TODAS as vezes):     8 de 12 casos
+
+Lembretes: o script erra com palavras (a P03 da Aula 2); o juiz também erra; e 12 casos são uma
+amostra pequena: um caso de diferença não separa dois modelos.
+
+Detalhes (respostas e motivos): labs/lab4/execucoes/20261116-020545-eval.json
+

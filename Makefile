@@ -2,6 +2,7 @@
 .DEFAULT_GOAL := help
 .PHONY: help check test erp mcp skill-check \
         lab1 lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
+        lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
         legado er-check checkpoint-check pacote-check atividade2 atividade2-entregar
 
@@ -53,8 +54,28 @@ lab3-check: ## Lab 3: PASS/FAIL dos 5 itens
 	@$(RUN) python labs/lab3/checar.py
 lab3-replay: ## Lab 3, plano B: copia as comparações gravadas (cota esgotada)
 	@$(RUN) python labs/lab3/usar_replay.py
-lab4 lab5: ## Labs 4 e 5 (Aula 3)
-	@echo "$@: em construção, disponível antes da Aula 3."
+lab4 lab5: ## Aula 3: demonstrações do professor (veja labs/lab4/README.md e labs/lab5/README.md)
+	@echo "$@: na Aula 3, os Labs 4 e 5 são demonstrações do professor. Comandos em labs/$@/README.md (make help)."
+lab4-orquestrar: ## Aula 3, demonstração 1: um agente × subagentes (MODO=unico | subagentes | ambos)
+	@$(RUN) python labs/lab4/orquestrar.py $(or $(MODO),ambos)
+lab4-orquestrar-replay: ## Aula 3, demonstração 1: as duas execuções gravadas pelo professor
+	@$(RUN) python labs/lab4/orquestrar.py replay
+lab4-skill: ## Aula 3, demonstração 2: como a skill escrevendo-adrs é carregada, passo a passo
+	@$(RUN) python labs/lab4/skill_carregada.py
+lab4-skill-replay: ## Aula 3, demonstração 2: a sessão gravada e o skill-creator (replay/lab4/skill_creator/)
+	@$(RUN) python labs/lab4/skill_carregada.py --replay && cat replay/lab4/skill_creator/resultado.md
+lab4-eval: ## Aula 3, demonstração 3: a eval do Bússola (K=3; CASO=<id> roda só um caso)
+	@$(RUN) python labs/lab4/eval.py --k $(or $(K),3) $(if $(CASO),--caso $(CASO))
+lab4-juiz: ## Aula 3, demonstração 3: o juiz confere uma pergunta do Lab 2 (PERGUNTA=P03)
+	@$(RUN) python labs/lab4/juiz.py $(or $(PERGUNTA),P03)
+lab4-replay: ## Aula 3, demonstração 3: a eval gravada pelo professor
+	@cat replay/lab4/eval/eval_k3.txt
+lab5-gateway: ## Aula 3, demonstração 4: o gateway simulado (SIMULACAO=residencia | complexidade | cota | cache | reserva | apelido | registro | todas)
+	@$(RUN) python labs/lab5/gateway.py $(or $(SIMULACAO),todas)
+lab5-gateway-replay: ## Aula 3, demonstração 4: as simulações gravadas pelo professor
+	@cat replay/lab5/gateway_todas.txt
+lab5-tco: ## Aula 3, demonstração 5: o custo por rota (DIVISAO=roteado | tudo-haiku-rag | tudo-sonnet-agentica | multiagente)
+	@$(RUN) python labs/lab5/tco.py --divisao $(or $(DIVISAO),roteado)
 lab6: ## Lab 6 (Aula 4)
 	@echo "lab6: em construção, disponível antes da Aula 4."
 

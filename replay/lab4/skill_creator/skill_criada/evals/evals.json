@@ -1,0 +1,4 @@
+{"skill_name":"revisando-adr-bussola","evals":[
+{"id":1,"name":"adr-101-palha","prompt":"Revise o ADR adrs/ADR-101-modelo-do-bussola.md do Bússola.","expected_output":"Problema mais grave: alternativa 3 (treinar modelo do zero) é palha / fora do escopo (caso.md seção 6)"},
+{"id":2,"name":"adr-102-requisito-inexistente","prompt":"Critique o ADR adrs/ADR-102-acesso-ao-sgc.md do Bússola.","expected_output":"Problema mais grave: RC-13 não existe no caso.md (vai até RC-12)"},
+{"id":3,"name":"adr-103-reversao-sem-custo","prompt":"Confira o ADR adrs/ADR-103-ai-gateway.md do Bússola.","expected_output":"Problema mais grave: reversão 'sem custo' é falsa (apps, políticas, logs de 5 anos RC-05)"}]}

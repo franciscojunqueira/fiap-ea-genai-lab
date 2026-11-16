@@ -1,0 +1,11 @@
+{
+  "modo": "unico",
+  "modelo": "claude-sonnet-5-5",
+  "data": "2026-11-16 02:06",
+  "duracao_s": 11.5,
+  "subagentes": 0,
+  "tokens": 20349,
+  "custo_usd": 0.035724,
+  "texto": "**ADR-101 (modelo)**\n- Haiku 5.5 para tudo, com 7/10 de acerto no Lab 2. A consequência admite erro em perguntas multi-documento.\n- Isso é incoerente com RC-01 e RC-12. Não há roteamento por tipo de pergunta nem avaliação de Risco (30 s).\n- O gatilho de 80% já está violado (70%). O ADR não cita RC-03 (a região do modelo) nem RC-12.\n\n**ADR-102 (SGC)**\n- Baseia-se na \"RC-13\", que não existe. O caso vai de RC-01 a RC-12. O \"tempo real\" foi inventado.\n- A decisão consulta o banco de produção do SGC a cada pergunta, o que ameaça RC-09 (lote) e a estabilidade do legado.\n- Faltam RC-02, RC-04 e RC-05. A leitura de dados regulados (CPF) também não tem controle de acesso. O relatório diário (alternativa 1) basta.\n\n**ADR-103 (gateway)**\n- A decisão não confirma que o Brazil South atende RC-03. Também não trata da comunicação ao BCB (Res. 4.893, art. 15) pela contratação de nuvem.\n- O gateway só registra parcialmente (RC-05), e o ADR deixa a lacuna para a aplicação. Isso enfraquece a auditoria.\n- A reversão \"sem custo\" é pouco realista. Cota, cache e logs ficam presos às políticas do APIM. O ADR também não estima custo (RC-08).\n- O mais grave é a lacuna de RC-03/RC-05 (região e auditoria).\n\n| ADR | problema |\n|---|---|\n| ADR-101 | Haiku para tudo, com 70% de acerto (abaixo do próprio gatilho de 80%). Não há roteamento nem validação de RC-01, RC-03 ou RC-12. |\n| ADR-102 | Depende da \"RC-13\", inexistente. Consulta ao vivo o banco de produção do SGC, com risco a RC-09 e sem RC-02, RC-04 ou RC-05. |\n| ADR-103 | Auditoria incompleta (RC-05) e conformidade de região e BCB (RC-03, Res. 4.893) não demonstrada. Reversão \"sem custo\" não é crível. |",
+  "erro": false
+}

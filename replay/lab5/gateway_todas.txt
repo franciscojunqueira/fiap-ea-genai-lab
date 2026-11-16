@@ -1,0 +1,147 @@
+
+=== Residência (RC-03): o mesmo Bússola, duas rotas ===
+
+Pedido da3f2b52 · TI Operacional · "Em que horário roda a janela do lote noturno do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 0 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         nenhuma pergunta parecida guardada
+  modelo        claude-haiku-5-5 respondeu em 3,8 s; 2.182 tokens; US$ 0,00024
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação da3f2b52)
+  resposta      A janela do lote noturno do SGC roda das 21:30 às 23:00, em dias úteis.
+
+Durante essa janela, não é permitido fazer carga pesada no banco do SGC, como consultas…
+
+Pedido 0a3f8c75 · Risco · "Qual é o saldo em atraso do cliente de CPF 123.456.789-09?"
+  identificação departamento Risco, sensibilidade Regulado; dado pessoal: sim (123.456.789-09)
+  cota          Risco: 0 de 50.000 tokens usados no mês; segue
+  residência    dado pessoal na pergunta → região obrigatória: Brasil (RC-03) → modelo-brasil (simulado)
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 0a3f8c75)
+  resposta      [simulado] Esta rota levaria o pedido a um modelo hospedado no Brasil.
+
+=== Roteamento por complexidade: a pergunta decide o modelo ===
+
+Pedido de34d23d · Arquitetura · "O que o ADR-047 decidiu sobre o cache do saldo?"
+  identificação departamento Arquitetura, sensibilidade Interno; dado pessoal: não
+  cota          Arquitetura: 0 de 400.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         nenhuma pergunta parecida guardada
+  modelo        claude-haiku-5-5 respondeu em 5,8 s; 2.776 tokens; US$ 0,00055
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação de34d23d)
+  resposta      Segundo o ADR-047 (status Aprovado, de 12/03/2025), a decisão sobre o cache do saldo tem três pontos:
+
+1. Adotar Redis em cluster (Redis 7, 3 primários e 3 répl…
+
+Pedido 2ed57b83 · Arquitetura · "Compare o cache local e o Redis do ADR-047 e diga os riscos de cada opção para o saldo."
+  identificação departamento Arquitetura, sensibilidade Interno; dado pessoal: não
+  cota          Arquitetura: 2.776 de 400.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta de análise ("compare") → bussola-analise
+  apelido       bussola-analise → claude-sonnet-5-5
+  cache         a mais parecida tem semelhança 0,30, abaixo do limiar 0,70
+  modelo        claude-sonnet-5-5 respondeu em 9,9 s; 2.998 tokens; US$ 0,01604
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 2ed57b83)
+  resposta      Os trechos do ADR-047 que tenho estão incompletos, então só consigo comparar com base neles.
+
+**Cache local em memória (situação anterior, uma cópia por réplica…
+
+=== Cota de tokens por departamento (RC-08) ===
+
+Pedido 2658a245 · Risco · "Qual é o percentual de provisão para a faixa de 90 dias de atraso?"
+  identificação departamento Risco, sensibilidade Regulado; dado pessoal: não
+  cota          Risco já usou 49.000 de 50.000 tokens no mês. Pedido RECUSADO (429): "cota mensal esgotada; fale com o dono do orçamento" (RC-08)
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 2658a245)
+
+=== Cache semântico: economia e risco ===
+
+Pedido 252b8a36 · TI Operacional · "Em que horário roda a janela do lote noturno do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 0 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         nenhuma pergunta parecida guardada
+  modelo        claude-haiku-5-5 respondeu em 3,8 s; 2.217 tokens; US$ 0,00026
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 252b8a36)
+  resposta      A janela do lote noturno do SGC roda das 21:30 às 23:00, somente em dias úteis. Durante essa janela, não se deve executar carga pesada no banco do SGC (consulta…
+
+Pedido 3210e129 · TI Operacional · "Qual é o horário da janela do lote noturno do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 2.217 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         parecida com "Em que horário roda a janela do lote noturno do SGC?" (semelhança 0,83, limiar 0,70) → resposta do cache, sem chamar o modelo, custo zero
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 3210e129)
+  resposta      A janela do lote noturno do SGC roda das 21:30 às 23:00, somente em dias úteis. Durante essa janela, não se deve executar carga pesada no banco do SGC (consulta…
+
+Pedido f633bd14 · TI Operacional · "Em que horário roda a janela do lote diurno do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 2.217 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         parecida com "Em que horário roda a janela do lote noturno do SGC?" (semelhança 0,71, limiar 0,70) → resposta do cache, sem chamar o modelo, custo zero
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação f633bd14)
+  resposta      A janela do lote noturno do SGC roda das 21:30 às 23:00, somente em dias úteis. Durante essa janela, não se deve executar carga pesada no banco do SGC (consulta…
+
+  Atenção: a terceira pergunta é sobre o lote DIURNO, mas recebeu a resposta do NOTURNO.
+
+=== Modelo reserva: o principal recusa, o gateway desvia ===
+
+Pedido e12116f8 · TI Operacional · "Quem é o dono do runbook do lote do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 0 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         nenhuma pergunta parecida guardada
+  modelo        claude-haiku-5-5 recusou (429, excesso de uso) → circuit breaker aberto para ele
+  reserva       bussola-reserva → claude-sonnet-5-5
+  modelo        claude-sonnet-5-5 respondeu em 4,2 s; 2.094 tokens; US$ 0,00478
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação e12116f8)
+  resposta      O runbook do lote noturno do SGC indica como **área responsável** a **TI Operacional (plantão 24x7)**. Ele não cita uma pessoa nominal como dona. Nos trechos qu…
+
+=== Apelido de modelo: trocar a versão sem mudar a aplicação (sem chamar o modelo) ===
+
+  A aplicação sempre pede "bussola-padrao".
+  Hoje, em labs/lab5/rotas.toml:      bussola-padrao = "claude-haiku-5-5"
+  O fornecedor anuncia a aposentadoria do modelo. A eval roda no modelo novo e passa.
+  O time troca UMA linha no gateway:   bussola-padrao = "claude-sonnet-5-5"
+  Resultado: todas as aplicações que pedem bussola-padrao passam a usar o modelo novo,
+  sem deploy. Sem a eval aprovada, a troca não acontece: a eval é o portão.
+
+=== Registro para auditoria (RC-05): o que o gateway vê e o que não vê ===
+
+Pedido 0137e4b0 · TI Operacional · "Em que horário roda a janela do lote noturno do SGC?"
+  identificação departamento TI Operacional, sensibilidade Interno; dado pessoal: não
+  cota          TI Operacional: 0 de 600.000 tokens usados no mês; segue
+  residência    sem dado pessoal e departamento não Regulado → região global permitida
+  complexidade  pergunta simples → bussola-padrao
+  apelido       bussola-padrao → claude-haiku-5-5
+  cache         nenhuma pergunta parecida guardada
+  modelo        claude-haiku-5-5 respondeu em 4,0 s; 2.254 tokens; US$ 0,00028
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 0137e4b0)
+  resposta      A janela do lote noturno do SGC roda das 21:30 às 23:00, em dias úteis. Durante essa janela não se deve executar carga pesada no banco do SGC, como consultas an…
+
+Pedido b6ad448c · Risco · "Qual é o saldo em atraso do cliente de CPF 123.456.789-09?"
+  identificação departamento Risco, sensibilidade Regulado; dado pessoal: sim (123.456.789-09)
+  cota          Risco: 0 de 50.000 tokens usados no mês; segue
+  residência    dado pessoal na pergunta → região obrigatória: Brasil (RC-03) → modelo-brasil (simulado)
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação b6ad448c)
+  resposta      [simulado] Esta rota levaria o pedido a um modelo hospedado no Brasil.
+
+  O que o GATEWAY registrou (últimas 2 linhas):
+    {'correlacao': '0137e4b0', 'modelo': 'claude-haiku-5-5', 'regiao': 'global', 'tokens_entrada': 1769, 'tokens_saida': 485, 'custo_usd': 0.000278, 'decisao': 'respondido pelo modelo', 'pergunta_como_veio': 'Em que horário roda a janela do lote noturno do SGC?'}
+    {'correlacao': 'b6ad448c', 'modelo': 'modelo-brasil (simulado)', 'regiao': 'Brasil', 'tokens_entrada': 0, 'tokens_saida': 0, 'custo_usd': 0.0, 'decisao': 'rota no Brasil (simulada: nenhum Claude roda no Brasil)', 'pergunta_como_veio': 'Qual é o saldo em atraso do cliente de CPF 123.456.789-09?'}
+
+  O que falta no registro do gateway: o USUÁRIO, as FONTES usadas e as FERRAMENTAS chamadas.
+  E o CPF ficou gravado como veio: o gateway não mascara dado pessoal sozinho.
+
+  O que a APLICAÇÃO registra, ligado pelo mesmo número de correlação:
+    {'correlacao': '0137e4b0', 'usuario': 'ana.souza (TI Operacional)', 'fontes': ['runbook_lote_sgc.md', 'runbook_backup_sgc.md', 'runbook_reprocessar_retorno.md'], 'ferramentas': []}
+

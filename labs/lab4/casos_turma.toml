@@ -1,0 +1,10 @@
+# Casos que a turma dita no chat durante a Demonstração 3 (Aula 3). O professor edita.
+# Depois de acrescentar, rode só o caso novo: make lab4-eval CASO=T01 K=1
+#
+# Modelo de caso (tire o # das linhas e troque o texto):
+# [[caso]]
+# id = "T01"
+# departamento = "Risco"            # Arquitetura, TI Operacional ou Risco
+# texto = "a pergunta que a turma ditou"
+# avaliador = "juiz"
+# criterio = "Certo se ... Errado se ..."

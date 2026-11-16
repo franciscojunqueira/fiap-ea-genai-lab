@@ -1,0 +1,60 @@
+# Premissas do custo por rota (Aula 3, Demonstração 5). Ler; o professor troca a divisão na aula.
+# Cada número diz de onde veio. O custo por consulta de cada arquitetura NÃO está aqui: o script lê
+# o que foi medido nos testes do Lab 2 (replay/lab2/gravacao/, 14/10/2026), a preço de API.
+
+[volumes]
+# Consultas por dia útil: integrador/caso.md, seção 3 (cenários de volume).
+piloto = 450
+alvo = 4500
+expansao = 25000
+# Premissa do professor: dias úteis num mês.
+dias_uteis_mes = 21
+
+[residencia]
+# Consultas por dia útil que precisam da rota no Brasil (RC-03): o Risco tem 30 analistas × 15
+# consultas (caso.md, seção 3). No piloto só a Arquitetura usa o Bússola.
+piloto = 0
+alvo = 450
+expansao = 450
+
+[orcamento]
+# RC-08: até R$ 35 mil por mês no cenário alvo (modelos, infraestrutura e observabilidade; pessoas fora).
+# O caso não define orçamento para o piloto nem para a expansão.
+alvo_brl = 35000
+
+[cambio]
+# PTAX de venda, série SGS 1 do Banco Central (api.bcb.gov.br), consultada em 16/11/2026.
+usd_brl = 5.6518
+data = "13/11/2026"
+
+[infra]
+# O gateway também custa: Azure API Management Standard v2, 1 unidade, Brazil South, cerca de
+# US$ 0,9589 por hora × 730 h (Azure Retail Prices API, consultada em 16/11/2026).
+gateway_usd_mes = 700
+
+# Arquiteturas: o nome é a pasta do replay em replay/lab2/gravacao/.
+# "multiagente" não foi medido no curso: é a busca agêntica do Sonnet multiplicada pelo piso da faixa
+# da Anthropic (de 3 a 10 vezes os tokens; claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them,
+# 23/01/2026). Aparece marcada como ESTIMATIVA.
+[multiagente]
+base = "sonnet-agentica"
+fator = 3
+
+# Divisões: que fração das consultas (fora a rota no Brasil) vai para cada arquitetura.
+# Uso: make lab5-tco DIVISAO=<nome>
+[divisao.tudo-haiku-rag]
+descricao = "tudo no Haiku com RAG (o mais barato)"
+haiku-rag = 1.0
+
+[divisao.tudo-sonnet-agentica]
+descricao = "tudo no Sonnet com busca agêntica (o mais caro medido)"
+sonnet-agentica = 1.0
+
+[divisao.roteado]
+descricao = "o gateway manda 80% ao Haiku com busca agêntica e 20% (análises) ao Sonnet com busca agêntica"
+haiku-agentica = 0.8
+sonnet-agentica = 0.2
+
+[divisao.multiagente]
+descricao = "tudo num orquestrador com subagentes (ESTIMATIVA: 3× a busca agêntica do Sonnet)"
+multiagente = 1.0
