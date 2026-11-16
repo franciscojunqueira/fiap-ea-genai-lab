@@ -23,5 +23,5 @@ pass^3 (acertou TODAS as vezes):     8 de 12 casos
 Lembretes: o script erra com palavras (a P03 da Aula 2); o juiz também erra; e 12 casos são uma
 amostra pequena: um caso de diferença não separa dois modelos.
 
-Detalhes (respostas e motivos): labs/lab4/execucoes/20261116-020545-eval.json
+Detalhes (respostas e motivos): replay/lab4/eval/eval_k3.json
 

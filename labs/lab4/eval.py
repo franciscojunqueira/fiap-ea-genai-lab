@@ -12,6 +12,7 @@ Cada caso roda K vezes (padrão 3). "Acertou pelo menos uma vez" (pass@k) e "ace
 """
 import argparse
 import json
+import re
 import sys
 import time
 import tomllib
@@ -30,6 +31,31 @@ import rodar  # noqa: E402
 
 # 3 chamadas por vez, como no Lab 2: o plano não acusou excesso de requisições (medido em 13/10/2026).
 PARALELO = 3
+# Campos que todo caso de casos.toml e casos_turma.toml precisa ter. O juiz usa o critério.
+OBRIGATORIOS = ("id", "departamento", "texto", "criterio")
+
+
+def plural(n, singular, plural_):
+    return f"{n} {singular if n == 1 else plural_}"
+
+
+def erro_de_toml(nome, e):
+    """A mensagem em português; o detalhe técnico do tomllib vai entre parênteses, no fim."""
+    linha = re.search(r"line (\d+)", str(e))
+    onde = f" perto da linha {linha.group(1)}" if linha else ""
+    return f"labs/lab4/{nome} tem um erro de digitação{onde}. Confira as aspas e rode de novo. (Detalhe técnico: {e}.)"
+
+
+def validar(caso, nome, n):
+    """Para antes de chamar o modelo se faltar um campo no caso."""
+    quem = f"o caso {caso['id']}" if caso.get("id") else f"o {n}º caso"
+    for campo in OBRIGATORIOS:
+        if not str(caso.get(campo, "")).strip():
+            sys.exit(f"labs/lab4/{nome}: {quem} não tem o campo '{campo}'. "
+                     f"Acrescente a linha {campo} = \"...\" (veja o modelo no topo do arquivo) e rode de novo.")
+    caso.setdefault("avaliador", "juiz")
+    if caso["avaliador"] != "juiz":
+        sys.exit(f"labs/lab4/{nome}: {quem} tem avaliador = \"{caso['avaliador']}\". Aqui o avaliador é sempre \"juiz\".")
 
 
 def carregar_casos():
@@ -38,9 +64,12 @@ def carregar_casos():
         caminho = LAB / nome
         if caminho.exists():
             try:
-                casos += tomllib.loads(caminho.read_text(encoding="utf-8")).get("caso", [])
+                novos = tomllib.loads(caminho.read_text(encoding="utf-8")).get("caso", [])
             except tomllib.TOMLDecodeError as e:
-                sys.exit(f"labs/lab4/{nome} tem um erro de digitação: {e}. Confira as aspas e rode de novo.")
+                sys.exit(erro_de_toml(nome, e))
+            for n, caso in enumerate(novos, 1):
+                validar(caso, nome, n)
+            casos += novos
     validos = set(corpus.NIVEL_DO_DEPARTAMENTO)
     for c in casos:
         if c.get("departamento") not in validos:
@@ -60,6 +89,10 @@ def tentar(caso, modelo, docs):
     return {"certo": certo, "motivo": motivo, "resposta": texto}
 
 
+def certas_casos(certos, n):
+    return f"{certos} de {plural(n, 'caso', 'casos')}"
+
+
 def marca(certo):
     return "✓" if certo else ("?" if certo is None else "✗")
 
@@ -69,17 +102,19 @@ def main():
     ap.add_argument("--k", type=int, default=3, help="quantas vezes cada caso roda")
     ap.add_argument("--caso", help="roda só este caso (ex.: T01)")
     a = ap.parse_args()
-    msg = cli_modelo.disponivel("claude") or cli_modelo.logado()
-    if msg:
-        sys.exit(msg)
+    # Os casos são conferidos antes do login e antes de qualquer chamada: um erro de digitação aparece logo.
     casos = carregar_casos()
     if a.caso:
         casos = [c for c in casos if c["id"] == a.caso]
         if not casos:
             sys.exit(f"Caso {a.caso} não encontrado. Confira o id em labs/lab4/casos_turma.toml.")
+    msg = cli_modelo.disponivel("claude") or cli_modelo.logado()
+    if msg:
+        sys.exit(msg)
     modelo = tomllib.loads((RAIZ / "config" / "modelos.toml").read_text(encoding="utf-8"))["labs"]["modelo"]
     docs = corpus.carregar()
-    print(f"\nEval do Bússola: {len(casos)} casos × {a.k} tentativas, RAG do Lab 2 no {modelo}.")
+    print(f"\nEval do Bússola: {plural(len(casos), 'caso', 'casos')} × {plural(a.k, 'tentativa', 'tentativas')}, "
+          f"RAG do Lab 2 no {modelo}.")
     print(f"Avaliador: SCRIPT nas perguntas do Lab 2; JUIZ ({juiz.MODELO_JUIZ}) nos casos de recusa.\n", flush=True)
     tarefas = [(c, t) for c in casos for t in range(a.k)]
     with ThreadPoolExecutor(PARALELO) as pool:
@@ -100,11 +135,17 @@ def main():
         todas += sempre
         print(f"{cid:<5} {c['avaliador']:<9} {' '.join(marca(o) for o in oks):<11} {'sim' if alguma else 'não':<7} "
               f"{'sim' if sempre else 'NÃO':<7} {c['texto'][:60]}")
+    if a.caso:
+        # Um caso só: a tela mostra por que cada tentativa deu certo ou errado.
+        print("\nMotivo de cada tentativa:")
+        for i, r in enumerate(por_caso[a.caso][1], 1):
+            print(f"  {i}. {marca(r['certo'])} {r['motivo']}")
     n = len(por_caso)
     print(f"\nAcerto por tentativa: {certas} de {tentativas} ({certas / tentativas:.0%})")
-    print(f"pass@{a.k} (acertou pelo menos uma vez): {pelo_menos_uma} de {n} casos")
-    print(f"pass^{a.k} (acertou TODAS as vezes):     {todas} de {n} casos")
-    print("\nLembretes: o script erra com palavras (a P03 da Aula 2); o juiz também erra; e 12 casos são uma")
+    print(f"pass@{a.k} (acertou pelo menos uma vez): {certas_casos(pelo_menos_uma, n)}")
+    print(f"pass^{a.k} (acertou TODAS as vezes):     {certas_casos(todas, n)}")
+    amostra = f"{plural(n, 'caso', 'casos')} {'é' if n == 1 else 'são'} uma"
+    print(f"\nLembretes: o script erra com palavras (a P03 da Aula 2); o juiz também erra; e {amostra}")
     print("amostra pequena: um caso de diferença não separa dois modelos.\n")
     destino = LAB / "execucoes"
     destino.mkdir(exist_ok=True)

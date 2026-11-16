@@ -72,8 +72,8 @@ lab4-replay: ## Aula 3, demonstração 3: a eval gravada pelo professor
 	@cat replay/lab4/eval/eval_k3.txt
 lab5-gateway: ## Aula 3, demonstração 4: o gateway simulado (SIMULACAO=residencia | complexidade | cota | cache | reserva | apelido | registro | todas)
 	@$(RUN) python labs/lab5/gateway.py $(or $(SIMULACAO),todas)
-lab5-gateway-replay: ## Aula 3, demonstração 4: as simulações gravadas pelo professor
-	@cat replay/lab5/gateway_todas.txt
+lab5-gateway-replay: ## Aula 3, demonstração 4: as simulações gravadas pelo professor (SIMULACAO=<nome> mostra uma só)
+	@$(RUN) python labs/lab5/gateway.py --replay $(or $(SIMULACAO),todas)
 lab5-tco: ## Aula 3, demonstração 5: o custo por rota (DIVISAO=roteado | tudo-haiku-rag | tudo-sonnet-agentica | multiagente)
 	@$(RUN) python labs/lab5/tco.py --divisao $(or $(DIVISAO),roteado)
 lab6: ## Lab 6 (Aula 4)

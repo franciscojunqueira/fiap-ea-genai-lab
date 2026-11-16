@@ -18,6 +18,7 @@ import sys
 import tempfile
 import time
 import tomllib
+import unicodedata
 from pathlib import Path
 
 LAB = Path(__file__).resolve().parent
@@ -51,6 +52,11 @@ PEDIDO = {
                    "e o caso.md e devolve em até 3 linhas o problema mais grave. No fim, junte os pareceres numa "
                    "tabela: ADR | problema."),
 }
+# As respostas gravadas tinham de 1.000 a 2.000 caracteres (replay de 16/11/2026). Até 3.000, a tela mostra
+# tudo. Acima disso, mostra o começo e o fim, porque a tabela final fica no fim.
+LIMITE_TELA = 3000
+FIM_TELA = 1000
+MODOS = ("unico", "subagentes", "ambos", "replay")
 SISTEMA = ("Você é um revisor de arquitetura da TechCorp Banco Múltiplo. Revise ADRs contra os requisitos do "
            "caso (RC-01 a RC-12). Responda em português, em frases curtas.")
 
@@ -96,10 +102,27 @@ def achados(texto):
     return {adr: bool(re.search(rx, texto, re.I)) for adr, (_, rx) in PLANTADOS.items()}
 
 
+def recortar(texto):
+    """O texto inteiro até LIMITE_TELA; acima disso, o começo e o fim (onde fica a tabela)."""
+    texto = texto.strip()
+    if len(texto) <= LIMITE_TELA:
+        return texto
+    return texto[:LIMITE_TELA - FIM_TELA] + "\n\n[… trecho do meio omitido …]\n\n" + texto[-FIM_TELA:]
+
+
+def normalizar_modo(modo):
+    """Aceita acento e maiúscula: "Único" vira "unico"."""
+    return unicodedata.normalize("NFKD", modo.strip().lower()).encode("ascii", "ignore").decode()
+
+
 def mostrar(r):
-    ach = achados(r["texto"])
     print(f"\n=== Modo {r['modo']} ({r['modelo']}, {r['data']}) ===")
-    print(r["texto"].strip()[:1800])
+    if r.get("erro"):
+        print(f"  O Claude Code devolveu um erro: {r['texto'].strip()[:300] or '(sem mensagem)'}")
+        print("  Por isso não há problemas para contar. Use make lab4-orquestrar-replay.")
+        return
+    ach = achados(r["texto"])
+    print(recortar(r["texto"]))
     print(f"\n  Subagentes criados: {r['subagentes']}")
     print(f"  Problemas plantados achados: {sum(ach.values())} de 3 "
           + " · ".join(f"{a} {'✓' if ok else '✗'}" for a, ok in ach.items()))
@@ -109,7 +132,7 @@ def mostrar(r):
 
 
 def comparar(rs):
-    if len(rs) == 2 and rs[0]["tokens"]:
+    if len(rs) == 2 and rs[0]["tokens"] and not any(r.get("erro") for r in rs):
         u, s = rs
         fator = lambda x: f"{x:.1f}".replace(".", ",")
         custo = (f" e {fator(s['custo_usd'] / u['custo_usd'])}× o custo (o cache barateia a releitura)"
@@ -121,8 +144,11 @@ def comparar(rs):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("modo", choices=["unico", "subagentes", "ambos", "replay"])
+    ap.add_argument("modo", help="unico, subagentes, ambos ou replay")
     a = ap.parse_args()
+    pedido, a.modo = a.modo, normalizar_modo(a.modo)
+    if a.modo not in MODOS:
+        sys.exit(f"Modo '{pedido}' não existe. Use um destes: {', '.join(MODOS)}. Exemplo: make lab4-orquestrar MODO=unico")
     if a.modo == "replay":
         rs = [json.loads((REPLAY / f"{m}.json").read_text(encoding="utf-8")) for m in ("unico", "subagentes")
               if (REPLAY / f"{m}.json").exists()]
@@ -138,7 +164,7 @@ def main():
     EXECUCOES.mkdir(parents=True, exist_ok=True)
     rs = []
     for modo in (["unico", "subagentes"] if a.modo == "ambos" else [a.modo]):
-        print(f"\nRodando o modo {modo}... (cerca de 15 s; até 2 min com rede lenta)", flush=True)
+        print(f"\nRodando o modo {modo}... (15 a 20 s; até 2 min com rede lenta)", flush=True)
         r = rodar(modo)
         (EXECUCOES / f"{time.strftime('%Y%m%d-%H%M%S')}-{modo}.json").write_text(
             json.dumps(r, ensure_ascii=False, indent=2), encoding="utf-8")

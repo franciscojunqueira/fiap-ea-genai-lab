@@ -37,6 +37,7 @@ import corpus  # noqa: E402
 import rodar  # noqa: E402
 
 ESTADO = LAB / "estado"
+REPLAY = RAIZ / "replay" / "lab5" / "gateway_todas.txt"
 DADO_PESSOAL = re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b|\b\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}\b")
 # Palavras que não ajudam a comparar perguntas (artigos, preposições, interrogativos).
 VAZIAS = set("a o as os um uma e é de do da dos das em no na nos nas que qual quais quanto quando onde como "
@@ -123,6 +124,7 @@ class Gateway:
         if usado + ESTIMATIVA_TOKENS > limite:
             self.linha("cota", f"{departamento} já usou {mil(usado)} de {mil(limite)} tokens no {r['cota']['periodo']}. "
                        f"Pedido RECUSADO (403): \"cota mensal esgotada; fale com o dono do orçamento\" (RC-08)")
+            self.linha("modelo", "não chamado (o pedido parou na cota)")
             reg["decisao"] = "recusado pela cota (403)"
             return self.registrar(reg, "")
         self.linha("cota", f"{departamento}: {mil(usado)} de {mil(limite)} tokens usados no {r['cota']['periodo']}; segue")
@@ -203,26 +205,38 @@ def zerar():
         (ESTADO / nome).unlink(missing_ok=True)
 
 
+# O título de cada simulação. O replay usa os mesmos títulos para achar cada seção da gravação.
+TITULOS = {
+    "residencia": "Residência (RC-03): o mesmo Bússola, duas rotas",
+    "complexidade": "Roteamento por complexidade: a pergunta decide o modelo",
+    "cota": "Cota de tokens por departamento (RC-08)",
+    "cache": "Cache semântico: economia e risco",
+    "reserva": "Modelo reserva: o principal recusa, o gateway desvia",
+    "apelido": "Apelido de modelo: trocar a versão sem mudar a aplicação (sem chamar o modelo)",
+    "registro": "Registro para auditoria (RC-05): o que o gateway vê e o que não vê",
+}
+
+
 def titulo(texto):
     print(f"\n=== {texto} ===", flush=True)
 
 
 def sim_residencia(rotas):
-    titulo("Residência (RC-03): o mesmo Bússola, duas rotas")
+    titulo(TITULOS["residencia"])
     gw = Gateway(rotas)
     gw.atender("TI Operacional", "Em que horário roda a janela do lote noturno do SGC?")
     gw.atender("Risco", "Qual é o saldo em atraso do cliente de CPF 123.456.789-09?")
 
 
 def sim_complexidade(rotas):
-    titulo("Roteamento por complexidade: a pergunta decide o modelo")
+    titulo(TITULOS["complexidade"])
     gw = Gateway(rotas)
     gw.atender("Arquitetura", "O que o ADR-047 decidiu sobre o cache do saldo?")
     gw.atender("Arquitetura", "Compare o cache local e o Redis do ADR-047 e diga os riscos de cada opção para o saldo.")
 
 
 def sim_cota(rotas):
-    titulo("Cota de tokens por departamento (RC-08)")
+    titulo(TITULOS["cota"])
     cotas = ler_estado("cota.json", {})
     cotas["Risco"] = 49000   # o Risco já usou quase toda a cota do mês
     gravar_estado("cota.json", cotas)
@@ -230,7 +244,7 @@ def sim_cota(rotas):
 
 
 def sim_cache(rotas):
-    titulo("Cache semântico: economia e risco")
+    titulo(TITULOS["cache"])
     gw = Gateway(rotas)
     gw.atender("TI Operacional", "Em que horário roda a janela do lote noturno do SGC?")
     gw.atender("TI Operacional", "Qual é o horário da janela do lote noturno do SGC?")
@@ -239,13 +253,13 @@ def sim_cache(rotas):
 
 
 def sim_reserva(rotas):
-    titulo("Modelo reserva: o principal recusa, o gateway desvia")
+    titulo(TITULOS["reserva"])
     Gateway(rotas, falhar={rotas["apelidos"]["bussola-padrao"]}).atender(
         "TI Operacional", "Quem é o dono do runbook do lote do SGC?")
 
 
 def sim_apelido(rotas):
-    titulo("Apelido de modelo: trocar a versão sem mudar a aplicação (sem chamar o modelo)")
+    titulo(TITULOS["apelido"])
     agora = rotas["apelidos"]["bussola-analise"]
     print('\n  A aplicação sempre pede "bussola-analise".')
     print('  Antes, em labs/lab5/rotas.toml:   bussola-analise = "claude-sonnet-4-5"')
@@ -257,7 +271,7 @@ def sim_apelido(rotas):
 
 
 def sim_registro(rotas):
-    titulo("Registro para auditoria (RC-05): o que o gateway vê e o que não vê")
+    titulo(TITULOS["registro"])
     gw = Gateway(rotas)
     gw.atender("TI Operacional", "Em que horário roda a janela do lote noturno do SGC?", usuario="ana.souza (TI Operacional)")
     app = getattr(gw, "ultima_app", None)
@@ -277,15 +291,54 @@ def sim_registro(rotas):
 
 SIMULACOES = {"residencia": sim_residencia, "complexidade": sim_complexidade, "cota": sim_cota,
               "cache": sim_cache, "reserva": sim_reserva, "apelido": sim_apelido, "registro": sim_registro}
+# Simulações que não chamam modelo: rodam sem o login do operador.
+SEM_MODELO = {"apelido", "cota"}
+
+
+def normalizar_simulacao(nome):
+    """Aceita acento e maiúscula ("Residência" vira "residencia"). Para com mensagem se o nome não existir."""
+    limpo = sem_acento(nome.strip())
+    if limpo not in [*SIMULACOES, "todas"]:
+        sys.exit(f"Simulação '{nome}' não existe. Use uma destas: {', '.join(SIMULACOES)} ou todas. "
+                 "Exemplo: make lab5-gateway SIMULACAO=cota")
+    return limpo
+
+
+def secoes_do_replay(texto):
+    """Do arquivo gravado: (o cabeçalho com a data, {nome da simulação: texto da seção})."""
+    partes = texto.split("\n=== ")
+    secoes = {}
+    for parte in partes[1:]:
+        titulo_secao = parte.split(" ===", 1)[0]
+        nome = next((n for n, t in TITULOS.items() if t == titulo_secao), None)
+        if nome:
+            secoes[nome] = "\n=== " + parte.rstrip("\n")
+    return partes[0].strip(), secoes
+
+
+def replay(simulacao):
+    if not REPLAY.exists():
+        sys.exit("Ainda não há gravação em replay/lab5/.")
+    cabecalho, secoes = secoes_do_replay(REPLAY.read_text(encoding="utf-8"))
+    print(f"\n{cabecalho}" if cabecalho else "")
+    for nome in (SIMULACOES if simulacao == "todas" else [simulacao]):
+        if nome not in secoes:
+            sys.exit(f"A simulação {nome} não está na gravação ({REPLAY.relative_to(RAIZ)}).")
+        print(secoes[nome])
+    print()
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("simulacao", choices=[*SIMULACOES, "todas"])
+    ap.add_argument("simulacao", help="residencia, complexidade, cota, cache, reserva, apelido, registro ou todas")
     ap.add_argument("--rotas", default=str(LAB / "rotas.toml"))
     ap.add_argument("--manter-estado", action="store_true", help="não zera cota, cache e registro antes")
+    ap.add_argument("--replay", action="store_true", help="mostra a gravação do professor, sem chamar modelo")
     a = ap.parse_args()
-    if a.simulacao != "apelido":
+    a.simulacao = normalizar_simulacao(a.simulacao)
+    if a.replay:
+        return replay(a.simulacao)
+    if a.simulacao not in SEM_MODELO:
         msg = cli_modelo.disponivel("claude") or cli_modelo.logado()
         if msg:
             sys.exit(msg)

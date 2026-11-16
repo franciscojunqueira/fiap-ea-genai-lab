@@ -47,6 +47,31 @@ def descrever(nome, entrada):
     return f"usou {nome}"
 
 
+def texto_do_resultado(parte):
+    """O texto de um tool_result do stream-json (vem como texto ou como lista de partes)."""
+    conteudo = parte.get("content")
+    if isinstance(conteudo, list):
+        return "\n".join(str(c.get("text", "")) for c in conteudo if isinstance(c, dict))
+    return str(conteudo or "")
+
+
+def ultimo_validador(eventos):
+    """A linha [PASS] ou [FAIL] da última vez que o validador conferiu o ADR, e os erros dela."""
+    ids, ultimo = set(), ""
+    for ev in eventos:
+        for parte in ev.get("message", {}).get("content", []) if isinstance(ev.get("message"), dict) else []:
+            if not isinstance(parte, dict):
+                continue
+            if parte.get("type") == "tool_use" and "validar_adr" in str((parte.get("input") or {}).get("command", "")):
+                ids.add(parte.get("id"))
+            elif parte.get("type") == "tool_result" and parte.get("tool_use_id") in ids:
+                linhas = [l for l in texto_do_resultado(parte).splitlines() if l.strip()]
+                inicio = next((i for i, l in enumerate(linhas) if l.startswith(("[PASS]", "[FAIL]"))), None)
+                if inicio is not None:
+                    ultimo = "\n".join(linhas[inicio:inicio + 6])
+    return ultimo
+
+
 def rodar():
     with tempfile.TemporaryDirectory() as pasta:
         p = Path(pasta)
@@ -64,12 +89,13 @@ def rodar():
         except subprocess.TimeoutExpired:
             sys.exit(f"Sem resposta em {TIMEOUT_S} s. Use make lab4-skill-replay.")
         duracao = round(time.monotonic() - inicio, 1)
-    passos, ferramentas_iniciais = [], []
+    passos, ferramentas_iniciais, eventos = [], [], []
     for linha in proc.stdout.splitlines():
         try:
             ev = json.loads(linha)
         except json.JSONDecodeError:
             continue
+        eventos.append(ev)
         if ev.get("type") == "system" and ev.get("subtype") == "init":
             ferramentas_iniciais = ev.get("skills") or ev.get("slash_commands") or []
         if ev.get("type") == "assistant":
@@ -77,7 +103,7 @@ def rodar():
                 if parte.get("type") == "tool_use":
                     passos.append(descrever(parte.get("name"), parte.get("input") or {}))
     return {"data": time.strftime("%Y-%m-%d %H:%M"), "modelo": MODELO, "duracao_s": duracao,
-            "skills_no_inicio": ferramentas_iniciais, "passos": passos}
+            "skills_no_inicio": ferramentas_iniciais, "passos": passos, "validador": ultimo_validador(eventos)}
 
 
 def mostrar(r):
@@ -89,6 +115,12 @@ def mostrar(r):
     print("\nO que o agente fez, na ordem:")
     for i, passo in enumerate(r["passos"], 1):
         print(f"  {i:>2}. {passo}")
+    if r.get("validador"):
+        print("\nO que o validador disse na última vez que conferiu o ADR:")
+        for linha in r["validador"].splitlines():
+            print(f"  {linha}")
+    elif any("validador" in p for p in r["passos"]):
+        print("\nEsta gravação não guardou a saída do validador.")
     print(f"\n({r['modelo']}, {r['data']}, {str(r['duracao_s']).replace('.', ',')} s)\n")
 
 

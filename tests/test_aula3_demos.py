@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "labs" / "lab5"))
 sys.path.insert(0, str(RAIZ / "labs" / "lab4"))
@@ -85,3 +87,66 @@ def test_complexidade_por_palavra_inteira_e_sem_acento():
     assert gateway.casa_expressao("por que", "Por que o Gestão PJ usa arquivo?")
     assert not gateway.casa_expressao("por que", "Em que horário roda a janela do lote noturno do SGC?")
     assert not gateway.casa_expressao("riscos", "Qual o risco do lote?")
+
+
+def test_eval_para_antes_do_modelo_se_faltar_o_criterio(tmp_path, monkeypatch):
+    import eval as ev
+    (tmp_path / "casos_turma.toml").write_text(
+        '[[caso]]\nid = "T01"\ndepartamento = "Risco"\ntexto = "uma pergunta"\navaliador = "juiz"\n', encoding="utf-8")
+    monkeypatch.setattr(ev, "LAB", tmp_path)
+    # Se o script chegasse ao login ou ao modelo, o teste falharia aqui.
+    monkeypatch.setattr(ev.cli_modelo, "disponivel", lambda *a: pytest.fail("checou o login antes de validar"))
+    monkeypatch.setattr(sys, "argv", ["eval.py", "--caso", "T01", "--k", "1"])
+    with pytest.raises(SystemExit) as saida:
+        ev.main()
+    assert "T01" in str(saida.value) and "'criterio'" in str(saida.value)
+
+
+def test_eval_erro_de_toml_em_portugues_e_singular(tmp_path, monkeypatch):
+    import eval as ev
+    (tmp_path / "casos_turma.toml").write_text('[[caso]]\nid = "T01\n', encoding="utf-8")
+    monkeypatch.setattr(ev, "LAB", tmp_path)
+    with pytest.raises(SystemExit) as saida:
+        ev.carregar_casos()
+    msg = str(saida.value)
+    assert msg.startswith("labs/lab4/casos_turma.toml tem um erro de digitação perto da linha 2. Confira as aspas")
+    assert "(Detalhe técnico:" in msg
+    assert ev.plural(1, "caso", "casos") == "1 caso" and ev.certas_casos(8, 12) == "8 de 12 casos"
+
+
+def test_gateway_normaliza_o_nome_da_simulacao():
+    assert gateway.normalizar_simulacao("residência") == "residencia"
+    assert gateway.normalizar_simulacao("Cota") == "cota"
+    assert gateway.normalizar_simulacao(" TODAS ") == "todas"
+    with pytest.raises(SystemExit) as saida:
+        gateway.normalizar_simulacao("quota")
+    assert "Use uma destas" in str(saida.value) and "cota" in str(saida.value)
+
+
+def test_gateway_cota_mostra_modelo_nao_chamado(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(gateway, "ESTADO", tmp_path)
+    rotas = gateway.ler_rotas(RAIZ / "labs" / "lab5" / "rotas.toml")
+    chamadas = []
+    gateway.gravar_estado("cota.json", {"Risco": 49000})
+    gateway.Gateway(rotas, chamar=falso_modelo(chamadas)).atender("Risco", "Qual é o percentual de provisão?")
+    assert not chamadas
+    assert "  modelo        não chamado (o pedido parou na cota)" in capsys.readouterr().out
+    assert "cota" in gateway.SEM_MODELO   # a cota roda sem login
+
+
+def test_gateway_replay_tem_as_sete_secoes_e_a_cota_nova():
+    cabecalho, secoes = gateway.secoes_do_replay(gateway.REPLAY.read_text(encoding="utf-8"))
+    assert "16/11/2026" in cabecalho
+    assert list(secoes) == list(gateway.SIMULACOES)
+    assert "não chamado (o pedido parou na cota)" in secoes["cota"]
+
+
+def test_orquestrar_aceita_acento_e_mostra_a_tabela_e_o_erro(capsys):
+    assert orquestrar.normalizar_modo("Único") == "unico"
+    longo = "x" * 5000 + "\n| ADR | problema |\n| ADR-103 | fim |"
+    assert orquestrar.recortar(longo).endswith("| ADR-103 | fim |")
+    r = {"modo": "unico", "modelo": "m", "data": "d", "texto": "Credit balance is too low", "erro": True,
+         "subagentes": 0, "tokens": 0, "custo_usd": None, "duracao_s": 1.0}
+    orquestrar.mostrar(r)
+    saida = capsys.readouterr().out
+    assert "Credit balance is too low" in saida and "make lab4-orquestrar-replay" in saida and "de 3" not in saida

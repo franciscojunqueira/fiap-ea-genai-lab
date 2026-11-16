@@ -1,3 +1,5 @@
+Gravação do professor em 16/11/2026 (make lab5-gateway SIMULACAO=todas).
+A seção da cota foi gerada de novo no mesmo dia: ela não chama modelo.
 
 === Residência (RC-03): o mesmo Bússola, duas rotas ===
 
@@ -48,10 +50,11 @@ Cada réplica do serviço mantinha seu próprio cache. O ADR aponta três proble
 
 === Cota de tokens por departamento (RC-08) ===
 
-Pedido 7ec16812 · Risco · "Qual é o percentual de provisão para a faixa de 90 dias de atraso?"
+Pedido 12b7d387 · Risco · "Qual é o percentual de provisão para a faixa de 90 dias de atraso?"
   identificação departamento Risco, sensibilidade Regulado; dado pessoal: não
   cota          Risco já usou 49.000 de 50.000 tokens no mês. Pedido RECUSADO (403): "cota mensal esgotada; fale com o dono do orçamento" (RC-08)
-  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 7ec16812)
+  modelo        não chamado (o pedido parou na cota)
+  registro      gravado em labs/lab5/estado/registro.jsonl (correlação 12b7d387)
 
 === Cache semântico: economia e risco ===
 

@@ -41,5 +41,6 @@ A parcela do Risco que precisa ficar no Brasil sai da conta: o custo dela não f
 
 ## Se algo falhar na aula
 
-`make lab5-gateway-replay` mostra as sete simulações gravadas pelo professor em 16/11/2026. O custo é
+`make lab5-gateway-replay` mostra as sete simulações gravadas pelo professor em 16/11/2026.
+`make lab5-gateway-replay SIMULACAO=cota` mostra uma só. O custo é
 determinístico e não precisa de gravação. Não há `make lab5-check`.

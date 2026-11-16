@@ -83,7 +83,7 @@ def main():
           f"(PTAX de {prem['cambio']['data']}); gateway US$ {gateway} por mês.\n")
 
     print("3. Custo por mês")
-    print(f"   {'Cenário':<9} {'Consultas/dia':>13} {'na rota global':>14} {'Modelos':>11} {'Gateway':>9} "
+    print(f"   {'Cenário':<9} {'Consultas/dia':>13} {'Só global/dia':>14} {'Modelos':>11} {'Gateway':>9} "
           f"{'Total':>11}  RC-08 (R$ 35 mil no alvo)")
     for cen in ("piloto", "alvo", "expansao"):
         vol = prem["volumes"][cen]
