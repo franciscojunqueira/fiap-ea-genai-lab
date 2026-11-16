@@ -5,7 +5,7 @@ O repositório do grupo nasce do template antes da Aula 1 e não recebe sozinho 
 depois (Labs 2 a 6, correções). Este script busca o template e copia só os arquivos do professor; os
 arquivos do grupo (AGENTS.md, specs, decisões, contratos, ADRs, pacote, código mudado no Lab 1) ficam
 como estão. Planejar → validar → executar: o script recusa rodar com alteração não commitada, mostra a
-lista do que vai trazer e só aplica depois de "s"; depois faz o commit (sem push). `--sim` só mostra a lista.
+lista do que vai trazer e só aplica depois de "s". `--sim` só mostra a lista.
 
 Primeira vez num repositório criado antes deste script existir (uma linha, da raiz do repositório):
     git remote add template https://github.com/franciscojunqueira/fiap-ea-genai-lab.git; git fetch template && git checkout template/main -- scripts/atualizar_do_template.py && python3 scripts/atualizar_do_template.py
@@ -165,22 +165,9 @@ def main():
     if any(c in ("pyproject.toml", "uv.lock") for c in trazidos):
         subprocess.run(["uv", "sync", "--frozen", "--quiet"], cwd=RAIZ)
         print("  dependências sincronizadas (uv sync)")
-    # O commit leva só o que esta rodada trouxe ou removeu, mais o próprio script se ele mudou (veio do template
-    # na rodada): sem isso sobrava `M scripts/atualizar_do_template.py` sem commit. Outras alterações do grupo ficam fora.
-    proprio = f"scripts/{Path(__file__).name}"
-    caminhos = list(dict.fromkeys(trazidos + remover))
-    if git("status", "--porcelain", "--", proprio).strip() and proprio not in caminhos:
-        git("add", "--", proprio)
-        caminhos.append(proprio)
-    commit = subprocess.run(["git", "commit", "-q", "-m", "Atualiza do template: labs novos e correções do professor",
-                             "--", *caminhos], cwd=RAIZ, capture_output=True, text=True)
-    if commit.returncode == 0:
-        print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s), e o commit já foi feito "
-              "(\"Atualiza do template\"). Falta só enviar para o grupo: git push. Rodem antes `make test`. "
-              "Para desfazer: git revert HEAD")
-    else:
-        print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s), mas o commit NÃO foi feito "
-              f"({commit.stderr.strip() or commit.stdout.strip()}). Faça: git add -A && git commit -m 'Atualiza do template' && git push")
+    print(f"\n{len(trazidos)} arquivo(s) trazido(s) e {len(remover)} removido(s). Para desfazer: git checkout HEAD -- <arquivo>. "
+          "Rodem `make test` e salvem para o grupo todo: git add -A && git commit -m 'Atualiza do template' && git push")
+
 
 if __name__ == "__main__":
     main()
