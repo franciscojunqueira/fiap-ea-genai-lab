@@ -1,9 +1,11 @@
 # Lab 3: Mini-ERP agêntico: tool de escrita com aprovação humana
 
 > **Aviso (16/11/2026).** A partir das próximas turmas, o Lab 3 é uma **demonstração do professor**: os
-> grupos não rodam nada em aula. O professor roda `make lab3-comparar VERSAO=ruim` e
-> `make lab3-comparar VERSAO=boa`, e, sem cota, `make lab3-replay`. Quem quiser fazer o lab em casa
-> pode seguir este README.
+> grupos não rodam nada em aula. O contrato ruim × bom aparece só em slide, com o resultado gravado
+> (`make lab3-replay`). A demonstração ao vivo é a escrita aprovada: o professor roda
+> `claude --permission-mode default --model sonnet` com o Mini-ERP (o ERP) e alguém da turma aprova o
+> ajuste na tela. Os comandos `make lab3-comparar VERSAO=ruim` e `VERSAO=boa` seguem aqui para quem
+> quiser refazer a comparação em casa; este README pode ser seguido por inteiro.
 
 **Em resumo.** O Bússola vai poder **agir**, além de responder: por exemplo, ajustar o estoque de um
 produto no Gestão PJ (o Mini-ERP) quando o inventário encontra diferença. O caso exige aprovação
