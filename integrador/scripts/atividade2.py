@@ -210,8 +210,12 @@ def adr(decisao, raiz=RAIZ, chamar=None):
     print("  " + (saida.stdout.strip() or saida.stderr.strip()).replace("\n", "\n  "))
     for a in novos:
         print(f"\nADR escrito: {a.relative_to(raiz)}")
+    uso = resposta.get("usage") or {}
+    entrada = sum(uso.get(k, 0) for k in ("input_tokens", "cache_read_input_tokens", "cache_creation_input_tokens"))
+    milhar = lambda n: f"{int(n):,}".replace(",", ".")
+    tokens = f", {milhar(entrada)} tokens de entrada, {milhar(uso.get('output_tokens', 0))} de saída" if uso else ""
     print(f"Resultado do validador: {'PASS' if ok else 'FAIL'}"
-          f" ({resposta.get('duracao_s', '?')} s, {resposta.get('num_turns', '?')} turnos)")
+          f" ({resposta.get('duracao_s', '?')} s, {resposta.get('num_turns', '?')} turnos{tokens})")
     if ok:
         print("O PASS confere só a forma. O verificador abre o ADR e responde sim ou não: cada fato do SGC cita o arquivo "
               "de onde veio? Algum decisor, prazo ou requisito foi inventado? As alternativas existem no caso?")
