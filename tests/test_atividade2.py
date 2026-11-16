@@ -166,3 +166,10 @@ def test_o_agente_do_adr_so_escreve_em_docs_adr():
     escrita = [f for f in ferramentas if f.startswith(("Write", "Edit"))]
     assert escrita == ["Write(docs/adr/**)", "Edit(docs/adr/**)"]
     assert not any(f.startswith("Bash") and "validar_adr.py" not in f for f in ferramentas)
+
+
+def test_o_pedido_do_adr_manda_ler_o_invencoes_e_nao_usar_o_que_foi_marcado_errado_ou_impreciso():
+    pedido = atividade2.PEDIDO_ADR.format(decisao="uma decisão")
+    assert "integrador/pacote/engenharia-reversa/invencoes.md" in pedido
+    assert "nunca use como fato" in pedido and "errada ou imprecisa" in pedido
+    assert pedido.index("invencoes.md") < pedido.index("nunca use como fato")

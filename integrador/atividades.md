@@ -43,23 +43,26 @@ e não chama modelo, então não gasta a cota de ninguém.
 | 2 | Operador | `make legado` | a saída de um ciclo do SGC. Os outros acompanham: ela mostra comportamentos que a documentação não explica |
 | 3 | Operador | `make atividade1` | "preparado" nos 4 arquivos de `integrador/pacote/engenharia-reversa/` |
 | 4 | Todos | abrir `c4.md`, `dependencias.md` e `regras.md` no painel de arquivos, à esquerda, e ler. É a saída de um agente, gerada em 08/11/2026, e pode conter erros | — |
-| 5 | Verificador | abrir `invencoes.md`. São 5 afirmações do agente. Para cada uma, seguir a dica da coluna "Onde conferir", ler o código ou olhar a saída do `make legado`, e trocar os dois `[PREENCHER: ...]` da linha: como conferiram e o veredito. O veredito é uma destas palavras: correto, inventado, impreciso ou não verificável | — |
-| 6 | Autores | abrir o fim de `regras.md` e trocar os 3 `[PREENCHER: ...]` das "Implicações para o Bússola". Depois, no fim de `invencoes.md`, trocar os 2 `[PREENCHER: ...]` de "O que mudaríamos no harness" | — |
-| 7 | Operador | `make atividade1-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
-| 8 | Relator | colar no Portal o link e o SHA da caixa | — |
+| 5 | Verificador | abrir `invencoes.md`. São 5 afirmações do agente. Para cada uma, seguir a dica da coluna "Onde conferir", ler o código ou olhar a saída do `make legado`, e trocar os dois `[PREENCHER: ...]` da linha: como conferiram (com o `arquivo:linha` que leram ou o que o `make legado` mostrou) e o veredito. O veredito é uma destas palavras: correto, errado, impreciso ou não verificável | — |
+| 6 | Verificador | **corrigir a saída do agente.** Para cada afirmação marcada errada ou imprecisa, abrir o arquivo de origem (`c4.md`, `dependencias.md` ou `regras.md`, o que aparece entre parênteses na linha do `invencoes.md`), corrigir o texto e escrever ao lado a nota `corrigido pelo verificador`. A saída corrigida é o que o ADR da Atividade 2 vai usar | — |
+| 7 | Autores | abrir o fim de `regras.md` e trocar os 3 `[PREENCHER: ...]` das "Implicações para o Bússola". Depois, no fim de `invencoes.md`, trocar os 2 `[PREENCHER: ...]` de "O que mudaríamos no harness" | — |
+| 8 | Operador | `make atividade1-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
+| 9 | Relator | colar no Portal o link e o SHA da caixa | — |
 
 **Como conferir uma afirmação.** O verificador lê a linha que o agente citou e olha se o código
-diz o que o agente disse. Quando a afirmação é negativa, como "não existe" ou "não entra", ele também
-procura no código e nos dados de exemplo. Depois, compara com o que o `make legado` mostrou.
+diz o que o agente disse. Quando a afirmação diz que algo nunca acontece, ele também procura no código e
+nos dados de exemplo um caso em que acontece. Depois, compara com o que o `make legado` mostrou.
 
 **O que o `make atividade1-entregar` confere.** O PASS confere a forma: os arquivos, as tabelas, os
-espaços `[PREENCHER: ...]` trocados e as citações que existem. Uma citação que existe pode sustentar
+espaços `[PREENCHER: ...]` trocados, as citações que existem, o veredito de cada afirmação (uma das quatro
+palavras), a evidência em "Como conferimos" (`arquivo:linha` ou `make legado`), pelo menos 3 implicações
+para o Bússola e a nota `corrigido pelo verificador` nos arquivos de origem do que foi marcado errado ou impreciso. Uma citação que existe pode sustentar
 uma afirmação falsa, e isso só o verificador pega. Se o grupo tiver tempo, deve conferir mais afirmações
 do que as 5 do `invencoes.md`.
 
 **Entregáveis** em `integrador/pacote/engenharia-reversa/`: `c4.md`, `dependencias.md` e `regras.md`
 (com as implicações para o Bússola) e `invencoes.md` (as 5 afirmações conferidas e o que mudariam no
-harness). Para executar o SGC, usem só o `make legado`, que roda numa pasta isolada.
+harness). Os três primeiros já corrigidos pelo verificador. Para executar o SGC, usem só o `make legado`, que roda numa pasta isolada.
 
 **Na Aula 2.** O que os grupos acharam de errado entra no bloco elástico da aula.
 
@@ -81,8 +84,9 @@ harness). Para executar o SGC, usem só o `make legado`, que roda numa pasta iso
 | 6 | Operador | `make atividade2-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
 | 7 | Relator | colar no Portal o link e o SHA da caixa | — |
 
-O `make atividade2-adr` roda um agente (Claude Sonnet) com a skill `escrevendo-adrs`. Ele lê os fatos da
-engenharia reversa do grupo (Atividade 1) e os requisitos do caso, e escreve o ADR em `docs/adr/`. Ele não
+O `make atividade2-adr` roda um agente (Claude Sonnet) com a skill `escrevendo-adrs`. Ele lê a conferência do
+verificador (`invencoes.md`), os fatos da engenharia reversa do grupo (Atividade 1) e os requisitos do caso,
+sem usar como fato o que foi marcado errado ou impreciso, e escreve o ADR em `docs/adr/`. Ele não
 mexe em mais nenhum arquivo. No fim, o comando roda o validador do ADR e mostra o resultado e o caminho do
 arquivo. O PASS confere só a forma: o passo 4 é o que confere se o ADR é verdadeiro.
 

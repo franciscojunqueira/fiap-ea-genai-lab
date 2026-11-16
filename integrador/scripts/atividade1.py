@@ -4,7 +4,8 @@
     make atividade1            copia para integrador/pacote/engenharia-reversa/ a saída gravada de um
                                agente sobre o SGC (c4, dependências, regras) e o registro com 5
                                afirmações dele para o grupo conferir. Não chama modelo.
-    make atividade1-entregar   roda o make er-check; com PASS, faz git add, commit e push e mostra o
+    make atividade1-entregar   roda o make er-check (no formato novo, confere também o veredito, a evidência,
+                               as 3 implicações e as correções); com PASS, faz git add, commit e push e mostra o
                                link e o SHA para o Portal. Com FAIL, não envia nada.
 
 Os arquivos do pacote são do grupo: o preparar só troca um arquivo que ainda está no estado do modelo
@@ -62,8 +63,11 @@ O trabalho do grupo é conferir, não escrever tudo de novo.
 Próximos passos (faltam {faltam} espaços [PREENCHER: ...]):
   1. Leiam {DESTINO}/c4.md, dependencias.md e regras.md.
   2. Em {DESTINO}/invencoes.md, conferam as 5 afirmações do agente no código e na saída do make legado.
-  3. No fim de regras.md, escrevam as 3 implicações para o Bússola.
-  4. No fim de invencoes.md, escrevam o que mudariam no harness.
+     O veredito é correto, errado, impreciso ou não verificável.
+  3. Corrijam no c4.md, no dependencias.md e no regras.md o que marcaram como errado ou impreciso, com a
+     nota "corrigido pelo verificador" ao lado.
+  4. No fim de regras.md, escrevam as 3 implicações para o Bússola.
+  5. No fim de invencoes.md, escrevam o que mudariam no harness.
 Depois: make atividade1-entregar""")
     return 0
 

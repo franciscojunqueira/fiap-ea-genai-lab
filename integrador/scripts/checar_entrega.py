@@ -11,6 +11,7 @@ Se o conteúdo é bom, quem julga é a rubrica (integrador/rubrica.md).
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 # Mínimos de cada entrega, definidos nos enunciados (integrador/atividades.md)
@@ -25,6 +26,18 @@ MAX_ADRS = 3  # acima disso é aviso: a rubrica pede 2 ou 3 decisões bem defend
 CITACAO = re.compile(r"`?(?:integrador/legado/)?([\w./-]+\.(?:py|sh|txt|cpy|csv|md)):(\d+)(?:-(\d+))?`?")
 REQUISITO_CASO = re.compile(r"\bRC-\d{2}\b")
 URL = re.compile(r"https?://\S+")
+VEREDITOS = ("correto", "errado", "impreciso", "não verificável")
+MIN_IMPLICACOES = 3
+NOTA_DE_CORRECAO = "corrigido pelo verificador"
+# O `make atividade1` do formato novo grava a coluna "Onde conferir" no invencoes.md; o formato antigo (turma de
+# outubro: Como o grupo conferiu / Veredito, com "inventado") não tem. Só o formato novo passa pelo check mais forte.
+FORMATO_NOVO = re.compile(r"^\|[^\n]*\|\s*Onde conferir\s*\|", re.MULTILINE)
+ORIGEM_DA_AFIRMACAO = re.compile(r"`((?:c4|dependencias|regras)\.md):\d+`")
+
+
+def normaliza_veredito(texto):
+    base = unicodedata.normalize("NFKD", texto.lower()).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z ]", "", base).strip()
 
 
 def sem_comentarios(texto):
@@ -157,6 +170,45 @@ class Conferencia:
         if texto is not None:
             # sem conferir citações: registrar uma referência que o agente inventou é o objetivo do arquivo
             self.tabela(base + "invencoes.md", texto, MIN_AFIRMACOES, "afirmação(ões) conferida(s)")
+            bruto = (self.pacote / base / "invencoes.md").read_text(encoding="utf-8")
+            if FORMATO_NOVO.search(bruto):
+                self.verificacao_forte(base)
+
+    def verificacao_forte(self, base):
+        """Só no formato novo do invencoes.md: veredito do vocabulário, como conferiu citando evidência, 3 implicações
+        e o que foi marcado errado ou impreciso corrigido no arquivo de origem."""
+        arq = base + "invencoes.md"
+        texto = sem_comentarios((self.pacote / arq).read_text(encoding="utf-8"))
+        validos = {normaliza_veredito(v) for v in VEREDITOS}
+        a_corrigir = {}
+        for linha in linhas_de_tabela(texto):
+            if len(linha) < 5 or not linha[0].strip().isdigit():
+                continue
+            n, afirmacao, _, como, veredito = (c.strip() for c in linha[:5])
+            v = normaliza_veredito(veredito)
+            if v not in validos:
+                self.erros.append(f"integrador/pacote/{arq}: afirmação {n}: o veredito '{veredito}' não é um destes: correto, errado, impreciso ou não verificável.")
+            if not CITACAO.search(como) and "make legado" not in como:
+                self.erros.append(f"integrador/pacote/{arq}: afirmação {n}: 'Como conferimos' precisa citar arquivo:linha do código (ex.: sgc/calendario.py:6) ou o `make legado`.")
+            if v in ("errado", "impreciso"):
+                origem = ORIGEM_DA_AFIRMACAO.search(afirmacao)
+                a_corrigir.setdefault(origem.group(1) if origem else None, []).append(n)
+        for origem, numeros in a_corrigir.items():
+            lista = ", ".join(numeros)
+            if origem is None:
+                self.erros.append(f"integrador/pacote/{arq}: afirmação(ões) {lista}: não achei de qual arquivo (c4.md, dependencias.md ou regras.md) a afirmação vem; mantenha o `arquivo:linha` da coluna 2.")
+                continue
+            caminho = self.pacote / base / origem
+            notas = caminho.read_text(encoding="utf-8").lower().count(NOTA_DE_CORRECAO) if caminho.is_file() else 0
+            if notas < len(numeros):
+                self.erros.append(f"integrador/pacote/{base}{origem}: a(s) afirmação(ões) {lista} do invencoes.md foi/foram marcada(s) errada(s) ou imprecisa(s), "
+                                  f"mas faltam correções neste arquivo ({notas} de {len(numeros)} com a nota '{NOTA_DE_CORRECAO}'). Corrija o texto e escreva a nota ao lado.")
+        regras = (self.pacote / base / "regras.md")
+        if regras.is_file():
+            corpo = secoes(sem_comentarios(regras.read_text(encoding="utf-8"))).get("Implicações para o Bússola", "")
+            itens = [l for l in corpo.splitlines() if re.match(r"\s*(?:[-*]|\d+[.)])\s+\S", l)]
+            if len(itens) < MIN_IMPLICACOES:
+                self.erros.append(f"integrador/pacote/{base}regras.md: {len(itens)} implicação(ões) para o Bússola; o mínimo é {MIN_IMPLICACOES}.")
 
     def design(self, completo):
         texto = self.ler("01-design.md") if completo else self._design_parcial()

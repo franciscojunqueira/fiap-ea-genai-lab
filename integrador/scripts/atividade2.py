@@ -142,7 +142,11 @@ FERRAMENTAS_ADR = ("Read,Glob,Grep,Skill,Write(docs/adr/**),Edit(docs/adr/**),"
                    f"Bash(python3 {VALIDADOR_ADR}:*),Bash(python3 {Path('.claude') / VALIDADOR_ADR.relative_to('.agents')}:*)")
 TIMEOUT_ADR_S = 600
 PEDIDO_ADR = ("Use a skill escrevendo-adrs para registrar um ADR sobre como o Bússola acessa o SGC. A decisão do grupo é: {decisao}. "
-              "Use os fatos de integrador/pacote/engenharia-reversa/ e os requisitos de integrador/caso.md. "
+              "Leia antes integrador/pacote/engenharia-reversa/invencoes.md: é a conferência que o verificador do grupo fez das "
+              "afirmações do agente da engenharia reversa. Use como fato só o que está conferido em integrador/pacote/engenharia-reversa/ "
+              "(c4.md, dependencias.md e regras.md) e nunca use como fato uma afirmação que o verificador marcou como errada ou "
+              "imprecisa: se precisar dela, use a versão corrigida no arquivo de origem ou marque \"a confirmar\". "
+              "Os requisitos vêm de integrador/caso.md. "
               "Não invente decisores nem requisitos: marque como \"a confirmar\" o que não estiver nos arquivos. "
               "Escreva só em docs/adr/ e rode o validador no fim.")
 

@@ -11,6 +11,7 @@ import pytest
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / "integrador" / "scripts"))
 import atividade1  # noqa: E402
+sys.path.insert(0, str(RAIZ / "integrador" / "scripts"))
 
 ER = Path("integrador/pacote/engenharia-reversa")
 SAIDA = RAIZ / "integrador" / "atividade1" / "saida_agente"
@@ -41,11 +42,21 @@ def er_check(raiz):
     return r.returncode, r.stdout
 
 
-def preencher(raiz):
-    """O que o grupo faz: troca cada [PREENCHER: ...] por uma resposta."""
+VEREDITO_PREENCHER = "[PREENCHER: correto, errado, impreciso ou não verificável]"
+
+
+def preencher(raiz, veredito_1="correto", corrigir=True):
+    """O que o grupo faz no formato novo: troca cada [PREENCHER: ...] por uma resposta de verdade. A afirmação 1 recebe
+    `veredito_1`; se for errado ou impreciso e `corrigir`, o c4.md (arquivo de origem) ganha a nota da correção."""
     for nome in atividade1.ARQUIVOS:
         arquivo = raiz / ER / nome
-        arquivo.write_text(re.sub(r"\[PREENCHER:[^\]]*\]", "resposta do grupo", arquivo.read_text(encoding="utf-8")), encoding="utf-8")
+        texto = arquivo.read_text(encoding="utf-8")
+        texto = texto.replace(VEREDITO_PREENCHER, veredito_1, 1).replace(VEREDITO_PREENCHER, "correto")
+        texto = texto.replace("[PREENCHER: o que vocês leram ou rodaram, e o que viram]", "li sgc/importacao.py:85 e rodei `make legado`")
+        arquivo.write_text(re.sub(r"\[PREENCHER:[^\]]*\]", "resposta do grupo", texto), encoding="utf-8")
+    if veredito_1 in ("errado", "impreciso") and corrigir:
+        c4 = raiz / ER / "c4.md"
+        c4.write_text(c4.read_text(encoding="utf-8") + "\n> corrigido pelo verificador: o CSV também traz Gestão PJ.\n", encoding="utf-8")
 
 
 @so_no_template
@@ -119,7 +130,7 @@ def test_as_cinco_afirmacoes_citam_linhas_que_existem_e_a_dica_nao_entrega_o_ver
         texto = (SAIDA / arquivo).read_text(encoding="utf-8").splitlines()
         assert int(numero) <= len(texto)
         assert como.startswith("[PREENCHER:") and veredito.startswith("[PREENCHER:")
-        assert "make legado" in dica
+        assert dica == f"Abram `{arquivo}` e rodem `make legado`.", dica   # uniforme e neutra nas 5 linhas
         assert not re.search(r"errad|inventad|impreciso|incorret|falso|correto", dica, re.I), dica
     # as linhas citadas dizem o que a afirmação diz
     assert "Gestão PJ não entra por CSV" in (SAIDA / "c4.md").read_text(encoding="utf-8").splitlines()[117]
@@ -166,3 +177,84 @@ def test_entregar_com_o_er_check_de_verdade_reprova_o_modelo_vazio(repo, capsys)
     shutil.copy(RAIZ / "integrador/scripts/checar_entrega.py", repo / "integrador/scripts/checar_entrega.py")
     assert atividade1.entregar(repo) == 1
     assert "Nada foi enviado" in capsys.readouterr().out
+
+
+# ----- o check mais forte do formato novo, e o formato antigo que continua passando -------------------------------
+
+@so_no_template
+def test_formato_novo_errado_so_passa_com_a_correcao_no_arquivo_de_origem(repo):
+    atividade1.preparar(repo)
+    preencher(repo, veredito_1="errado", corrigir=False)
+    codigo, saida = er_check(repo)
+    assert codigo == 1 and "c4.md" in saida and "corrigido pelo verificador" in saida
+    c4 = repo / ER / "c4.md"
+    c4.write_text(c4.read_text(encoding="utf-8") + "\n> corrigido pelo verificador: o CSV também traz Gestão PJ.\n", encoding="utf-8")
+    codigo, saida = er_check(repo)
+    assert codigo == 0, saida
+
+
+@so_no_template
+def test_formato_novo_impreciso_tambem_exige_a_correcao(repo):
+    atividade1.preparar(repo)
+    preencher(repo, veredito_1="impreciso", corrigir=False)
+    assert er_check(repo)[0] == 1
+    preencher_nota = repo / ER / "c4.md"
+    preencher_nota.write_text(preencher_nota.read_text(encoding="utf-8") + "\n(Corrigido pelo verificador.)\n", encoding="utf-8")
+    assert er_check(repo)[0] == 0
+
+
+@so_no_template
+def test_formato_novo_veredito_fora_do_vocabulario_reprova(repo):
+    atividade1.preparar(repo)
+    preencher(repo, veredito_1="inventado")
+    codigo, saida = er_check(repo)
+    assert codigo == 1 and "o veredito 'inventado' não é um destes" in saida
+
+
+@so_no_template
+def test_formato_novo_aceita_nao_verificavel_e_exige_evidencia_e_tres_implicacoes(repo):
+    atividade1.preparar(repo)
+    preencher(repo, veredito_1="não verificável")
+    assert er_check(repo)[0] == 0
+    inv = repo / ER / "invencoes.md"
+    original = inv.read_text(encoding="utf-8")
+    inv.write_text(original.replace("li sgc/importacao.py:85 e rodei `make legado`", "olhamos e parece certo", 1), encoding="utf-8")
+    codigo, saida = er_check(repo)
+    assert codigo == 1 and "afirmação 1: 'Como conferimos' precisa citar" in saida
+    inv.write_text(original, encoding="utf-8")
+    regras = repo / ER / "regras.md"
+    texto = regras.read_text(encoding="utf-8")
+    regras.write_text(texto.replace("- resposta do grupo\n", "", 2), encoding="utf-8")
+    codigo, saida = er_check(repo)
+    assert codigo == 1 and "1 implicação(ões) para o Bússola; o mínimo é 3" in saida
+
+
+def _repo_no_formato_antigo(tmp_path):
+    """O que um grupo da turma de outubro entregou: invencoes.md de 4 colunas, veredito 'inventado', sem correção."""
+    repo = tmp_path / "antigo"
+    shutil.copytree(RAIZ / "integrador" / "legado", repo / "integrador" / "legado",
+                    ignore=shutil.ignore_patterns("execucao", "__pycache__", "saida", "dados/sgc.db"))
+    (repo / ER).mkdir(parents=True)
+    for nome in ("c4.md", "dependencias.md", "regras.md"):
+        shutil.copy(SAIDA / nome, repo / ER / nome)
+    regras = repo / ER / "regras.md"
+    regras.write_text(re.sub(r"\[PREENCHER:[^\]]*\]", "uma implicação", regras.read_text(encoding="utf-8")), encoding="utf-8")
+    linhas = "\n".join(f"| {i} | afirmação {i} | olhamos | {v} |" for i, v in enumerate(["inventado", "correto", "impreciso", "correto", "não verificável"], 1))
+    (repo / ER / "invencoes.md").write_text(
+        "# Registro\n\n**Agente e modelo usados:** Claude\n\n| # | O que o agente afirmou | Como o grupo conferiu | Veredito |\n|---|---|---|---|\n"
+        + linhas + "\n\n## O que mudaríamos no harness\n\n- mais testes\n", encoding="utf-8")
+    shutil.copy(RAIZ / "integrador" / "caso.md", repo / "integrador" / "caso.md")
+    return repo
+
+
+def test_formato_antigo_continua_passando_como_antes(tmp_path):
+    repo = _repo_no_formato_antigo(tmp_path)
+    codigo, saida = er_check(repo)
+    assert codigo == 0, saida
+    assert "PASS (engenharia reversa)" in saida
+
+
+def test_o_modelo_do_pacote_novo_e_o_antigo_se_distinguem_pelo_cabecalho():
+    from checar_entrega import FORMATO_NOVO
+    assert FORMATO_NOVO.search((SAIDA / "invencoes.md").read_text(encoding="utf-8"))
+    assert not FORMATO_NOVO.search("| # | O que o agente afirmou | Como o grupo conferiu | Veredito |\n|---|---|---|---|\n")
