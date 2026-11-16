@@ -17,10 +17,13 @@ Usar o Claude Haiku 5.5 para todas as perguntas.
 
 ## Consequências
 - Custo baixo e latência dentro da RC-06.
-- Perguntas que juntam dois documentos podem errar, como nos testes do Lab 2.
+- Perguntas que juntam dois documentos podem errar, como nos testes do Lab 2. A busca agêntica, que acertou
+  10 de 10, fica como alternativa para essas perguntas.
+- O dado pessoal do Risco não passa por este modelo: vai para a rota no Brasil do gateway (RC-03, ADR-103).
 
 ## Reversão
-Gatilho: a eval cair abaixo de 80% de acerto. Custo: trocar o modelo no gateway e rodar a eval de novo.
+Gatilho: a eval cair abaixo de 60% de acerto em duas semanas seguidas. Custo: trocar o apelido no gateway,
+rodar a eval de novo e revisar o orçamento (o Sonnet custa cerca de 10 vezes o Haiku por consulta).
 
 ## Requisitos
-RC-06, RC-08.
+RC-03, RC-06, RC-08.

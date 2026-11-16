@@ -4,7 +4,7 @@
         lab1 lab1-referencia lab1-extra lab2 lab2-rodar lab2-replay lab3 lab3-comparar lab3-replay lab4 lab5 lab6 atualizar \
         lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
-        legado er-check checkpoint-check pacote-check atividade2 atividade2-entregar
+        legado er-check checkpoint-check pacote-check atividade2 atividade2-entregar atividade3 atividade3-entregar
 
 RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
@@ -100,6 +100,11 @@ atividade2: ## Atividade 2: prepara o 01-design.md para preencher e mostra os n√
 
 atividade2-entregar: ## Atividade 2: confere, faz commit e push e mostra o link e o SHA para o Portal
 	@$(RUN) python integrador/scripts/atividade2.py entregar
+atividade3: ## Trabalho final: preenche os resultados da Aula 3 em 02-qualidade.md e 03-economia.md
+	@$(RUN) python integrador/scripts/atividade3.py preparar
+
+atividade3-entregar: ## Trabalho final: confere, faz commit e push e mostra o link e o SHA para o Portal
+	@$(RUN) python integrador/scripts/atividade3.py entregar
 
 pacote-check: ## Confere o pacote final (Atividade 3 do integrador)
 	@$(RUN) python integrador/scripts/checar_entrega.py final

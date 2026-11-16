@@ -1,6 +1,6 @@
 # Segurança e governança técnica
 
-<!-- Critério "Segurança e governança técnica" da rubrica (15 pts). Fontes: Lab 6 e Aula 4. -->
+<!-- Critério "Segurança e governança técnica" da rubrica (20 pts). Fonte: Aula 4. -->
 
 ## Modelo de ameaças
 
@@ -13,9 +13,8 @@ conteúdo não confiável ou canal de saída. -->
 
 ## Mitigação testada
 
-<!-- Entregue até 24h depois da Aula 4, porque o Lab 6 acontece na própria aula; o
-`make pacote-check` não confere esta seção. A mitigação que o grupo ativou no Lab 6: qual perna
-ela corta, a saída do `make lab6-check` e o risco que sobra. -->
+<!-- Parte da Demonstração 3 da Aula 4 (o ataque e a mitigação). Qual perna da trifecta a mitigação
+corta, em que capacidade do Bússola o grupo a aplicaria e o risco que sobra. -->
 
 PREENCHER
 

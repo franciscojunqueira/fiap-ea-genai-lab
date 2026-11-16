@@ -30,13 +30,15 @@ DO_PROFESSOR = [
     "labs/*/aceite/*", "labs/*/referencia/*", "labs/*/exemplos/*", "labs/*/perguntas.toml",
     "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",
     # Aula 3 (16/11/2026): os dados das demonstrações do professor.
-    "labs/lab4/casos.toml", "labs/lab4/orquestracao/adrs/*", "labs/lab5/rotas.toml", "labs/lab5/premissas.toml",
+    "labs/lab4/casos.toml", "labs/lab4/casos_turma.toml", "labs/lab4/orquestracao/adrs/*", "labs/lab5/rotas.toml", "labs/lab5/premissas.toml",
 ]
 # Do grupo: nunca sobrescrever, mesmo que case com um padrão acima.
 DO_GRUPO = ["docs/adr/*", "labs/*/testes/*", "labs/*/execucoes/*", "labs/*/comparacoes/*", "labs/*/descricoes/grupo.toml"]
 # Arquivos do professor que saíram do template: o script os apaga do repositório do grupo, com a mesma confirmação.
 # 09/11/2026: o Lab 2 ficou sem check e sem decisao.md (Sessão 4b).
-REMOVIDOS = ["labs/lab2/checar.py", "labs/lab2/modelos/decisao.md"]
+REMOVIDOS = ["labs/lab2/checar.py", "labs/lab2/modelos/decisao.md",
+             # 16/11/2026: sem pitch nem arguição (Sessão 4c)
+             "integrador/pacote/pitch.md"]
 
 
 def git(*args, check=True):

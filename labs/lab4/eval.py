@@ -37,7 +37,14 @@ def carregar_casos():
     for nome in ("casos.toml", "casos_turma.toml"):
         caminho = LAB / nome
         if caminho.exists():
-            casos += tomllib.loads(caminho.read_text(encoding="utf-8")).get("caso", [])
+            try:
+                casos += tomllib.loads(caminho.read_text(encoding="utf-8")).get("caso", [])
+            except tomllib.TOMLDecodeError as e:
+                sys.exit(f"labs/lab4/{nome} tem um erro de digitação: {e}. Confira as aspas e rode de novo.")
+    validos = set(corpus.NIVEL_DO_DEPARTAMENTO)
+    for c in casos:
+        if c.get("departamento") not in validos:
+            sys.exit(f"Caso {c.get('id')}: departamento '{c.get('departamento')}' inválido. Use: {', '.join(sorted(validos))}.")
     return casos
 
 

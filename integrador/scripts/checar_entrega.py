@@ -187,14 +187,20 @@ class Conferencia:
         self.design(completo=True)
         texto = self.ler("02-qualidade.md")
         if texto is not None:
-            partes = self.secoes_cheias("02-qualidade.md", texto, ["Critério de aprovação", "Casos de teste", "Resultados", "Escolha e limites"])
-            self.tabela("02-qualidade.md (Resultados)", partes.get("Resultados", ""), 2, "linha(s) de resultado (pelo menos 2 modelos)")
+            partes = self.secoes_cheias("02-qualidade.md", texto, [
+                "Resultados das demonstrações", "Critério de aceite", "Caso de recusa do grupo", "Modelo de cada rota",
+                "O que dispara uma nova eval", "Orquestração por capacidade", "Limites"])
+            self.tabela("02-qualidade.md (Modelo de cada rota)", partes.get("Modelo de cada rota", ""), 3, "rota(s)")
+            self.tabela("02-qualidade.md (Orquestração por capacidade)", partes.get("Orquestração por capacidade", ""), 3, "capacidade(s)")
         texto = self.ler("03-economia.md")
         if texto is not None:
-            self.secoes_cheias("03-economia.md", texto, ["Premissas", "Custo por cenário", "Além do token", "Go/no-go"])
-        texto = self.ler("04-seguranca.md", ignorar_secao="Mitigação testada")
+            partes = self.secoes_cheias("03-economia.md", texto, [
+                "Resultados da demonstração", "Go/no-go por cenário", "Alavancas e onde ficam", "Custo de cumprir a RC-03",
+                "A premissa que mais muda a decisão"])
+            self.tabela("03-economia.md (Go/no-go por cenário)", partes.get("Go/no-go por cenário", ""), 3, "cenário(s)")
+        texto = self.ler("04-seguranca.md")
         if texto is not None:
-            partes = self.secoes_cheias("04-seguranca.md", texto, ["Modelo de ameaças", "Posição no control plane", "Requisitos regulatórios"])
+            partes = self.secoes_cheias("04-seguranca.md", texto, ["Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
             self.tabela("04-seguranca.md (Modelo de ameaças)", partes.get("Modelo de ameaças", ""), MIN_AMEACAS, "ameaça(s)")
             self.tabela("04-seguranca.md (Requisitos regulatórios)", partes.get("Requisitos regulatórios", ""), 2, "requisito(s) regulatório(s)")
         texto = self.ler("contribuicao.md")
@@ -205,9 +211,6 @@ class Conferencia:
         texto = self.ler("uso-de-ia.md")
         if texto is not None:
             self.tabela("uso-de-ia.md", texto, MIN_USO_IA, "registro(s) de uso de IA")
-        texto = self.ler("pitch.md")
-        if texto is not None and not URL.search(texto):
-            self.erros.append("integrador/pacote/pitch.md: falta o link do vídeo (http...).")
 
 
 def main(argv):

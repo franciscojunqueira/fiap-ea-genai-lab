@@ -6,7 +6,7 @@ regras na ordem abaixo, chama o modelo (pelo RAG do Lab 2) e grava o registro. C
 linha, para a turma ver o caminho do pedido.
 
   1. identificação  departamento, sensibilidade e dado pessoal (CPF ou CNPJ na pergunta)
-  2. cota           tokens usados no mês pelo departamento (RC-08)       APIM: llm-token-limit
+  2. cota           tokens usados no mês pelo departamento (RC-08)       APIM: llm-token-limit (403 na cota)
   3. residência     dado pessoal ou departamento Regulado → Brasil (RC-03) APIM: set-backend-service
   4. complexidade   pergunta de análise → modelo grande                   Foundry: model router
   5. apelido        o nome que a aplicação usa → a versão do modelo       APIM: unified model API
@@ -59,6 +59,15 @@ def palavras(texto):
     return {p for p in re.findall(r"[a-z0-9-]+", sem_acento) if p not in VAZIAS and len(p) > 1}
 
 
+def sem_acento(texto):
+    return unicodedata.normalize("NFKD", texto.lower()).encode("ascii", "ignore").decode()
+
+
+def casa_expressao(expressao, pergunta):
+    """A expressão aparece na pergunta como palavra inteira, ignorando acentos ("analise" casa "análise")."""
+    return re.search(rf"\b{re.escape(sem_acento(expressao))}\b", sem_acento(pergunta)) is not None
+
+
 def semelhanca(a, b):
     pa, pb = palavras(a), palavras(b)
     return len(pa & pb) / len(pa | pb) if pa | pb else 0.0
@@ -101,7 +110,9 @@ class Gateway:
                "custo_usd": 0.0, "cache": "não", "decisao": "", "pergunta_como_veio": pergunta}
 
         # 1. identificação
-        sens = r["sensibilidade"].get(departamento, "Interno")
+        if departamento not in r["sensibilidade"]:
+            sys.exit(f"Departamento '{departamento}' não está em rotas.toml. Use: {', '.join(r['sensibilidade'])}.")
+        sens = r["sensibilidade"][departamento]
         pessoal = DADO_PESSOAL.search(pergunta)
         self.linha("identificação", f"departamento {departamento}, sensibilidade {sens}; dado pessoal: "
                    + (f"sim ({pessoal.group(0)})" if pessoal else "não"))
@@ -111,8 +122,8 @@ class Gateway:
         usado, limite = cotas.get(departamento, 0), r["cota"]["tokens"].get(departamento, 0)
         if usado + ESTIMATIVA_TOKENS > limite:
             self.linha("cota", f"{departamento} já usou {mil(usado)} de {mil(limite)} tokens no {r['cota']['periodo']}. "
-                       f"Pedido RECUSADO (429): \"cota mensal esgotada; fale com o dono do orçamento\" (RC-08)")
-            reg["decisao"] = "recusado pela cota (429)"
+                       f"Pedido RECUSADO (403): \"cota mensal esgotada; fale com o dono do orçamento\" (RC-08)")
+            reg["decisao"] = "recusado pela cota (403)"
             return self.registrar(reg, "")
         self.linha("cota", f"{departamento}: {mil(usado)} de {mil(limite)} tokens usados no {r['cota']['periodo']}; segue")
 
@@ -128,7 +139,7 @@ class Gateway:
 
         # 4. complexidade
         comp = r["complexidade"]
-        achou = [p for p in comp["palavras_de_analise"] if p in pergunta.lower()]
+        achou = [p for p in comp["palavras_de_analise"] if casa_expressao(p, pergunta)]
         if apelido == comp["apelido_simples"] and achou:
             apelido = comp["apelido_analise"]
             self.linha("complexidade", f'pergunta de análise ("{achou[0]}") → {apelido}')
@@ -145,12 +156,12 @@ class Gateway:
         melhor = max(guardadas, key=lambda c: semelhanca(c["pergunta"], pergunta), default=None)
         nota = semelhanca(melhor["pergunta"], pergunta) if melhor else 0.0
         if melhor and nota >= r["cache"]["limiar"]:
-            self.linha("cache", f'parecida com "{melhor["pergunta"]}" (semelhança {rodar.virgula(nota, 2)}, limiar '
+            self.linha("cache", f'parecida com "{melhor["pergunta"]}" (semelhança {rodar.virgula(nota, 2)}, mínimo '
                        f'{rodar.virgula(r["cache"]["limiar"], 2)}) → resposta do cache, sem chamar o modelo, custo zero')
             reg.update(modelo=melhor["modelo"], cache="sim", decisao="respondido pelo cache")
             return self.registrar(reg, melhor["resposta"])
         self.linha("cache", "nenhuma pergunta parecida guardada" if not melhor
-                   else f"a mais parecida tem semelhança {rodar.virgula(nota, 2)}, abaixo do limiar {rodar.virgula(r['cache']['limiar'], 2)}")
+                   else f"a mais parecida tem semelhança {rodar.virgula(nota, 2)}, abaixo do mínimo {rodar.virgula(r['cache']['limiar'], 2)}")
 
         # 7. modelo, com reserva
         if modelo in self.falhar:
@@ -235,12 +246,13 @@ def sim_reserva(rotas):
 
 def sim_apelido(rotas):
     titulo("Apelido de modelo: trocar a versão sem mudar a aplicação (sem chamar o modelo)")
-    antes = rotas["apelidos"]["bussola-padrao"]
-    print(f'\n  A aplicação sempre pede "bussola-padrao".')
-    print(f"  Hoje, em labs/lab5/rotas.toml:      bussola-padrao = \"{antes}\"")
-    print("  O fornecedor anuncia a aposentadoria do modelo. A eval roda no modelo novo e passa.")
-    print('  O time troca UMA linha no gateway:   bussola-padrao = "claude-sonnet-5-5"')
-    print("  Resultado: todas as aplicações que pedem bussola-padrao passam a usar o modelo novo,")
+    agora = rotas["apelidos"]["bussola-analise"]
+    print('\n  A aplicação sempre pede "bussola-analise".')
+    print('  Antes, em labs/lab5/rotas.toml:   bussola-analise = "claude-sonnet-4-5"')
+    print("  A Anthropic avisou em 30/09/2026 que o claude-sonnet-4-5 sai em 30/11/2026 (Radar).")
+    print("  A eval rodou no modelo novo e passou. O time trocou UMA linha no gateway:")
+    print(f'  Hoje, em labs/lab5/rotas.toml:    bussola-analise = "{agora}"')
+    print("  Resultado: todas as aplicações que pedem bussola-analise passaram ao modelo novo,")
     print("  sem deploy. Sem a eval aprovada, a troca não acontece: a eval é o portão.")
 
 
@@ -277,7 +289,10 @@ def main():
         msg = cli_modelo.disponivel("claude") or cli_modelo.logado()
         if msg:
             sys.exit(msg)
-    rotas = ler_rotas(a.rotas)
+    try:
+        rotas = ler_rotas(a.rotas)
+    except tomllib.TOMLDecodeError as e:
+        sys.exit(f"{a.rotas} tem um erro de digitação: {e}. Desfaça a última mudança e rode de novo.")
     if not a.manter_estado:
         zerar()
     for nome in (SIMULACOES if a.simulacao == "todas" else [a.simulacao]):

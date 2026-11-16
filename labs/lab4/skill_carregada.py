@@ -59,7 +59,10 @@ def rodar():
                "--allowedTools", "Read,Write,Edit,Glob,Grep,Bash,Skill", "--output-format", "stream-json", "--verbose",
                "--no-session-persistence", "--strict-mcp-config"]
         inicio = time.monotonic()
-        proc = subprocess.run(cmd, cwd=p, capture_output=True, text=True, timeout=TIMEOUT_S, stdin=subprocess.DEVNULL)
+        try:
+            proc = subprocess.run(cmd, cwd=p, capture_output=True, text=True, timeout=TIMEOUT_S, stdin=subprocess.DEVNULL)
+        except subprocess.TimeoutExpired:
+            sys.exit(f"Sem resposta em {TIMEOUT_S} s. Use make lab4-skill-replay.")
         duracao = round(time.monotonic() - inicio, 1)
     passos, ferramentas_iniciais = [], []
     for linha in proc.stdout.splitlines():

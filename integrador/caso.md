@@ -51,7 +51,7 @@ capacidades:
    arquivo de retorno do SGC ou registrar um alerta no Gestão PJ), sempre com aprovação humana.
 
 O projeto integrador de cada grupo é **a arquitetura do Bússola**: decisões, design, qualidade,
-economia e segurança, defendidos na Aula 4.
+economia e segurança, entregues no trabalho final, depois da Aula 4.
 
 ## 3. Os três departamentos
 
@@ -64,7 +64,7 @@ economia e segurança, defendidos na Aula 4.
 Regra de acesso: cada usuário vê o próprio nível e os níveis menos sensíveis (Público < Interno <
 Regulado), salvo exceção registrada. Um analista de TI Operacional não vê o relatório do Risco.
 
-**Cenários de volume** para o business case (Lab 5):
+**Cenários de volume** para o custo por rota (Aula 3):
 
 | Cenário | Quem usa | Consultas por dia útil (aprox.) |
 |---|---|---|

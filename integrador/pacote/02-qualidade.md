@@ -1,31 +1,40 @@
-# Qualidade: evals e escolha de modelo
+# Qualidade: eval, rotas e orquestração
 
-<!-- Critério "Qualidade" da rubrica (10 pts). Fonte: Lab 4. -->
+<!-- Critério "Qualidade" da rubrica (15 pts). Fonte: Aula 3 (demonstrações 1 e 3). Rodem make atividade3:
+ele preenche os resultados das demonstrações. Depois troquem cada [PREENCHER: ...], com os colchetes. -->
 
-## Critério de aprovação
-
-<!-- Definido ANTES de rodar: o que conta como acerto e qual taxa mínima aprova. -->
-
-PREENCHER
-
-## Casos de teste
-
-<!-- Quantos casos, de quais departamentos, quais vieram prontos e quais o grupo escreveu.
-Incluam casos que o Bússola deve RECUSAR (permissão, fora do escopo, RC-12). -->
+## Resultados das demonstrações
 
 PREENCHER
 
-## Resultados
+## Critério de aceite
 
-<!-- Colem as linhas que o Lab 4 imprime. Uma linha por modelo e repetição. -->
+[PREENCHER: a taxa mínima para ir à produção (em pass^3 ou em acerto por tentativa) e a regra de recusa]
 
-| Modelo | Casos | Acertos | Repetições | Latência média | Observação |
-|---|---|---|---|---|---|
-| PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER |
+## Caso de recusa do grupo
 
-## Escolha e limites
+[PREENCHER: uma pergunta que o Bússola deve recusar, o departamento de quem pergunta e a resposta esperada]
 
-<!-- Qual o modelo mais barato que passa no critério, a variância entre repetições e o que
-estas evals NÃO cobrem. -->
+## Modelo de cada rota
 
-PREENCHER
+| Rota | Que perguntas vão por ela | Modelo | Por quê |
+|---|---|---|---|
+| bussola-padrao | perguntas simples | [PREENCHER: modelo] | [PREENCHER: o número da demonstração que sustenta a escolha] |
+| bussola-analise | perguntas de análise | [PREENCHER: modelo] | [PREENCHER: o número que sustenta] |
+| rota no Brasil | perguntas do Risco com dado pessoal (RC-03) | [PREENCHER: provedor com região no Brasil ou modelo aberto no próprio datacenter?] | [PREENCHER: por quê] |
+
+## O que dispara uma nova eval
+
+[PREENCHER: pelo menos dois gatilhos. Exemplo: o fornecedor aposenta o modelo]
+
+## Orquestração por capacidade
+
+| Capacidade do Bússola | Agente único ou subagentes | Critério |
+|---|---|---|
+| Responder com fonte | [PREENCHER] | [PREENCHER: contexto, paralelismo ou ferramentas?] |
+| Consultar sistemas | [PREENCHER] | [PREENCHER] |
+| Agir com aprovação | [PREENCHER] | [PREENCHER] |
+
+## Limites
+
+[PREENCHER: o que esta eval não cobre (por exemplo, o tamanho da amostra ou o avaliador que erra)]

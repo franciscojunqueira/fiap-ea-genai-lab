@@ -112,7 +112,9 @@ def comparar(rs):
     if len(rs) == 2 and rs[0]["tokens"]:
         u, s = rs
         fator = lambda x: f"{x:.1f}".replace(".", ",")
-        print(f"\nO modo com subagentes gastou {fator(s['tokens'] / u['tokens'])}× os tokens do agente único "
+        custo = (f" e {fator(s['custo_usd'] / u['custo_usd'])}× o custo (o cache barateia a releitura)"
+                 if s.get("custo_usd") and u.get("custo_usd") else "")
+        print(f"\nO modo com subagentes gastou {fator(s['tokens'] / u['tokens'])}× os tokens do agente único{custo}, "
               f"e levou {fator(s['duracao_s'] / max(u['duracao_s'], 0.1))}× o tempo.")
         print("Pergunta para a turma: o ganho compensou o custo, nesta tarefa?\n")
 
@@ -136,7 +138,7 @@ def main():
     EXECUCOES.mkdir(parents=True, exist_ok=True)
     rs = []
     for modo in (["unico", "subagentes"] if a.modo == "ambos" else [a.modo]):
-        print(f"\nRodando o modo {modo}... (de 1 a 3 minutos)", flush=True)
+        print(f"\nRodando o modo {modo}... (cerca de 15 s; até 2 min com rede lenta)", flush=True)
         r = rodar(modo)
         (EXECUCOES / f"{time.strftime('%Y%m%d-%H%M%S')}-{modo}.json").write_text(
             json.dumps(r, ensure_ascii=False, indent=2), encoding="utf-8")

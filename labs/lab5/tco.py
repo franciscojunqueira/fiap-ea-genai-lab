@@ -40,6 +40,20 @@ def medido(arquitetura, prem):
     return r["usd_por_mil_perguntas"] / 1000, r["acerto"], False
 
 
+def calcular(divisao, prem):
+    """{cenário: (consultas na rota global, modelos R$, gateway R$, total R$)} e o custo médio em US$ por consulta."""
+    div = {k: v for k, v in prem["divisao"][divisao].items() if k != "descricao"}
+    usd = sum(f * medido(a, prem)[0] for a, f in div.items())
+    cambio, dias = prem["cambio"]["usd_brl"], prem["volumes"]["dias_uteis_mes"]
+    infra = prem["infra"]["gateway_usd_mes"] * cambio
+    saida = {}
+    for cen in ("piloto", "alvo", "expansao"):
+        glob = prem["volumes"][cen] - prem["residencia"][cen]
+        modelos = glob * dias * usd * cambio
+        saida[cen] = (glob, modelos, infra, modelos + infra)
+    return saida, usd
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--divisao", default="roteado")
@@ -60,8 +74,9 @@ def main():
     for arq, frac in div.items():
         custo, acerto, est = medido(arq, prem)
         usd_consulta += frac * custo
-        marca = "  ESTIMATIVA (acerto da base medida)" if est else ""
-        print(f"   {arq:<16} US$ {custo * 1000:>6.2f} por mil · acerto {acerto}/10 · {frac:.0%} das consultas{marca}"
+        marca = "  ESTIMATIVA" if est else ""
+        txt_acerto = "acerto não medido" if est else f"acerto {acerto}/10"
+        print(f"   {arq:<16} US$ {custo * 1000:>6.2f} por mil · {txt_acerto} · {frac:.0%} das consultas{marca}"
               .replace(".", ","))
     print(f"   Média da divisão: US$ {usd_consulta * 1000:.2f} por mil consultas".replace(".", ","))
     print(f"\n2. Premissas: {dias} dias úteis por mês; câmbio R$ {f'{cambio:.4f}'.replace('.', ',')} "
@@ -78,12 +93,15 @@ def main():
         infra = gateway * cambio
         total = modelos + infra
         if cen == "alvo":
-            veredito = "cabe" if total <= prem["orcamento"]["alvo_brl"] else "NÃO cabe"
+            folga = (total / prem["orcamento"]["alvo_brl"] - 1) * 100
+            veredito = (f"cabe ({abs(folga):.0f}% abaixo)" if total <= prem["orcamento"]["alvo_brl"]
+                        else f"NÃO cabe ({folga:.1f}% acima)").replace(".", ",")
         else:
             veredito = "sem orçamento no caso"
-        print(f"   {NOMES[cen]:<9} {vol:>13,} {glob:>14,} {reais(modelos):>11} {reais(infra):>9} {reais(total):>11}  {veredito}"
-              .replace(",", "."))
+        print(f"   {NOMES[cen]:<9} {vol:>13,} {glob:>14,} {reais(modelos):>11} {reais(infra):>9} {reais(total):>11}"
+              .replace(",", ".") + f"  {veredito}")
     print("\n4. Fora da conta: a rota no Brasil (RC-03). O Risco faz 450 consultas por dia útil com dado pessoal.")
+    print("   Também fora: a observabilidade, os 5 anos de registro (RC-05) e o juiz em produção. Todo \"cabe\" é otimista.")
     print("   Nenhum Claude roda no Brasil (16/11/2026): o custo dessa rota não foi medido e pode inverter a decisão.")
     print("\nPergunta para a turma: go ou no-go em cada cenário? E o que inverteria a decisão?\n")
 

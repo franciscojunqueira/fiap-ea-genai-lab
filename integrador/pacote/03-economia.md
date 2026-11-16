@@ -1,30 +1,31 @@
-# Economia: TCO e go/no-go
+# Economia: custo por rota e go/no-go
 
-<!-- Critério "Economia" da rubrica (10 pts). Fonte: Lab 5. -->
+<!-- Critério "Economia" da rubrica (15 pts). Fonte: Aula 3 (demonstração 5). Rodem make atividade3: ele
+preenche os resultados da demonstração. Depois troquem cada [PREENCHER: ...], com os colchetes. -->
 
-## Premissas
-
-<!-- Cada número com origem: caso.md (volumes, orçamento RC-08), Lab 4 (tokens por consulta),
-tabela de preços do Radar (com data). -->
+## Resultados da demonstração
 
 PREENCHER
 
-## Custo por cenário
+## Go/no-go por cenário
 
-| Cenário | Consultas por dia útil | Custo de modelo por mês | Demais custos por mês | Total por mês | Custo por consulta |
-|---|---|---|---|---|---|
-| Piloto | PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER |
-| Alvo | PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER |
-| Expansão | PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER |
+| Cenário | Critério | Decisão | O que inverteria a decisão |
+|---|---|---|---|
+| Piloto (450 consultas por dia útil) | [PREENCHER: o caso não define orçamento; qual critério o grupo usa?] | [PREENCHER: go ou no-go] | [PREENCHER] |
+| Alvo (4.500 por dia útil) | RC-08: até R$ 35 mil por mês | [PREENCHER: go ou no-go, e com que divisão] | [PREENCHER] |
+| Expansão (25.000 por dia útil) | [PREENCHER: qual critério?] | [PREENCHER: go ou no-go] | [PREENCHER] |
 
-## Além do token
+## Alavancas e onde ficam
 
-<!-- Pessoas, evals contínuas, observabilidade, auditoria (RC-05), saída do fornecedor. -->
+| Alavanca | No gateway ou na aplicação | O que o grupo espera dela |
+|---|---|---|
+| [PREENCHER: por exemplo, roteamento por complexidade] | [PREENCHER] | [PREENCHER] |
+| [PREENCHER: outra alavanca] | [PREENCHER] | [PREENCHER] |
 
-PREENCHER
+## Custo de cumprir a RC-03
 
-## Go/no-go
+[PREENCHER: como o grupo atende as 450 consultas por dia do Risco com dado pessoal, e o que isso faz com o custo]
 
-<!-- O critério (definido antes) e a decisão para cada cenário. O que mudaria a decisão. -->
+## A premissa que mais muda a decisão
 
-PREENCHER
+[PREENCHER: qual premissa de labs/lab5/premissas.toml, se mudar, inverte o go/no-go do alvo, e por quê]

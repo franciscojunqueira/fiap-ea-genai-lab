@@ -1,7 +1,7 @@
 # Atividades entre as aulas
 
-Três atividades em grupo. As Atividades 1 e 2 levam cerca de 1 hora; a 3 junta o que os labs
-produziram e leva mais. Cada uma alimenta a seguinte e o pacote final.
+Três atividades em grupo. As Atividades 1 e 2 levam cerca de 1 hora. A 3 é o trabalho final: ela
+junta o que os labs e as demonstrações produziram e leva mais. Cada uma alimenta a seguinte.
 
 **Entrega:** commit na `main` do repositório do grupo e, na atividade correspondente do **Portal
 do Aluno da FIAP**, o link do repositório e o **SHA do commit** (`git rev-parse HEAD`). O professor
@@ -17,7 +17,7 @@ uma correção, tragam-na com:
 |---|---|---|---|---|
 | 1 | Aula 1 → Aula 2 | Engenharia reversa do SGC | `make er-check` | aquecimento da Aula 2 e ADRs |
 | 2 | Aula 2 → Aula 3 | Checkpoint: 1º ADR, decisão de conhecimento e contrato MCP | `make checkpoint-check` | devolutiva coletiva na Aula 3 |
-| 3 | Aula 3 → Aula 4 | Pacote final e pitch gravado, **48h antes da Aula 4** | `make pacote-check` | arguição na Aula 4 |
+| 3 | Aula 3 → depois da Aula 4 (`<DATA>`) | Trabalho final (o pacote) | `make pacote-check` | nota final |
 
 ---
 
@@ -105,19 +105,35 @@ turma, sem nota.
 
 ---
 
-## Atividade 3: pacote final e pitch
+## Atividade 3: trabalho final
 
-**Prazo:** 48 horas antes do início da Aula 4. Exceção: a seção "Mitigação testada" de
-`04-seguranca.md` vai até 24h depois da Aula 4, porque o Lab 6 acontece na própria aula (novo SHA
-no Portal do Aluno).
+**Prazo:** `<DATA>`, no Portal do Aluno. É um prazo único: ele
+inclui o `04-seguranca.md`, que usa o que a Aula 4 ensina. Não há pitch.
 
-**Passos.**
+**O que vem pronto.** Os números das demonstrações do professor, gravados antes da aula: a eval, a
+orquestração e o custo por rota da Aula 3; o ataque e a mitigação da Aula 4. O grupo escreve só as
+decisões.
 
-1. Completem o pacote (`integrador/pacote/README.md` lista os arquivos) e cheguem a 2 ou 3 ADRs.
-2. Preencham `contribuicao.md` e `uso-de-ia.md`. Todos os integrantes revisam.
-3. Gravem o pitch de 5 minutos (instruções em `pacote/pitch.md`) e coloquem o link.
-4. `make pacote-check` até dar PASS, commit e push.
+**Passos.** Um comando por vez, no Codespace do operador, na ordem.
 
-**Na Aula 4.** Arguição de 9 minutos por grupo, com carta de mudança de requisito e pergunta a um
-integrante sorteado. Preparem-se para defender qualquer decisão do pacote: quem responde é
-sorteado na hora. Critérios em [rubrica.md](rubrica.md).
+| # | Quem | O que fazer | O que aparece |
+|---|---|---|---|
+| 1 | Operador | `git pull` e depois `make atualizar` (responder `s`) | a lista do que veio do template |
+| 2 | Operador | `make atividade3` | "preparado" em `02-qualidade.md` e `03-economia.md`, com os resultados das demonstrações |
+| 3 | Autores | abrir `integrador/pacote/02-qualidade.md` no painel de arquivos; os autores dizem as respostas e o operador troca cada `[PREENCHER: ...]`, com os colchetes: o critério de aceite, o caso de recusa do grupo, o modelo de cada rota, o que dispara uma nova eval, agente único ou subagentes em cada capacidade e os limites | — |
+| 4 | Autores | o mesmo em `integrador/pacote/03-economia.md`: o critério e o go/no-go de cada cenário, o que inverteria cada decisão, as alavancas e onde ficam, o custo de cumprir a RC-03 e a premissa que mais muda a decisão | — |
+| 5 | Operador | `claude`, colar o pedido do 2º ADR (abaixo), sobre o modelo do Bússola, com a decisão do grupo no lugar dos colchetes, e esperar. Sair com `/exit` | o agente diz o nome do arquivo novo em `docs/adr/` |
+| 6 | Verificador | conferir o ADR novo como na Atividade 2: cada fato cita a origem? Algum decisor, prazo ou requisito foi inventado? | — |
+| 7 | Relator e autores | depois da Aula 4: completar `01-design.md` (diagrama) e `04-seguranca.md`. Se o grupo fizer o 3º ADR, o tema é o roteamento por sensibilidade ou a identidade do Bússola | — |
+| 8 | Todos | preencher `contribuicao.md` e `uso-de-ia.md`; todos os integrantes revisam | — |
+| 9 | Operador | `make atividade3-entregar`. Com FAIL, ele diz o que falta: corrigir e rodar de novo | uma caixa com o link e o SHA |
+| 10 | Relator | colar no Portal o link e o SHA da caixa | — |
+
+O pedido do 2º ADR (passo 5), para colar:
+
+```text
+Registre um ADR sobre o modelo e as rotas do Bússola. A decisão do grupo é: [troquem por uma frase com a decisão do grupo]. Use os números de integrador/pacote/02-qualidade.md e 03-economia.md e os requisitos de integrador/caso.md. Não invente decisores nem requisitos: marque como "a confirmar" o que não estiver nos arquivos.
+```
+
+**Como é avaliado.** O trabalho final é a nota do curso inteiro, com 100 pontos. Critérios em
+[rubrica.md](rubrica.md).

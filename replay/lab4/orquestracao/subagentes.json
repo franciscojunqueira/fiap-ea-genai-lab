@@ -1,11 +1,11 @@
 {
   "modo": "subagentes",
   "modelo": "claude-sonnet-5-5",
-  "data": "2026-11-16 02:06",
+  "data": "2026-11-16 02:37",
   "duracao_s": 16.2,
   "subagentes": 3,
-  "tokens": 89379,
-  "custo_usd": 0.1020867,
-  "texto": "| ADR | Problema mais grave |\n|---|---|\n| ADR-101 (modelo do Bússola) | Usa o Haiku 5.5 para todas as perguntas, o que viola o RC-12 e o RC-01. O próprio ADR admite que perguntas que juntam dois documentos podem errar. O Lab 2 teve 7 acertos em 10, e o gatilho de reversão é 80%, que o teste já não atingiu. Isso pesa mais para o Risco. |\n| ADR-102 (acesso ao SGC) | Se baseia no \"RC-13\", que não existe, porque o caso vai só até o RC-12. A exigência de saldo em tempo real é inventada. A leitura direta do banco durante o dia pode degradar o SGC e afetar o lote (RC-09). O gatilho de reversão de 20% de carga é arbitrário. |\n| ADR-103 (AI Gateway) | Não garante o RC-05. O registro do gateway não tem usuário nem fontes, e não diz onde fica retido nem por quanto tempo. A trilha de 5 anos depende de cada aplicação. Também não demonstra o RC-03 nem o RC-08 (limite de R$ 35 mil). A reversão \"sem custo\" é falsa, porque cota, cache e registro ficam no APIM. |\n\nO ADR-101 também tem lacunas secundárias no RC-03, no RC-06 (30 s para o Risco) e no RC-08.",
+  "tokens": 81099,
+  "custo_usd": 0.09433789999999999,
+  "texto": "| ADR | Problema mais grave |\n|---|---|\n| ADR-101 (modelo do Bússola) | Usa o Haiku para todas as perguntas, mas ele acertou só 7 de 10 no Lab 2. Isso viola o RC-01 e o RC-12. O gatilho de reversão (60%) é mais frouxo que o resultado medido (70%). A busca agêntica acertou 10 de 10 e ficou só como alternativa. Faltam cálculos de custo (RC-08) e de latência (RC-06). |\n| ADR-102 (acesso ao SGC) | Apoia-se na \"RC-13\", que não existe, porque o caso vai só até o RC-12. Consultar o banco do SGC a cada pergunta põe o RC-09 (lote noturno) em risco. O ADR também ignora o RC-02 e o RC-03, já que o banco tem CPF, CNPJ e nome. A alternativa de ler o arquivo do relatório é a que o caso sustenta. |\n| ADR-103 (AI Gateway) | Diz que o Azure API Management v2 em Brazil South atende o RC-03 e o RC-05, mas não prova isso. Não informa onde ficam os modelos, o cache e os registros com CPF, CNPJ e nome. O registro do gateway não tem usuário nem fontes, e o ADR não diz como garantir a retenção de 5 anos (RC-05). Falta estimativa de custo (RC-08). |",
   "erro": false
 }

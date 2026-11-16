@@ -17,5 +17,9 @@ com e sem a skill.
 - `resultado.md`: a tabela final, com e sem a skill.
 
 **Números da sessão:** cerca de 36 s até criar a skill e disparar os testes; 6 subagentes (3 casos com a
-skill e 3 sem); cerca de 1 milhão de tokens no total; US$ 0,89 a preço de API. Com a skill: 5 de 6
-checagens; sem a skill: 1 de 6. Uma rodada, 3 casos, sem repetição: é uma amostra pequena.
+skill e 3 sem); cerca de 1 milhão de tokens no total; US$ 0,89 a preço de API. O problema certo em primeiro
+lugar: 2 de 3 com a skill, 1 de 3 sem; a saída curta (até 5 linhas): 3 de 3 com a skill, 0 de 3 sem. Uma rodada,
+3 casos, sem repetição: é uma amostra pequena.
+
+**Atenção:** a gravação usou a versão anterior do ADR-101, cujo gatilho de reversão (80%) já estava violado.
+O ADR-101 foi corrigido depois, em 16/11/2026, para que o único defeito grave seja o plantado.

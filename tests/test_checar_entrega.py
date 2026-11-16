@@ -40,7 +40,7 @@ def preencher(raiz):
     (er / "regras.md").write_text("# Regras\n\n" + tabela + "\n## Implicações para o Bússola\n\n- reprocessar exige idempotência\n")
     (er / "invencoes.md").write_text("# Registro\n\n**Agente:** Claude Code, Sonnet\n\n" + CABECALHO
                                      + "".join(f"| {n} | afirmação {n} | li o código | correto |\n" for n in range(1, 6)))
-    for nome in ("01-design.md", "02-qualidade.md", "03-economia.md", "04-seguranca.md", "contribuicao.md", "uso-de-ia.md", "pitch.md"):
+    for nome in ("01-design.md", "02-qualidade.md", "03-economia.md", "04-seguranca.md", "contribuicao.md", "uso-de-ia.md"):
         arq = p / nome
         texto = arq.read_text(encoding="utf-8").replace("PREENCHER", "conteúdo do grupo")
         if nome in ("02-qualidade.md", "04-seguranca.md", "contribuicao.md", "uso-de-ia.md"):

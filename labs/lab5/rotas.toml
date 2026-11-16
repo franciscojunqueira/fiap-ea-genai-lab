@@ -26,20 +26,24 @@ modelo_brasil = "modelo-brasil (simulado)"
 departamentos = ["Risco"]
 
 # Roteamento por complexidade: pergunta de análise vai ao modelo grande. SIMPLIFICADO: aqui é uma lista
-# de palavras; o model router do Foundry usa um modelo treinado (modos Balanced, Cost e Quality).
+# de palavras (sem acento); o model router do Foundry usa um modelo treinado (modos Balanced, Cost e Quality),
+# em Global Standard ou Data Zone Standard; em Brazil South, só Global Standard (Microsoft Learn, 30/10/2026).
 [complexidade]
-palavras_de_analise = ["compare", "compara", "analise", "analisa", "avalie", "por que", "riscos", "trade-off"]
+palavras_de_analise = ["compare", "compara", "analise", "analisa", "avalie", "por que", "riscos", "trade-off"]  # "análise" também casa
 apelido_simples = "bussola-padrao"
 apelido_analise = "bussola-analise"
 
-# Cota de tokens por departamento e por mês (RC-08). No APIM: llm-token-limit com token-quota.
+# Cota de tokens por departamento e por mês (RC-08). No APIM: llm-token-limit com token-quota; a cota
+# estourada devolve 403, e o limite por minuto, 429 (Microsoft Learn, 01/04/2026).
 [cota]
 periodo = "mês"
 tokens = { "Arquitetura" = 400000, "TI Operacional" = 600000, "Risco" = 50000 }
 
 # Cache semântico: pergunta parecida com uma já respondida volta do cache, sem custo.
-# SIMPLIFICADO: a semelhança aqui é a fração de palavras em comum; o APIM usa embeddings e um limiar
-# (llm-semantic-cache-lookup, score-threshold). O risco é o mesmo: parecida não é igual.
+# SIMPLIFICADO: aqui, `limiar` é a semelhança MÍNIMA (fração de palavras em comum, de 0 a 1): quanto maior,
+# mais exigente. No APIM (llm-semantic-cache-lookup) é o contrário: o score-threshold mede distância
+# entre embeddings, e quanto MENOR, mais exigente; a Microsoft sugere começar em 0.05 e avisa que acima de
+# 0.2 a resposta pode vir trocada (Microsoft Learn, 18/08/2026). O risco é o mesmo: parecida não é igual.
 [cache]
 limiar = 0.7
 

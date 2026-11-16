@@ -134,22 +134,22 @@ def link_web(remoto):
     return re.sub(r"\.git$", "", remoto)
 
 
-def entregar(raiz=RAIZ, conferir=None):
+def entregar(raiz=RAIZ, conferir=None, etapa="checkpoint", comando="make atividade2-entregar", mensagem="Atividade 2 (checkpoint)"):
     conferir = conferir or (lambda: subprocess.run(
-        [sys.executable, str(raiz / "integrador/scripts/checar_entrega.py"), "checkpoint", str(raiz)]).returncode)
+        [sys.executable, str(raiz / "integrador/scripts/checar_entrega.py"), etapa, str(raiz)]).returncode)
     if conferir() != 0:
-        print("\nNada foi enviado. Corrijam o que a mensagem acima pede e rodem make atividade2-entregar de novo.")
+        print(f"\nNada foi enviado. Corrijam o que a mensagem acima pede e rodem {comando} de novo.")
         return 1
     git(raiz, "add", "-A")
     if git(raiz, "diff", "--cached", "--quiet").returncode != 0:
-        r = git(raiz, "commit", "-q", "-m", "Atividade 2 (checkpoint)")
+        r = git(raiz, "commit", "-q", "-m", mensagem)
         if r.returncode != 0:
             print(f"\nO commit falhou: {r.stderr.strip() or r.stdout.strip()}")
             return 1
     r = git(raiz, "push", "-q")
     if r.returncode != 0:
         print(f"\nO push falhou: {r.stderr.strip()}\nSe a mensagem fala em 'fetch first' ou 'rejected', rodem git pull "
-              "e depois make atividade2-entregar de novo.")
+              f"e depois {comando} de novo.")
         return 1
     sha = git(raiz, "rev-parse", "HEAD").stdout.strip()
     link = link_web(git(raiz, "remote", "get-url", "origin").stdout)
