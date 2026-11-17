@@ -73,6 +73,13 @@ Os custos da Demonstração 5 vêm prontos no `03-economia.md` (`make atividade3
 | Nível | Descritor |
 |---|---|
 | Excelente (18–20) | Modelo de ameaças específico do Bússola, com a perna da trifecta de cada ameaça. A mitigação da Demonstração 1 aplicada ao Bússola: que perna ela corta, em que capacidade, e o risco que sobra. O control plane nas três decisões. A primeira é o roteamento pelos 3 níveis de sensibilidade, com a residência (RC-03). A segunda é a identidade com que o Bússola acessa os dados, a do usuário ou a própria, e como a permissão do usuário (RC-02) é checada quando o Bússola chama uma ferramenta. A terceira é o catálogo: que modelos, skills e servidores MCP a empresa aprova para o Bússola, e quem é o dono de cada um. Cada norma aplicável da seção 5 do caso (LGPD e Res. CMN 4.893) vira requisito arquitetural localizado no design. |
-| Bom (14–17) | Tudo presente, com um ponto genérico (ameaça de manual, sem vetor do caso) ou norma sem requisito arquitetural. |
+| Bom (14–17) | Tudo presente, com um ponto genérico (ameaça de manual, sem vetor do caso) ou norma sem requisito arquitetural. O control plane sem o catálogo também fica no Bom, com ou sem um desses pontos. |
 | Parcial (8–13) | Lista de controles sem ligação com as ameaças, ou control plane sem a identidade ou sem a residência. |
 | Insuficiente (0–7) | Sem modelo de ameaças ou sem control plane. |
+
+**Regra de transição (turma de outubro de 2026).** Até 16/11/2026, a rubrica pedia "o limite de gasto" como
+terceira decisão do control plane. O grupo desta turma que escreveu o limite de gasto no lugar do catálogo não perde
+ponto por isso. O limite de gasto vale como a terceira decisão.
+
+**O catálogo e o `make pacote-check`.** Um `[PREENCHER]` que sobrar na linha do catálogo faz o check dar FAIL. Esse
+FAIL não limita o critério ao nível Parcial: a falta do catálogo cai no Bom, como diz a tabela.

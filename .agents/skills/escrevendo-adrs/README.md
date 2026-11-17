@@ -58,7 +58,7 @@ consumo numa conta Pro ficam para o piloto.
 `tests/test_validar_adr.py` na cópia e copiaram o formato a partir dele. O `testar_skill.py` passou
 a remover, na condição sem, todo arquivo que cite a skill. Os números acima são da rodada limpa.
 
-**2026-10-12, cenários 2 e 3, Sonnet e Haiku** (o modelo padrão do plano Pro e o mais barato).
+**2026-10-12, cenários 2 e 3, Sonnet e Haiku** (um modelo médio e um pequeno).
 Aliases: `sonnet` = claude-sonnet-5-5 e `haiku` = claude-haiku-4-5. Duas repetições por condição.
 Correção **às cegas** por um subagente independente: as 16 saídas foram anonimizadas e avaliadas
 pelos critérios de `evals/cenarios.json`, reescritos em termos neutros. A nota é a média das 2

@@ -8,7 +8,7 @@ lacuna; um fraco inventa.
 |---|---|---|
 | 1. Só prompt | pasta vazia | — |
 | 2. + contexto | o repositório, com `AGENTS.md` e o código (sem a skill) | guia |
-| 3. + loop com testes | o validador do ADR, com a ordem "rode até PASS" | sensor determinístico |
+| 3. + sensor | o validador do ADR, com a ordem "rode até PASS" | sensor determinístico |
 | 4. + harness completo | skill `escrevendo-adrs`; hook que valida a cada escrita; hook que não deixa encerrar sem o subagente `revisor-adr`; escrita só em `docs/adr/` (`harness/`) | guias + sensores |
 
 **Gravar de novo** (gasta cota de quem roda): `python3 replay/escada/gravar.py haiku 1 2 3 4` e

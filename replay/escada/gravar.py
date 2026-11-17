@@ -12,7 +12,7 @@ Degraus (a tarefa é sempre o cenário 2 da skill escrevendo-adrs, que não info
 requisitos: um bom harness registra a lacuna, um fraco inventa):
     1. só prompt: pasta vazia, sem o repositório;
     2. + contexto: cópia do repositório com AGENTS.md e código, sem a skill;
-    3. + loop com testes: o degrau 2 mais o validador do ADR como sensor ("rode até PASS");
+    3. + sensor: o degrau 2 mais o validador do ADR como sensor ("rode até PASS");
     4. + harness completo: skill, hook que valida a cada escrita, hook que exige o subagente
        revisor antes de encerrar, permissão de escrita só em docs/adr/ (harness/).
 
