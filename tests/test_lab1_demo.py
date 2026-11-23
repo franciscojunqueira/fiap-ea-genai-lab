@@ -60,7 +60,9 @@ def test_o_loop_do_agente_vem_do_stream_json_no_replay_do_harness(capsys):
     assert demo.main(["demo.py", "--replay", "harness"]) == 0
     saida = capsys.readouterr().out
     assert "O agente rodou o sensor 2 vezes" in saida
-    assert "1ª: camadas FAIL em 4 linha(s), teste do ticket FAIL → 2ª: camadas PASS, teste do ticket PASS" in saida
+    # A 1ª execução é a medição do rascunho do colega, antes de o agente editar (revisão de 23/11/2026).
+    assert "1ª: camadas FAIL em 4 linha(s), teste do ticket FAIL, antes de o agente editar → 2ª: camadas PASS, teste do ticket PASS" in saida
+    assert "o agente não errou" in saida and "o agente reagiu ao sensor" not in saida
 
 
 def test_execucoes_do_sensor_le_make_e_fitness_direta():
@@ -74,8 +76,29 @@ def test_execucoes_do_sensor_le_make_e_fitness_direta():
         res("a", "[OK] 3. x\n[FALHA] 4. Fitness function 'camadas'\n        camadas: a.py:5 importa\n        camadas: a.py:9 chama db\n[OK] 6. Testes"),
         uso("b", "python labs/lab1/fitness_camadas.py"), res("b", "camadas: PASS"),
         "{\"type\": \"result\"}", "linha que não é json"])
-    assert demo.execucoes_do_sensor(ev) == [{"camadas": "FAIL", "linhas": 2, "aceite": "PASS"}, {"camadas": "PASS", "linhas": 0, "aceite": None}]
+    assert demo.execucoes_do_sensor(ev) == [{"camadas": "FAIL", "linhas": 2, "aceite": "PASS", "antes_de_editar": True},
+                                            {"camadas": "PASS", "linhas": 0, "aceite": None, "antes_de_editar": True}]
     assert "O agente não rodou o sensor" in "\n".join(demo.linhas_do_loop([]))
+
+
+def test_reprovacao_antes_da_primeira_edicao_nao_e_o_agente_reagindo():
+    """Revisão de 23/11/2026: o check rodado antes de editar mede o rascunho do colega, e não um erro do agente."""
+    import json
+    def uso(i, nome, entrada):
+        return json.dumps({"type": "assistant", "message": {"content": [{"type": "tool_use", "id": i, "name": nome, "input": entrada}]}})
+    def res(i, texto):
+        return json.dumps({"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": i, "content": texto}]}})
+    falha = "[FALHA] 4. Fitness function 'camadas'\n        camadas: a.py:5 importa\n[OK] 6. Testes"
+    passa = "[OK] 4. Fitness function 'camadas'\n[OK] 6. Testes"
+    so_medicao = "\n".join([uso("a", "Bash", {"command": "make lab1-check"}), res("a", falha),
+                            uso("e", "Edit", {"file_path": "x"}), uso("b", "Bash", {"command": "make lab1-check"}), res("b", passa)])
+    ex = demo.execucoes_do_sensor(so_medicao)
+    assert [x["antes_de_editar"] for x in ex] == [True, False]
+    tela = "\n".join(demo.linhas_do_loop(ex))
+    assert "o agente reagiu ao sensor" not in tela and "o agente não errou" in tela
+    correcao = "\n".join([uso("e", "Edit", {"file_path": "x"}), uso("a", "Bash", {"command": "make lab1-check"}), res("a", falha),
+                          uso("f", "Edit", {"file_path": "x"}), uso("b", "Bash", {"command": "make lab1-check"}), res("b", passa)])
+    assert "o agente reagiu ao sensor" in "\n".join(demo.linhas_do_loop(demo.execucoes_do_sensor(correcao)))
 
 
 def test_o_trecho_do_resumo_mostra_a_frase_do_padrao_do_projeto():

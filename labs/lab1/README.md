@@ -1,8 +1,10 @@
 # Lab 1: spec-driven no Mini-ERP
 
-> **Aviso (16/11/2026).** A partir das próximas turmas, o Lab 1 é uma **demonstração do professor**: os
-> grupos não rodam nada em aula. O professor roda `make lab1-demo ETAPA=ticket` e `make lab1-demo ETAPA=harness`,
-> e, sem cota, `make lab1-demo-replay`. Quem quiser fazer o lab inteiro em casa pode seguir este README.
+> **Aviso (16/11/2026, atualizado em 23/11/2026).** A partir das próximas turmas, o Lab 1 é uma **demonstração do professor**: os
+> grupos não rodam nada em aula. Desde 23/11/2026, o professor mostra um vídeo do dia a dia: o `AGENTS.md` e a
+> fitness function sendo escritos, o pedido ao Claude Code e o resultado. O `make lab1-demo` e o
+> `make lab1-demo-replay` continuam aqui, para o ensaio do professor e como plano B. Quem quiser fazer o lab inteiro
+> em casa pode seguir este README.
 
 **O problema.** No Mini-ERP do curso não dá para cancelar um pedido; o atendimento pediu isso no
 [ticket.md](ticket.md). Vocês não vão programar: vão **especificar**, deixar um agente de IA (o

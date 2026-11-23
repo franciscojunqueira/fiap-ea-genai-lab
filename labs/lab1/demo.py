@@ -41,6 +41,7 @@ LINHA_DO_SENSOR = ("- Antes de terminar, rode `make lab1-check`: os itens 4 (cam
 ROTULO_DO_REPLAY = "gravação de 13/10/2026, Haiku 4.5"
 NOTA_DO_REPLAY_HARNESS = ("na gravação, o harness também tinha a spec e o teste do grupo, e o pedido mandava rodar o "
                           "make lab1-check até passar. Ao vivo, só a seção do AGENTS.md e a fitness function.")
+EDICOES = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
 EXPLICA_ARQUIVO = {"routes": "a rota, a porta de entrada da API", "services": "o service, onde fica a regra de negócio"}
 
 
@@ -101,8 +102,11 @@ def _item(saida, numero):
 
 def execucoes_do_sensor(eventos):
     """Lê o stream-json (texto) e devolve, em ordem, cada vez que o agente rodou o sensor:
-    [{'camadas': 'PASS'|'FAIL'|'desligada'|None, 'linhas': n, 'aceite': 'PASS'|'FAIL'|None}]."""
-    comandos, achados = {}, []
+    [{'camadas': 'PASS'|'FAIL'|'desligada'|None, 'linhas': n, 'aceite': 'PASS'|'FAIL'|None, 'antes_de_editar': bool}].
+    'antes_de_editar' marca a execução feita antes da primeira edição do agente: ela mede o código que já estava lá
+    (o rascunho do colega), e não um erro do agente. Revisão de 23/11/2026: as execuções de 16/11 do Haiku 5.5 contadas
+    como "o agente reagiu ao sensor" eram só essa medição inicial."""
+    comandos, achados, editou = {}, [], False
     for l in eventos.splitlines():
         if not l.startswith("{"):
             continue
@@ -117,25 +121,29 @@ def execucoes_do_sensor(eventos):
         for c in conteudo:
             if not isinstance(c, dict):
                 continue
-            if e.get("type") == "assistant" and c.get("type") == "tool_use" and c.get("name") == "Bash":
+            if e.get("type") == "assistant" and c.get("type") == "tool_use" and c.get("name") in EDICOES:
+                editou = True
+            elif e.get("type") == "assistant" and c.get("type") == "tool_use" and c.get("name") == "Bash":
                 cmd = c.get("input", {}).get("command", "")
-                if "lab1-check" in cmd or "fitness_camadas" in cmd:
-                    comandos[c["id"]] = "check" if "lab1-check" in cmd else "fitness"
+                if "lab1-check" in cmd or "lab1/checar.py" in cmd or "fitness_camadas" in cmd:
+                    comandos[c["id"]] = ("fitness" if "fitness_camadas" in cmd else "check", not editou)
             elif e.get("type") == "user" and c.get("type") == "tool_result" and c.get("tool_use_id") in comandos:
                 texto = _texto_do_resultado(c)
-                if comandos[c["tool_use_id"]] == "check":
+                tipo, antes = comandos[c["tool_use_id"]]
+                if tipo == "check":
                     camadas, linhas, falha = _item(texto, 4)
                     aceite, _, _ = _item(texto, 6)
                     if camadas is None and aceite is None:
                         continue
                     if camadas == "FAIL" and not linhas and "desligada" in falha:
                         camadas = "desligada"
-                    achados.append({"camadas": camadas, "linhas": linhas, "aceite": aceite})
+                    achados.append({"camadas": camadas, "linhas": linhas, "aceite": aceite, "antes_de_editar": antes})
                 else:
                     if "camadas: PASS" in texto:
-                        achados.append({"camadas": "PASS", "linhas": 0, "aceite": None})
+                        achados.append({"camadas": "PASS", "linhas": 0, "aceite": None, "antes_de_editar": antes})
                     elif "camadas: FAIL" in texto:
-                        achados.append({"camadas": "FAIL", "linhas": sum(1 for x in texto.splitlines() if x.startswith("camadas: ") and ".py:" in x), "aceite": None})
+                        achados.append({"camadas": "FAIL", "linhas": sum(1 for x in texto.splitlines() if x.startswith("camadas: ") and ".py:" in x), "aceite": None,
+                                        "antes_de_editar": antes})
     return achados
 
 
@@ -149,6 +157,8 @@ def _descreve_execucao(x):
         partes.append(f"camadas {x['camadas']}")
     if x["aceite"]:
         partes.append(f"teste do ticket {x['aceite']}")
+    if x.get("antes_de_editar"):
+        partes.append("antes de o agente editar")
     return ", ".join(partes)
 
 
@@ -164,11 +174,16 @@ def linhas_do_loop(execucoes):
     sai = [f"   O agente rodou o sensor {n} {'vez' if n == 1 else 'vezes'} durante o trabalho:"]
     sai += [f"   - {_ordinal(i)}: {_descreve_execucao(x)}" for i, x in enumerate(execucoes, 1)]
     sai.append("   Em uma linha: " + " → ".join(f"{_ordinal(i)}: {_descreve_execucao(x)}" for i, x in enumerate(execucoes, 1)))
-    reprovou = [i for i, x in enumerate(execucoes) if x["camadas"] == "FAIL" or x["aceite"] == "FAIL"]
-    if reprovou and reprovou[-1] < n - 1:
-        sai.append("   Houve reprovação seguida de nova execução: o agente reagiu ao sensor.")
+    falhou = lambda x: x["camadas"] == "FAIL" or x["aceite"] == "FAIL"
+    depois = [x for x in execucoes if not x.get("antes_de_editar")]
+    reprovou = [i for i, x in enumerate(depois) if falhou(x)]
+    if reprovou and reprovou[-1] < len(depois) - 1:
+        sai.append("   O sensor reprovou uma edição do agente, e ele rodou de novo: o agente reagiu ao sensor.")
     elif reprovou:
         sai.append("   A última execução do sensor ainda reprovou.")
+    elif any(falhou(x) for x in execucoes):
+        sai.append("   O sensor só reprovou antes de o agente editar, no código que já estava lá (o rascunho do colega).")
+        sai.append("   Depois das edições, passou: o agente não errou, e não houve correção.")
     return sai
 
 
