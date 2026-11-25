@@ -27,8 +27,6 @@ DO_PROFESSOR = [
     "mini-erp/app/routes/ajustes.py", "mini-erp/app/static/*",
     "integrador/caso.md", "integrador/rubrica.md", "integrador/atividades.md", "integrador/README.md",
     "integrador/scripts/*", "integrador/legado/*",
-    # 16/11/2026: a saída gravada do agente da Atividade 1 (make atividade1)
-    "integrador/atividade1/*",
     "labs/*/README.md", "labs/*/codex.md", "labs/*/ticket.md", "labs/*/*.py", "labs/*/modelos/*",
     "labs/*/aceite/*", "labs/*/referencia/*", "labs/*/exemplos/*", "labs/*/perguntas.toml",
     "labs/*/descricoes/ruim.toml", "labs/*/descricoes/boa.toml",
@@ -43,7 +41,15 @@ DO_GRUPO = ["docs/adr/*", "labs/*/testes/*", "labs/*/execucoes/*", "labs/*/compa
 # 09/11/2026: o Lab 2 ficou sem check e sem decisao.md (Sessão 4b).
 REMOVIDOS = ["labs/lab2/checar.py", "labs/lab2/modelos/decisao.md",
              # 16/11/2026: sem pitch nem arguição (Sessão 4c)
-             "integrador/pacote/pitch.md"]
+             "integrador/pacote/pitch.md",
+             # 25/11/2026: só o trabalho final (revisão do projeto integrador). A pasta engenharia-reversa/ do pacote é
+             # do grupo e fica: quem fez a Atividade 1 não perde nada.
+             "integrador/scripts/atividade1.py", "integrador/scripts/atividade2.py", "integrador/scripts/atividade3.py",
+             "integrador/scripts/modelos_atividade3/02-qualidade.md", "integrador/scripts/modelos_atividade3/03-economia.md",
+             "integrador/scripts/modelos_atividade3/04-seguranca.md",
+             "integrador/atividade1/saida_agente/c4.md", "integrador/atividade1/saida_agente/dependencias.md",
+             "integrador/atividade1/saida_agente/regras.md", "integrador/atividade1/saida_agente/invencoes.md",
+             "tests/test_atividade1.py", "tests/test_atividade2.py", "tests/test_atividade3.py"]
 
 
 def git(*args, check=True):
@@ -103,7 +109,7 @@ def sobras_de_rodada_anterior():
     commitava). Só entram os que estão iguais ao template (ou apagados e listados em REMOVIDOS): o que o grupo
     editou difere do template e fica de fora."""
     sobras = []
-    for caminho in git("diff", "--name-only", "HEAD").splitlines():
+    for caminho in git("diff", "--no-renames", "--name-only", "HEAD").splitlines():
         if not caminho or casa(caminho, DO_GRUPO):
             continue
         if not (RAIZ / caminho).exists():
@@ -143,7 +149,9 @@ def main():
     atualizar_a_si_mesmo()
     # Compara o template com os arquivos como estão no disco, não com o último commit: um arquivo já trazido
     # por uma rodada anterior e ainda sem commit está em dia e não pode bloquear a próxima rodada.
-    mudados = [l for l in git("diff", "--name-only", REF).splitlines() if l]
+    # --no-renames: sem ele, um arquivo renomeado no template (modelos_atividade3/ → modelos_trabalho/, 25/11/2026)
+    # aparece só com o nome antigo, e o novo nunca chega ao grupo.
+    mudados = [l for l in git("diff", "--no-renames", "--name-only", REF).splitlines() if l]
     no_template = set(git("ls-tree", "-r", "--name-only", REF).splitlines())
     trazidos, mantidos, novos, antigos = [], [], set(), set()
     for caminho in mudados:

@@ -3,7 +3,7 @@
 
 Para o grupo sem cota ou sem assinante: com as execuções gravadas, o grupo responde às 3 perguntas do lab.
 Copia os dois pipelines no modelo dos labs e a variação acl = "prompt". Na linha de resultado, sai
-"replay" no lugar do nome do grupo, e a Atividade 2 diz que o grupo usou o plano B.
+"replay" no lugar do nome do grupo, e o trabalho final diz que o grupo usou os números da demonstração do professor.
 """
 import json
 import shutil

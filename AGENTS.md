@@ -7,7 +7,7 @@ Repositório dos labs do curso Enterprise Architecture with Generative AI (FIAP)
 - Python 3.12 gerenciado pelo `uv`. Rode tudo com `uv run …` ou pelo `make`; não use `pip install`.
 - `make check`: verifica o ambiente. `make test`: testes de fumaça. `make erp`: sobe o Mini-ERP na porta 8000.
 - Cada lab tem `make labN` e `make labN-check` (PASS/FAIL). As instruções do lab estão em `labs/labN/README.md`.
-- Projeto integrador: `integrador/README.md`. Entregas conferidas por `make er-check`, `make checkpoint-check` e `make pacote-check`.
+- Projeto integrador: `integrador/README.md`. O trabalho final é conferido por `make pacote-check`.
 
 ## Estrutura que não é óbvia
 

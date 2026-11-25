@@ -64,11 +64,10 @@ confira se rodou pelo `make mcp`, que já libera a URL do Codespace.
 
 ## Projeto integrador
 
-**`make er-check` diz que uma citação não existe.** O caminho é relativo a `integrador/legado/`
-(ex.: `sgc/config.py:12`) ou começa por `integrador/legado/`. Se o arquivo ou a linha não existem,
-confira se o agente inventou a referência: registre isso em `invencoes.md`.
+**O `make pacote-check` diz que o ADR cita um RC que não existe.** Os requisitos vão de RC-01 a RC-12, na
+seção 4 de `integrador/caso.md`. Um ID fora disso foi inventado pelo agente: troquem pelo requisito certo.
 
-**O check deu PASS. Está certo?** O PASS confere a forma: arquivos, tabelas, citações que existem,
+**O check deu PASS. Está certo?** O PASS confere a forma: arquivos, tabelas, requisitos RC-NN que existem,
 ADR no padrão. Se as afirmações são verdadeiras, quem confere é o verificador do grupo, e quem avalia
 é a rubrica.
 

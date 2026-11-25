@@ -11,13 +11,13 @@ estilo de texto, só por afirmação que o grupo não verificou.
 
 | Critério | Pts | Artefato | Produzido em | Sensor que confere a forma |
 |---|---|---|---|---|
-| ADR e decisões | 30 | `docs/adr/ADR-*.md` (2 ou 3) | Atividade 1 (fatos do legado), Atividade 2 (1º ADR), harness do Lab 1 e skill `escrevendo-adrs` | `validar_adr.py` (via `make pacote-check`) |
-| Design | 20 | `pacote/01-design.md` + `pacote/engenharia-reversa/` | Atividade 1 (C4 do SGC), Lab 2 (decisão de conhecimento), Lab 3 (contrato MCP) | `make er-check`, `make checkpoint-check` |
+| ADR e decisões | 30 | `docs/adr/ADR-*.md` (2 ou 3) | os fatos do SGC (`caso.md`, seção 1), as demonstrações das Aulas 2 e 3 e o `make trabalho-adr`, com a skill `escrevendo-adrs` | `validar_adr.py` (via `make pacote-check`) |
+| Design | 20 | `pacote/01-design.md` | Aula 2: a demonstração do Lab 2 (decisão de conhecimento) e a do Lab 3 (contrato MCP); os fatos do SGC (`caso.md`, seção 1); Aula 4: o diagrama, com o lugar de cada controle | `make pacote-check` |
 | Qualidade | 15 | `pacote/02-qualidade.md` | Aula 3 (demonstrações 1 e 3: orquestração e eval); a decisão é do grupo | `make pacote-check` |
 | Economia | 15 | `pacote/03-economia.md` | Aula 3 (demonstração 5: custo por rota); a decisão é do grupo | `make pacote-check` |
 | Segurança e governança técnica | 20 | `pacote/04-seguranca.md` | Demonstração 1 (ataque e mitigação) e Aula 4 | `make pacote-check` |
 
-Os checks conferem só a forma: arquivos, seções, tabelas, citações que existem, ADR no padrão.
+Os checks conferem só a forma: arquivos, seções, tabelas, requisitos RC-NN que existem, ADR no padrão.
 **Regra provisória: pacote com FAIL no `make pacote-check` tem o critério afetado limitado ao nível Parcial.** Vale
 o check do repositório-template, rodado pelo professor sobre o commit entregue, e não a cópia do
 grupo.
@@ -31,7 +31,7 @@ Níveis: **Excelente** (90–100% dos pontos), **Bom** (70–89%), **Parcial** (
 
 | Nível | Descritor |
 |---|---|
-| Excelente (27–30) | Cada ADR tem 3 alternativas que alguém competente defenderia; a escolhida tem contras honestos e diz o custo aceito, com um dado do caso ou das demonstrações; a reversão diz o gatilho e o custo de voltar atrás; cada requisito citado (RC-NN do caso ou novo) leva a um sensor concreto. Os ADRs são coerentes entre si e com o design. Pelo menos um usa os fatos da engenharia reversa do SGC. |
+| Excelente (27–30) | Cada ADR tem 3 alternativas que alguém competente defenderia; a escolhida tem contras honestos e diz o custo aceito, com um dado do caso ou das demonstrações; a reversão diz o gatilho e o custo de voltar atrás; cada requisito citado (RC-NN do caso ou novo) leva a um sensor concreto. Os ADRs são coerentes entre si e com o design. Pelo menos um usa os fatos do SGC do caso (`caso.md`, seção 1, fatos S1 a S6). |
 | Bom (21–26) | Alternativas reais e rastreabilidade completa, mas um ponto fraco: reversão sem custo, contra da escolhida genérico ou um requisito com sensor vago. |
 | Parcial (12–20) | Validador com PASS, mas há alternativa de palha, consequência só positiva ou fato sem origem (número, decisor ou norma que o grupo não verificou). |
 | Insuficiente (0–11) | Menos de 2 ADRs, ou decisões que contradizem o design. |
@@ -40,14 +40,14 @@ Níveis: **Excelente** (90–100% dos pontos), **Bom** (70–89%), **Parcial** (
 
 | Nível | Descritor |
 |---|---|
-| Excelente (18–20) | O diagrama mostra onde ficam gateway, checagem de permissão e auditoria. A decisão de conhecimento varia por tipo de pergunta e usa os dados do Lab 2. O contrato MCP diz quais ferramentas escrevem, qual aprovação exigem e como tratam operações que não são idempotentes. O acesso ao SGC respeita o que a engenharia reversa mostrou. |
+| Excelente (18–20) | O diagrama mostra onde ficam gateway, checagem de permissão e auditoria. A decisão de conhecimento varia por tipo de pergunta e usa os dados do Lab 2. O contrato MCP diz quais ferramentas escrevem, qual aprovação exigem e como tratam operações que não são idempotentes. O acesso ao SGC respeita os fatos do SGC do caso (S1 a S6). |
 | Bom (14–17) | Tudo presente e coerente, com uma lacuna: dados do Lab 2 citados sem efeito na decisão, ou idempotência ignorada numa ferramenta de escrita. |
-| Parcial (8–13) | Diagrama genérico, que serviria para qualquer empresa, ou contrato MCP sem aprovação humana na escrita (RC-04), ou acesso ao SGC que contradiz o que a engenharia reversa mostrou. |
+| Parcial (8–13) | Diagrama genérico, que serviria para qualquer empresa, ou contrato MCP sem aprovação humana na escrita (RC-04), ou acesso ao SGC que contradiz os fatos do SGC do caso. |
 | Insuficiente (0–7) | Faltam o diagrama, a decisão de conhecimento ou o contrato MCP. |
 
 ### Qualidade (15)
 
-Os resultados das demonstrações da Aula 3 vêm prontos no `02-qualidade.md` (`make atividade3`). A nota está
+Os resultados das demonstrações da Aula 3 vêm prontos no `02-qualidade.md` (`make trabalho`). A nota está
 nas decisões do grupo.
 
 | Nível | Descritor |
@@ -59,7 +59,7 @@ nas decisões do grupo.
 
 ### Economia (15)
 
-Os custos da Demonstração 5 vêm prontos no `03-economia.md` (`make atividade3`). A nota está nas decisões do grupo.
+Os custos da Demonstração 5 vêm prontos no `03-economia.md` (`make trabalho`). A nota está nas decisões do grupo.
 
 | Nível | Descritor |
 |---|---|

@@ -1,7 +1,7 @@
 # Design do Bússola
 
-<!-- Critério "Design" da rubrica (15 pts). As seções "Decisão de conhecimento" e
-"Contrato MCP" entram no checkpoint (Atividade 2); o resto, no pacote final. -->
+<!-- Critério "Design" da rubrica (20 pts). Rodem make trabalho: ele prepara as seções "Decisão de
+conhecimento" e "Contrato MCP" com o texto pronto e os espaços [PREENCHER: ...]. -->
 
 ## Visão geral
 
@@ -28,7 +28,7 @@ PREENCHER
 ## Contrato MCP
 
 <!-- Uma linha por ferramenta, com o nome completo Servidor:ferramenta. Partam do MCP do
-Lab 3 e acrescentem o acesso ao SGC que a engenharia reversa mostrou ser viável.
+Lab 3 e acrescentem o acesso ao SGC que os fatos do caso permitem (caso.md, seção 1).
 "Idempotente": rodar duas vezes dá o mesmo resultado? Se não, como vocês protegem? -->
 
 | Servidor:ferramenta | Lê ou escreve | Entrada | Saída | Aprovação humana | Idempotente | Departamentos |

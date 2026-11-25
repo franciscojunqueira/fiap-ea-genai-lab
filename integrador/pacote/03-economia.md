@@ -1,6 +1,6 @@
 # Economia: custo por rota e go/no-go
 
-<!-- Critério "Economia" da rubrica (15 pts). Fonte: Aula 3 (demonstração 5). Rodem make atividade3: ele
+<!-- Critério "Economia" da rubrica (15 pts). Fonte: Aula 3 (demonstração 5). Rodem make trabalho: ele
 preenche os resultados da demonstração. Depois troquem cada [PREENCHER: ...], com os colchetes. -->
 
 ## Resultados da demonstração

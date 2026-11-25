@@ -72,4 +72,4 @@ no curso: são remédios a medir, e não a solução da P03.
 ## Em casa (opcional, sem consumir cota)
 
 `make lab6-replay`, `make lab6-acl-prompt`, `make lab5-gateway-replay SIMULACAO=injecao` e `make lab6-pedacos` não chamam modelo.
-O resultado da Demonstração 1 vai pronto para o seu `integrador/pacote/04-seguranca.md` com `make atividade3`.
+O resultado da Demonstração 1 vai pronto para o seu `integrador/pacote/04-seguranca.md` com `make trabalho`.

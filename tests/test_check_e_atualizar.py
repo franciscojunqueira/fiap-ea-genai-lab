@@ -19,9 +19,9 @@ def test_atualizar_traz_os_arquivos_do_professor_e_preserva_os_do_grupo():
     professor = lambda c: atualizar.casa(c, atualizar.DO_PROFESSOR) and not atualizar.casa(c, atualizar.DO_GRUPO)
     assert professor("labs/lab3/descricoes/boa.toml")
     assert professor("labs/lab2/README.md") and professor("labs/lab2/preparar.py")
-    assert professor("integrador/atividade1/saida_agente/invencoes.md") and professor("integrador/scripts/atividade1.py")
+    assert professor("integrador/scripts/trabalho.py") and professor("integrador/caso.md")
     assert professor("labs/lab1/demo.py")
-    assert not professor("integrador/pacote/engenharia-reversa/regras.md")
+    assert not professor("integrador/pacote/engenharia-reversa/regras.md")   # do grupo: quem fez a Atividade 1 não perde
     assert not professor("labs/lab3/descricoes/grupo.toml")
     assert not professor("labs/lab2/execucoes/20261109-010333-rag.md")
 
@@ -114,7 +114,7 @@ def test_atualizar_traz_arquivo_novo_mesmo_fora_da_lista_do_professor(tmp_path, 
 
 
 def test_atualizar_troca_modelo_antigo_que_o_grupo_nao_editou(tmp_path, monkeypatch, capsys):
-    """Piloto de 16/11/2026: o 02-qualidade.md antigo, intocado, ficava, e o make atividade3 o recusava."""
+    """Piloto de 16/11/2026: o 02-qualidade.md antigo, intocado, ficava, e o make atividade3 (hoje make trabalho) o recusava."""
     import subprocess
 
     def g(pasta, *args):
@@ -225,3 +225,46 @@ def test_atualizar_commita_sobras_de_rodada_antiga_sem_levar_edicao_do_grupo(tmp
     assert "Nada a trazer" in capsys.readouterr().out
     assert g(grupo, "show", "--name-only", "--format=", "HEAD").split() == ["labs/lab3/README.md"]
     assert g(grupo, "status", "--porcelain").strip() == "M integrador/pacote/01-design.md"
+
+
+def test_atualizar_leva_o_arquivo_renomeado_no_template(tmp_path, monkeypatch, capsys):
+    """Revisão de 25/11/2026: modelos_atividade3/ virou modelos_trabalho/. Sem --no-renames, o git emparelhava os dois
+    como renomeação, o diff mostrava só o nome antigo, e o make trabalho caía sem os modelos novos."""
+    import subprocess
+
+    def g(pasta, *args):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=pasta, check=True,
+                       capture_output=True)
+
+    template, grupo = tmp_path / "template", tmp_path / "grupo"
+    antigo = template / "integrador/scripts/modelos_antigos/02.md"
+    antigo.parent.mkdir(parents=True)
+    texto = "".join(f"linha {n} do modelo\n" for n in range(30))
+    antigo.write_text(texto, encoding="utf-8")
+    g(tmp_path, "init", "-q", "-b", "main", str(template))
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v1")
+    g(tmp_path, "clone", "-q", str(template), str(grupo))
+    g(grupo, "remote", "add", "template", str(template))
+    novo = template / "integrador/scripts/modelos_novos/02.md"
+    novo.parent.mkdir(parents=True)
+    novo.write_text(texto + "uma linha nova\n", encoding="utf-8")
+    antigo.unlink()
+    g(template, "add", "-A")
+    g(template, "commit", "-q", "-m", "v2: renomeia")
+
+    monkeypatch.setattr(atualizar, "RAIZ", grupo)
+    monkeypatch.setattr(atualizar, "REMOVIDOS", ["integrador/scripts/modelos_antigos/02.md"])
+    monkeypatch.setattr(sys, "argv", ["atualizar"])
+    monkeypatch.setattr("builtins.input", lambda _: "s")
+    for chave in ("NAME", "EMAIL"):
+        monkeypatch.setenv(f"GIT_AUTHOR_{chave}", "t")
+        monkeypatch.setenv(f"GIT_COMMITTER_{chave}", "t")
+    atualizar.main()
+    assert (grupo / "integrador/scripts/modelos_novos/02.md").read_text(encoding="utf-8").endswith("uma linha nova\n")
+    assert not (grupo / "integrador/scripts/modelos_antigos/02.md").exists()
+
+
+def test_os_testes_das_atividades_que_sairam_sao_removidos():
+    for nome in ("tests/test_atividade1.py", "tests/test_atividade2.py", "tests/test_atividade3.py"):
+        assert nome in atualizar.REMOVIDOS and not (RAIZ / nome).exists()

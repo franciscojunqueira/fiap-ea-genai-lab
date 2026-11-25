@@ -3,7 +3,7 @@
 <!-- Uma linha por integrante. Sem percentuais: digam o que cada um fez e onde está a
 evidência (arquivos, seções, commits). Todos revisam antes da entrega. -->
 
-| Integrante | Papéis assumidos (labs e atividades) | Contribuição no pacote | Evidência |
+| Integrante | Papéis assumidos no trabalho final | Contribuição no pacote | Evidência |
 |---|---|---|---|
 | PREENCHER | PREENCHER | PREENCHER | PREENCHER |
 

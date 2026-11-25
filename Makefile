@@ -5,7 +5,7 @@
         lab4-orquestrar lab4-orquestrar-replay lab4-skill lab4-skill-replay lab4-eval lab4-juiz lab4-replay lab5-gateway lab5-gateway-replay lab5-tco \
         lab6-ataque lab6-replay lab6-acl-prompt lab6-pedacos \
         lab1-check lab2-check lab3-check lab4-check lab5-check lab6-check \
-        legado er-check checkpoint-check pacote-check atividade1 atividade1-entregar atividade2 atividade2-adr atividade2-entregar atividade3 atividade3-entregar
+        legado pacote-check trabalho trabalho-adr trabalho-entregar
 
 RUN := uv run --quiet
 SKILLS := $(wildcard .agents/skills/*)
@@ -50,8 +50,8 @@ lab2: ## Lab 2 (Aula 2): prepara o config e confere o login do operador
 	@$(RUN) python labs/lab2/preparar.py
 lab2-rodar: ## Lab 2: roda as 10 perguntas (PIPELINE=rag | agentica | contexto; CLI=codex opcional)
 	@$(RUN) python labs/lab2/rodar.py $(PIPELINE) $(if $(CLI),--cli $(CLI))
-lab2-check: ## Lab 2: não tem check (as respostas vão no chat; os números, na Atividade 2)
-	@echo "O Lab 2 não tem check: respondam às 3 perguntas do labs/lab2/README.md. Os números vão para a Atividade 2 (make checkpoint-check)."
+lab2-check: ## Lab 2: não tem check (as respostas vão no chat; os números, no trabalho final)
+	@echo "O Lab 2 não tem check: respondam às 3 perguntas do labs/lab2/README.md. Os números vão para o 01-design.md do trabalho final (make trabalho)."
 lab2-replay: ## Lab 2, plano B: copia as execuções gravadas (cota esgotada)
 	@$(RUN) python labs/lab2/usar_replay.py
 lab3: ## Lab 3 (Aula 2): prepara o contrato e a descrição do grupo
@@ -105,31 +105,14 @@ atualizar: ## Traz do repositório-template os labs novos e as correções, sem 
 legado: ## Roda um ciclo do SGC, o legado do projeto integrador (não usa modelo)
 	@$(RUN) python integrador/scripts/demo_legado.py
 
-atividade1: ## Atividade 1: copia a saída gravada de um agente sobre o SGC para o grupo conferir (não usa modelo)
-	@$(RUN) python integrador/scripts/atividade1.py preparar
+trabalho: ## Trabalho final: prepara o pacote (01-design.md e os resultados das demonstrações em 02, 03 e 04) e mostra os números do Lab 2
+	@$(RUN) python integrador/scripts/trabalho.py preparar
 
-atividade1-entregar: ## Atividade 1: confere, faz commit e push e mostra o link e o SHA para o Portal
-	@$(RUN) python integrador/scripts/atividade1.py entregar
+trabalho-adr: ## Trabalho final: o agente escreve um ADR do grupo (TEMA=sgc | modelo DECISAO="uma frase com a decisão")
+	@$(RUN) python integrador/scripts/trabalho.py adr
 
-er-check: ## Confere a engenharia reversa (Atividade 1 do integrador)
-	@$(RUN) python integrador/scripts/checar_entrega.py er
+trabalho-entregar: ## Trabalho final: confere, faz commit e push e mostra o link e o SHA para o Portal
+	@$(RUN) python integrador/scripts/trabalho.py entregar
 
-checkpoint-check: ## Confere o checkpoint (Atividade 2 do integrador)
-	@$(RUN) python integrador/scripts/checar_entrega.py checkpoint
-
-atividade2: ## Atividade 2: prepara o 01-design.md para preencher e mostra os números do Lab 2
-	@$(RUN) python integrador/scripts/atividade2.py preparar
-
-atividade2-adr: ## Atividade 2: o agente escreve o 1º ADR do grupo (DECISAO="uma frase com a decisão")
-	@$(RUN) python integrador/scripts/atividade2.py adr
-
-atividade2-entregar: ## Atividade 2: confere, faz commit e push e mostra o link e o SHA para o Portal
-	@$(RUN) python integrador/scripts/atividade2.py entregar
-atividade3: ## Trabalho final: preenche os resultados das Aulas 3 e 4 em 02-qualidade.md, 03-economia.md e 04-seguranca.md
-	@$(RUN) python integrador/scripts/atividade3.py preparar
-
-atividade3-entregar: ## Trabalho final: confere, faz commit e push e mostra o link e o SHA para o Portal
-	@$(RUN) python integrador/scripts/atividade3.py entregar
-
-pacote-check: ## Confere o pacote final (Atividade 3 do integrador)
+pacote-check: ## Confere a estrutura do trabalho final (o pacote do integrador)
 	@$(RUN) python integrador/scripts/checar_entrega.py final

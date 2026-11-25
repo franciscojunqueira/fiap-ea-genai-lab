@@ -316,7 +316,7 @@ def main():
     print(f"\nAcerto {resumo['acerto']}/10 · citação {resumo['citacao']}/10 · vazamentos {resumo['vazamentos']} · "
           f"existência confirmada {resumo['existencia_confirmada']} · p50 {virgula(resumo['latencia_p50_s'])} s · "
           f"p95 {virgula(resumo['latencia_p95_s'])} s · US$ {usd} por mil perguntas (preço de API)")
-    print(f"Linha de resultado (vai para a Atividade 2):\n{texto}")
+    print(f"Linha de resultado (vai para o 01-design.md do trabalho final):\n{texto}")
     print(f"\nAs respostas estão em {md.relative_to(RAIZ)}. Para a pergunta da P03, abram o arquivo e procurem \"## P03\".")
     return 0 if resumo["respondidas"] == 10 else 1
 

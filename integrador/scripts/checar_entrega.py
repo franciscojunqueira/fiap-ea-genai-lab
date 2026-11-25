@@ -1,43 +1,25 @@
 #!/usr/bin/env python3
-"""Confere a estrutura das entregas do projeto integrador. Executar: `make er-check`,
-`make checkpoint-check` ou `make pacote-check`.
+"""Confere a estrutura do trabalho final do projeto integrador. Executar: `make pacote-check`.
 
-Uso: python3 integrador/scripts/checar_entrega.py {er|checkpoint|final} [raiz do repositório]
+Uso: python3 integrador/scripts/checar_entrega.py final [raiz do repositório]
 
 Confere só o que é determinístico: arquivos presentes, PREENCHER substituído, seções e tabelas
-preenchidas, citações arquivo:linha que existem de fato no legado e ADRs com PASS no validador.
+preenchidas, requisitos RC-NN que existem no caso e ADRs com PASS no validador.
 Se o conteúdo é bom, quem julga é a rubrica (integrador/rubrica.md).
 """
 import re
 import subprocess
 import sys
-import unicodedata
 from pathlib import Path
 
-# Mínimos de cada entrega, definidos nos enunciados (integrador/atividades.md)
-MIN_REGRAS = 8
-MIN_AFIRMACOES = 5
+# Mínimos do trabalho final, definidos no enunciado (integrador/atividades.md)
 MIN_AMEACAS = 5
 MIN_USO_IA = 3
 MIN_INTEGRANTES = 4  # grupos de 4 a 5 (proposta, seção 3.2); quem saiu fica na tabela, com a data
-MIN_ADRS = {"checkpoint": 1, "final": 2}
+MIN_ADRS = 2
 MAX_ADRS = 3  # acima disso é aviso: a rubrica pede 2 ou 3 decisões bem defendidas
 
-CITACAO = re.compile(r"`?(?:integrador/legado/)?([\w./-]+\.(?:py|sh|txt|cpy|csv|md)):(\d+)(?:-(\d+))?`?")
 REQUISITO_CASO = re.compile(r"\bRC-\d{2}\b")
-URL = re.compile(r"https?://\S+")
-VEREDITOS = ("correto", "errado", "impreciso", "não verificável")
-MIN_IMPLICACOES = 3
-NOTA_DE_CORRECAO = "corrigido pelo verificador"
-# O `make atividade1` do formato novo grava a coluna "Onde conferir" no invencoes.md; o formato antigo (turma de
-# outubro: Como o grupo conferiu / Veredito, com "inventado") não tem. Só o formato novo passa pelo check mais forte.
-FORMATO_NOVO = re.compile(r"^\|[^\n]*\|\s*Onde conferir\s*\|", re.MULTILINE)
-ORIGEM_DA_AFIRMACAO = re.compile(r"`((?:c4|dependencias|regras)\.md):\d+`")
-
-
-def normaliza_veredito(texto):
-    base = unicodedata.normalize("NFKD", texto.lower()).encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"[^a-z ]", "", base).strip()
 
 
 def sem_comentarios(texto):
@@ -76,7 +58,6 @@ class Conferencia:
     def __init__(self, raiz):
         self.raiz = raiz
         self.pacote = raiz / "integrador" / "pacote"
-        self.legado = raiz / "integrador" / "legado"
         self.erros, self.avisos = [], []
 
     def ler(self, relativo, ignorar_secao=None):
@@ -114,27 +95,11 @@ class Conferencia:
         if len([b for b in blocos if b.strip()]) < minimo:
             self.erros.append(f"integrador/pacote/{relativo}: precisa de {minimo} bloco(s) ```mermaid com o diagrama.")
 
-    def citacoes(self, relativo, texto, exigir_por_linha=False):
-        """Cada arquivo:linha precisa existir em integrador/legado/. É o sensor contra referência inventada."""
-        for arquivo, ini, fim in CITACAO.findall(texto):
-            alvo = self.legado / arquivo
-            if not alvo.is_file():
-                self.erros.append(f"integrador/pacote/{relativo}: cita '{arquivo}', que não existe em integrador/legado/. Confira o caminho (relativo a integrador/legado/) ou se o agente inventou.")
-                continue
-            total = len(alvo.read_text(encoding="utf-8", errors="ignore").splitlines())
-            for n in (ini, fim):
-                if n and not 1 <= int(n) <= total:
-                    self.erros.append(f"integrador/pacote/{relativo}: '{arquivo}:{n}' aponta para uma linha que não existe ({arquivo} tem {total} linhas).")
-        if exigir_por_linha:
-            for i, linha in enumerate(linhas_de_tabela(texto), 1):
-                if not CITACAO.search(" ".join(linha)):
-                    self.erros.append(f"integrador/pacote/{relativo}: a linha {i} da tabela não tem evidência no formato arquivo:linha (ex.: sgc/config.py:12).")
-
     def adrs(self, minimo):
         pasta = self.raiz / "docs" / "adr"
         adrs = sorted(pasta.glob("ADR-*.md"))
         if len(adrs) < minimo:
-            self.erros.append(f"docs/adr/: {len(adrs)} ADR(s); esta entrega pede pelo menos {minimo}. Use a skill escrevendo-adrs.")
+            self.erros.append(f"docs/adr/: {len(adrs)} ADR(s); o trabalho final pede pelo menos {minimo}. Use o make trabalho-adr.")
             return
         if len(adrs) > MAX_ADRS:
             self.avisos.append(f"docs/adr/: {len(adrs)} ADRs. A rubrica avalia 2 ou 3 decisões bem defendidas; mais ADRs não somam pontos.")
@@ -152,91 +117,18 @@ class Conferencia:
             falhas = [l.strip() for l in r.stdout.splitlines() if l.startswith("[FAIL]") or l.strip().startswith("ERRO")]
             self.erros.append("ADRs com FAIL no validador da skill escrevendo-adrs:\n    " + "\n    ".join(falhas))
 
-    def er(self):
-        base = "engenharia-reversa/"
-        texto = self.ler(base + "c4.md")
-        if texto is not None:
-            self.mermaid(base + "c4.md", texto, 2)
-        texto = self.ler(base + "dependencias.md")
-        if texto is not None:
-            self.tabela(base + "dependencias.md", texto, 1, "dependência(s)")
-            self.citacoes(base + "dependencias.md", texto, exigir_por_linha=True)
-        texto = self.ler(base + "regras.md")
-        if texto is not None:
-            self.tabela(base + "regras.md", texto, MIN_REGRAS, "regra(s)")
-            self.citacoes(base + "regras.md", texto, exigir_por_linha=True)
-            self.secoes_cheias(base + "regras.md", texto, ["Implicações para o Bússola"])
-        texto = self.ler(base + "invencoes.md")
-        if texto is not None:
-            # sem conferir citações: registrar uma referência que o agente inventou é o objetivo do arquivo
-            self.tabela(base + "invencoes.md", texto, MIN_AFIRMACOES, "afirmação(ões) conferida(s)")
-            bruto = (self.pacote / base / "invencoes.md").read_text(encoding="utf-8")
-            if FORMATO_NOVO.search(bruto):
-                self.verificacao_forte(base)
-
-    def verificacao_forte(self, base):
-        """Só no formato novo do invencoes.md: veredito do vocabulário, como conferiu citando evidência, 3 implicações
-        e o que foi marcado errado ou impreciso corrigido no arquivo de origem."""
-        arq = base + "invencoes.md"
-        texto = sem_comentarios((self.pacote / arq).read_text(encoding="utf-8"))
-        validos = {normaliza_veredito(v) for v in VEREDITOS}
-        a_corrigir = {}
-        for linha in linhas_de_tabela(texto):
-            if len(linha) < 5 or not linha[0].strip().isdigit():
-                continue
-            n, afirmacao, _, como, veredito = (c.strip() for c in linha[:5])
-            v = normaliza_veredito(veredito)
-            if v not in validos:
-                self.erros.append(f"integrador/pacote/{arq}: afirmação {n}: o veredito '{veredito}' não é um destes: correto, errado, impreciso ou não verificável.")
-            if not CITACAO.search(como) and "make legado" not in como:
-                self.erros.append(f"integrador/pacote/{arq}: afirmação {n}: 'Como conferimos' precisa citar arquivo:linha do código (ex.: sgc/calendario.py:6) ou o `make legado`.")
-            if v in ("errado", "impreciso"):
-                origem = ORIGEM_DA_AFIRMACAO.search(afirmacao)
-                a_corrigir.setdefault(origem.group(1) if origem else None, []).append(n)
-        for origem, numeros in a_corrigir.items():
-            lista = ", ".join(numeros)
-            if origem is None:
-                self.erros.append(f"integrador/pacote/{arq}: afirmação(ões) {lista}: não achei de qual arquivo (c4.md, dependencias.md ou regras.md) a afirmação vem; mantenha o `arquivo:linha` da coluna 2.")
-                continue
-            caminho = self.pacote / base / origem
-            notas = caminho.read_text(encoding="utf-8").lower().count(NOTA_DE_CORRECAO) if caminho.is_file() else 0
-            if notas < len(numeros):
-                self.erros.append(f"integrador/pacote/{base}{origem}: a(s) afirmação(ões) {lista} do invencoes.md foi/foram marcada(s) errada(s) ou imprecisa(s), "
-                                  f"mas faltam correções neste arquivo ({notas} de {len(numeros)} com a nota '{NOTA_DE_CORRECAO}'). Corrija o texto e escreva a nota ao lado.")
-        regras = (self.pacote / base / "regras.md")
-        if regras.is_file():
-            corpo = secoes(sem_comentarios(regras.read_text(encoding="utf-8"))).get("Implicações para o Bússola", "")
-            itens = [l for l in corpo.splitlines() if re.match(r"\s*(?:[-*]|\d+[.)])\s+\S", l)]
-            if len(itens) < MIN_IMPLICACOES:
-                self.erros.append(f"integrador/pacote/{base}regras.md: {len(itens)} implicação(ões) para o Bússola; o mínimo é {MIN_IMPLICACOES}.")
-
-    def design(self, completo):
-        texto = self.ler("01-design.md") if completo else self._design_parcial()
+    def design(self):
+        texto = self.ler("01-design.md")
         if texto is None:
             return
-        nomes = ["Decisão de conhecimento", "Contrato MCP"]
-        if completo:
-            nomes = ["Visão geral"] + nomes + ["Decisões registradas"]
-            self.mermaid("01-design.md", texto, 1)
-        partes = self.secoes_cheias("01-design.md", texto, nomes)
+        self.mermaid("01-design.md", texto, 1)
+        partes = self.secoes_cheias("01-design.md", texto, ["Visão geral", "Decisão de conhecimento", "Contrato MCP",
+                                                              "Decisões registradas"])
         self.tabela("01-design.md (Contrato MCP)", partes.get("Contrato MCP", ""), 1, "ferramenta(s)")
 
-    def _design_parcial(self):
-        """No checkpoint só valem as seções de conhecimento e MCP; o resto pode ter PREENCHER."""
-        caminho = self.pacote / "01-design.md"
-        if not caminho.is_file():
-            self.erros.append("Falta integrador/pacote/01-design.md.")
-            return None
-        partes = secoes(sem_comentarios(caminho.read_text(encoding="utf-8")))
-        for nome in ("Decisão de conhecimento", "Contrato MCP"):
-            if "PREENCHER" in partes.get(nome, ""):
-                self.erros.append(f"integrador/pacote/01-design.md: a seção '## {nome}' ainda tem 'PREENCHER'.")
-        return "\n".join(f"## {k}\n{v}" for k, v in partes.items() if k in ("Decisão de conhecimento", "Contrato MCP"))
-
     def final(self):
-        self.er()
-        self.adrs(MIN_ADRS["final"])
-        self.design(completo=True)
+        self.adrs(MIN_ADRS)
+        self.design()
         texto = self.ler("02-qualidade.md")
         if texto is not None:
             partes = self.secoes_cheias("02-qualidade.md", texto, [
@@ -256,7 +148,7 @@ class Conferencia:
             # grupo que já tinha escrito o 04 no modelo anterior.
             if "Resultados das demonstrações" not in secoes(texto):
                 self.avisos.append("integrador/pacote/04-seguranca.md: falta a seção '## Resultados das demonstrações' "
-                                   "(modelo novo da Aula 4). Não reprova; para trazê-la, veja integrador/atividades.md.")
+                                   "(modelo novo da Aula 4). Não reprova; para trazê-la, copiem o texto do grupo, apaguem o arquivo e rodem make trabalho.")
             partes = self.secoes_cheias("04-seguranca.md", texto, ["Modelo de ameaças", "Mitigação testada", "Posição no control plane", "Requisitos regulatórios"])
             self.tabela("04-seguranca.md (Modelo de ameaças)", partes.get("Modelo de ameaças", ""), MIN_AMEACAS, "ameaça(s)")
             self.tabela("04-seguranca.md (Requisitos regulatórios)", partes.get("Requisitos regulatórios", ""), 2, "requisito(s) regulatório(s)")
@@ -271,28 +163,20 @@ class Conferencia:
 
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("er", "checkpoint", "final"):
+    if len(argv) < 2 or argv[1] != "final":
         print(__doc__)
         return 2
     raiz = Path(argv[2]).resolve() if len(argv) > 2 else Path(__file__).resolve().parent.parent.parent
     c = Conferencia(raiz)
-    etapa = argv[1]
-    if etapa == "er":
-        c.er()
-    elif etapa == "checkpoint":
-        c.adrs(MIN_ADRS["checkpoint"])
-        c.design(completo=False)
-    else:
-        c.final()
+    c.final()
     for e in c.erros:
         print(f"  ERRO  {e}")
     for a in c.avisos:
         print(f"  AVISO {a}")
-    nome = {"er": "engenharia reversa", "checkpoint": "checkpoint", "final": "pacote final"}[etapa]
     if c.erros:
-        print(f"FAIL ({nome}): {len(c.erros)} erro(s). Corrija e rode de novo.")
+        print(f"FAIL (trabalho final): {len(c.erros)} erro(s). Corrija e rode de novo.")
         return 1
-    print(f"PASS ({nome}): estrutura completa. O conteúdo é avaliado pela rubrica (integrador/rubrica.md).")
+    print("PASS (trabalho final): estrutura completa. O conteúdo é avaliado pela rubrica (integrador/rubrica.md).")
     return 0
 
 

@@ -106,12 +106,12 @@ professor para `labs/lab3/comparacoes/`; o momento 2 segue pelo `replay/lab3/ao_
 **A identidade de quem aprova é simulada neste lab:** a tela não autentica, e o nome é texto livre. Em
 produção, quem aprova se identifica (SSO) com uma credencial que o agente não tem: tema da Aula 4.
 
-## Depois da aula: a Atividade 2
+## No trabalho final
 
-O `make atividade2` põe na seção "Contrato MCP" do `integrador/pacote/01-design.md` uma tabela de três
+O `make trabalho` põe na seção "Contrato MCP" do `integrador/pacote/01-design.md` uma tabela de três
 linhas: as duas tools do Mini-ERP desta demonstração e uma tool `sgc:` em que o grupo completa só duas
-células, quem aprova e se reprocessar é idempotente, com o que a Atividade 1 mostrou. Os passos estão
-em `integrador/atividades.md`.
+células, quem aprova e se reprocessar é idempotente, com os fatos do SGC do caso (`integrador/caso.md`,
+seção 1, fato S4). Os passos estão em `integrador/atividades.md`.
 
 ## Refazer em casa (opcional, sem nota)
 

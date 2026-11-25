@@ -17,7 +17,7 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 
 import ataque  # noqa: E402
 import corpus  # noqa: E402
-import atividade3  # noqa: E402
+import trabalho  # noqa: E402
 import gateway  # noqa: E402
 import pedacos  # noqa: E402
 
@@ -183,9 +183,9 @@ def repo(tmp_path):
     return tmp_path
 
 
-def test_atividade3_prepara_o_04_com_o_resultado_da_demonstracao_1(tmp_path):
+def test_trabalho_prepara_o_04_com_o_resultado_da_demonstracao_1(tmp_path):
     raiz = repo(tmp_path)
-    atividade3.preparar(raiz)
+    trabalho.preparar(raiz)
     t = (raiz / "integrador/pacote/04-seguranca.md").read_text()
     assert "Demonstração 1, o ataque e a mitigação" in t and "| claude-haiku-4-5 | nenhuma" in t
     assert "| claude-haiku-5-5 | nenhuma (a ferramenta de e-mail liberada) | 0 de 5" in t
@@ -196,15 +196,15 @@ def test_atividade3_prepara_o_04_com_o_resultado_da_demonstracao_1(tmp_path):
     assert "PREENCHER" not in secao                      # só as decisões ficam para o grupo
 
 
-def test_atividade3_nao_apaga_o_que_o_grupo_escreveu_no_04(tmp_path):
+def test_trabalho_nao_apaga_o_que_o_grupo_escreveu_no_04(tmp_path):
     raiz = repo(tmp_path)
     escrito = "# Segurança\n\n## Modelo de ameaças\n\nO grupo já escreveu aqui.\n"
     (raiz / "integrador/pacote/04-seguranca.md").write_text(escrito)
-    atividade3.preparar(raiz)
+    trabalho.preparar(raiz)
     assert (raiz / "integrador/pacote/04-seguranca.md").read_text() == escrito
 
 
-def test_atividade3_troca_o_04_antigo_intocado_e_nao_repete(tmp_path):
+def test_trabalho_troca_o_04_antigo_intocado_e_nao_repete(tmp_path):
     raiz = repo(tmp_path)
     antigo = ("# Segurança e governança técnica\n\n<!-- Critério -->\n\n## Modelo de ameaças\n\n<!-- Pelo menos 5 -->\n\n"
               "| Ameaça | Vetor | Perna da trifecta | Mitigação | Sensor que confirma |\n|---|---|---|---|---|\n"
@@ -213,17 +213,17 @@ def test_atividade3_troca_o_04_antigo_intocado_e_nao_repete(tmp_path):
               "| Norma e artigo | O que exige | Requisito arquitetural | Onde está no design | Conferido em |\n|---|---|---|---|---|\n"
               "| PREENCHER | PREENCHER | PREENCHER | PREENCHER | PREENCHER |\n")
     (raiz / "integrador/pacote/04-seguranca.md").write_text(antigo)
-    atividade3.preparar(raiz)
+    trabalho.preparar(raiz)
     t = (raiz / "integrador/pacote/04-seguranca.md").read_text()
     assert "## Resultados das demonstrações" in t and "Demonstração 1" in t
-    atividade3.preparar(raiz)
+    trabalho.preparar(raiz)
     assert (raiz / "integrador/pacote/04-seguranca.md").read_text() == t
 
 
 def test_o_modelo_do_04_no_pacote_e_no_script_sao_iguais_e_a_secao_nova_so_avisa():
     pacote = (RAIZ / "integrador/pacote/04-seguranca.md").read_text()
-    if "<!-- Prontos: testes do professor" not in pacote:   # repositório de grupo depois do make atividade3: o arquivo já é do grupo
-        assert pacote == (RAIZ / "integrador/scripts/modelos_atividade3/04-seguranca.md").read_text()
+    if "<!-- Prontos: testes do professor" not in pacote:   # repositório de grupo depois do make trabalho: o arquivo já é do grupo
+        assert pacote == (RAIZ / "integrador/scripts/modelos_trabalho/04-seguranca.md").read_text()
     fonte = (RAIZ / "integrador/scripts/checar_entrega.py").read_text()
     # a seção nova é só aviso: não reprova o 04 escrito no modelo anterior (turma em curso)
     assert "falta a seção '## Resultados das demonstrações'" in fonte and "self.avisos.append" in fonte
@@ -242,7 +242,7 @@ def test_o_make_atualizar_leva_tudo_o_que_a_aula_4_trouxe():
     novos = ["labs/lab6/ataque.py", "labs/lab6/correio.py", "labs/lab6/pedacos.py", "labs/lab6/acl_prompt.py",
              "labs/lab6/README.md", "labs/lab6/dados/cadastro_sacados_sgc_2026_10.md", "labs/lab5/gateway.py",
              "labs/lab5/rotas.toml", "replay/lab6/ataque/haiku-4-5-nenhuma.json", "replay/lab5/gateway_todas.txt",
-             "integrador/scripts/modelos_atividade3/04-seguranca.md", "integrador/scripts/atividade3.py",
+             "integrador/scripts/modelos_trabalho/04-seguranca.md", "integrador/scripts/trabalho.py",
              "integrador/scripts/checar_entrega.py", "integrador/atividades.md", "integrador/rubrica.md", "Makefile",
              "tests/test_lab6.py"]
     for caminho in novos:

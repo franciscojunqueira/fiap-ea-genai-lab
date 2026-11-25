@@ -115,7 +115,7 @@ def item_contrato():
            and all(c.strip() for c in l.strip().strip("|").split("|")) and len(l.split("|")) >= 9]
     if not sgc:
         problemas.append("A tabela de labs/lab3/contrato.md não tem nenhuma linha completa sgc:nome_da_tool: o contrato do "
-                         "legado sem API (o SGC), com aprovação e idempotência pensadas a partir da Atividade 1.")
+                         "legado sem API (o SGC), com aprovação e idempotência pensadas a partir dos fatos do SGC (caso.md, seção 1).")
     decisao = texto.split("## Pergunta de decisão", 1)[-1] if "## Pergunta de decisão" in texto else ""
     if not [l for l in decisao.splitlines() if l.strip() and not l.strip().startswith(("<", "#"))]:
         problemas.append("labs/lab3/contrato.md sem resposta em 'Pergunta de decisão' (relator).")

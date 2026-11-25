@@ -1,6 +1,6 @@
 # Qualidade: eval, rotas e orquestração
 
-<!-- Critério "Qualidade" da rubrica (15 pts). Fonte: Aula 3 (demonstrações 1 e 3). Rodem make atividade3:
+<!-- Critério "Qualidade" da rubrica (15 pts). Fonte: Aula 3 (demonstrações 1 e 3). Rodem make trabalho:
 ele preenche os resultados das demonstrações. Depois troquem cada [PREENCHER: ...], com os colchetes. -->
 
 ## Resultados das demonstrações

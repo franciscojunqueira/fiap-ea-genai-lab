@@ -1,7 +1,7 @@
 # Segurança e governança técnica
 
 <!-- Critério "Segurança e governança técnica" da rubrica (20 pts). Fonte: Aula 4 (demonstração 1, o ataque e a
-mitigação). Rodem make atividade3: ele preenche os resultados da demonstração. Depois troquem cada [PREENCHER: ...],
+mitigação). Rodem make trabalho: ele preenche os resultados da demonstração. Depois troquem cada [PREENCHER: ...],
 com os colchetes. -->
 
 ## Resultados das demonstrações
@@ -30,7 +30,7 @@ um servidor MCP ou uma skill de terceiro; a escrita no SGC sem aprovação; o cu
 <!-- O control plane são as decisões que valem para todos os agentes da empresa. A Aula 4 ensina três.
 Depois das três, digam onde cada controle é aplicado: no gateway, no índice ou na aplicação.
 Se o grupo não decidiu o catálogo, apaguem a linha do catálogo inteira, com os colchetes, e escrevam só: não decidido.
-Se essa linha ficar como está, o make atividade3-entregar não envia nada. Sem o catálogo, o critério fica no máximo no Bom. -->
+Se essa linha ficar como está, o make trabalho-entregar não envia nada. Sem o catálogo, o critério fica no máximo no Bom. -->
 
 [PREENCHER: sensibilidade e residência. Que dado vai para que região e para que modelo (RC-03)?]
 

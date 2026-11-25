@@ -105,10 +105,10 @@ codinome "Farol" (rascunho de ADR).
 Repare na P03: "ADR-001 **ou** Kong" basta. Se a resposta disser "não sei qual ADR; o FAQ cita o Kong
 como exemplo", a conferência acha "Kong" e marca certo. Quem confere a verdade é uma pessoa.
 
-## Depois da aula: a Atividade 2
+## No trabalho final
 
-Os arquivos de `labs/lab2/execucoes/` ficam no Codespace do operador e vão no commit da Atividade 2.
-Lá, a seção "Decisão de conhecimento" do `integrador/pacote/01-design.md` usa estes números.
+A seção "Decisão de conhecimento" do `integrador/pacote/01-design.md` usa estes números. O `make trabalho`
+os mostra na tela: são os da demonstração do professor, ou os do grupo, se o grupo rodou o lab em casa.
 
 ## Se algo der errado
 
