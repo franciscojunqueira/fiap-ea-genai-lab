@@ -1,9 +1,10 @@
 # Lab 2: RAG × busca agêntica
 
-> **Aviso (16/11/2026).** A partir das próximas turmas, o Lab 2 é uma **demonstração do professor**: os
-> grupos não rodam nada em aula. O professor roda `make lab2-rodar PIPELINE=rag` e
-> `make lab2-rodar PIPELINE=agentica`, e, sem cota, `make lab2-replay`. Quem quiser fazer o lab em casa
-> pode seguir este README.
+> **Aviso (16/11/2026, atualizado em 25/11/2026).** A partir das próximas turmas, o Lab 2 é uma **demonstração do
+> professor**: os grupos não rodam nada em aula. Desde 25/11/2026, o professor mostra um vídeo do dia a dia: a P03 nos
+> dois pipelines, com os pedaços que o código escolheu no RAG e os arquivos que o agente abriu na busca agêntica.
+> O `make lab2-rodar` e o `make lab2-replay` continuam aqui, para o ensaio do professor e como plano B. Quem quiser
+> fazer o lab em casa pode seguir este README.
 
 **Em resumo.** O Bússola, o assistente do caso (`integrador/caso.md`), precisa responder perguntas
 com fonte (RC-01) e sem mostrar a um departamento o que ele não pode ver (RC-02). Há dois jeitos
